@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CppUnitTest.h"
-#include "IMS_PacketsAPI_Core.h"
+#include "TestSource.cpp"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace TestsIMSPacketsCore
@@ -10,10 +10,26 @@ namespace TestsIMSPacketsCore
 	/// </summary>
 	TEST_CLASS(TestsIMSPacketsCore_Local)
 	{
-	public:
+	public:	
 		
 		TEST_METHOD(Local_TestMethod1)
 		{
+			// create api node instance (on the stack)
+			CoreTest_Console_Node theTestNode;
+
+			// Then Do Something testable
+
+			// Then return the results
+		}
+
+		TEST_METHOD(Local_TestMethod1_Custom)
+		{
+			// create api node instance (on the stack)
+			CoreTest_CustomConsole_Node theCustomTestNode;
+
+			// Then Do Something testable
+
+			// Then return the results
 		}
 	};
 

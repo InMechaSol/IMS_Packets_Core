@@ -1,10 +1,25 @@
 #include "IMS_PacketsAPI_Core.h"
 using namespace IMSPacketsAPICore;
 
-#define USING_DEFAULTS_STREAM_SERIALIZATION
+
+class Test_API_Node : public API_NODE
+{
+public:
+			Test_API_Node() :API_NODE()							{ ; }
+	void	Setup()												{ ; }
+protected:
+
+	void	CustomLoop()										{ ; }
+
+	void	VERSION_Handler(Packet_Version* inPack)				{ ; }
+	void	VERSION_Packager(Packet_Version* outPack) 			{ ; }
+
+	bool	API_CustomShared_PrepareTx(Packet* TxPackOutPtr)	{ ; }
+	void	API_CustomShared_HandleRx(HDR_Packet* RxPackInPtr)	{ ; }
+
+};
 
 
-#ifndef USING_DEFAULTS_STREAM_SERIALIZATION
 // define interface functions (*link the stream)
 class TestASCIIConsole_OutputInterface :public PacketInterface_ASCII<SPD4>
 {
@@ -61,34 +76,28 @@ public:
 };
 
 // define node specifics
-class CoreTest_Console_Node :public API_NODE
+class CoreTest_CustomConsole_Node :public Test_API_Node
 {
 public:
-	void						Setup() { ; }
 	PolymorphicPacketPort*		getPacketPort(int i)	{ return &TestPortA; };
 	const int					getNumPacketPorts()		{ return 1; }
 	
-	// create interface instances
+	// create custom interface instances
 	TestASCIIConsole_OutputInterface	PortA_OutputIface;
 	TestASCIIConsole_InputInterface		PortA_InputIface;
 	PolymorphicPacketPort				TestPortA;
 
-	CoreTest_Console_Node() :
-		API_NODE(),
+	CoreTest_CustomConsole_Node() :
+		Test_API_Node(),
 		PortA_OutputIface(&std::cout),
 		PortA_InputIface(&std::cin),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this){;}
 };
 
-// create api node instance, linked to port object instances
-CoreTest_Console_Node theTestNode;
-#endif
 
 
-
-#ifdef USING_DEFAULTS_STREAM_SERIALIZATION
 // define node specifics
-class CoreTest_Console_Node :public API_NODE
+class CoreTest_Console_Node :public Test_API_Node
 {
 private:
 
@@ -98,11 +107,11 @@ private:
 
 	PolymorphicPacketPort				TestPortA;
 public:
-	void								Setup()					{ ; }
+	
 	PolymorphicPacketPort*				getPacketPort(int i)	{ return &TestPortA; };
 	const int							getNumPacketPorts()		{ return 1; }
 	CoreTest_Console_Node() :
-		API_NODE(),
+		Test_API_Node(),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this),
 		PortA_OutputIface(&std::cout),
 		PortA_InputIface(&std::cin)
@@ -110,15 +119,3 @@ public:
 		;
 	}
 };
-
-// create api node instance, linked to port object instances
-CoreTest_Console_Node theTestNode;
-#endif
-
-
-
-
-
-
-
-
