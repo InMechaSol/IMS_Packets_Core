@@ -21,35 +21,6 @@ protected:
 
 
 // define interface functions (*link the stream)
-class TestASCIIConsole_OutputInterface :public PacketInterface_ASCII<SPD4>
-{
-public:
-	TestASCIIConsole_OutputInterface(std::ostream* ifaceOutStreamPtrIn) :
-		PacketInterface_ASCII<SPD4>(ifaceOutStreamPtrIn) {;}
-	void CustomWriteTo()
-	{
-		// manage write state
-		// from init goto waiting
-		// from waiting goto sending
-		// from sending goto sent
-		// from any state goto init on error
-
-		// while in sending state...
-		// packet level serialization
-		// token by token
-		// start with packetID at token index 0
-		// write to stream
-		// then write delimeter (or terminator) to stream
-		// loop to next token
-		// use delimeter on last token
-
-		// while in sent state...
-		// indicate to port and wait for port to set state to waiting
-
-		;// std::cout << TokenBuffer.chars[charIndex++] << std::endl;
-	}
-	bool SerializePacket() { return false; }
-};
 class TestASCIIConsole_InputInterface :public PacketInterface_ASCII<SPD4>
 {
 public:
