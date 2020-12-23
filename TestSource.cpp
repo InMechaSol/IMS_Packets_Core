@@ -1,6 +1,7 @@
-#include "ARU_API_Core.h"
-using namespace ARUAPICore;
-//#define USING_DEFAULTS_STREAM_SERIALIZATION
+#include "IMS_PacketsAPI_Core.h"
+using namespace IMSPacketsAPICore;
+
+#define USING_DEFAULTS_STREAM_SERIALIZATION
 
 
 #ifndef USING_DEFAULTS_STREAM_SERIALIZATION
@@ -60,47 +61,48 @@ public:
 };
 
 // define node specifics
-class ARU_Console_Node :public ARU_API_Node
+class CoreTest_Console_Node :public API_NODE
 {
 public:
-	void Setup() { ; }
-	PolymorphicPacketPort* getPacketPort(int i) { return &TestPortA; };
-	const int getNumPacketPorts() { return 1; }
+	void						Setup() { ; }
+	PolymorphicPacketPort*		getPacketPort(int i)	{ return &TestPortA; };
+	const int					getNumPacketPorts()		{ return 1; }
+	
 	// create interface instances
 	TestASCIIConsole_OutputInterface	PortA_OutputIface;
 	TestASCIIConsole_InputInterface		PortA_InputIface;
 	PolymorphicPacketPort				TestPortA;
 
-	ARU_Console_Node() :
-		ARU_API_Node(),
+	CoreTest_Console_Node() :
+		API_NODE(),
 		PortA_OutputIface(&std::cout),
 		PortA_InputIface(&std::cin),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this){;}
 };
 
 // create api node instance, linked to port object instances
-ARU_Console_Node theARUNode;
+CoreTest_Console_Node theTestNode;
 #endif
 
 
 
 #ifdef USING_DEFAULTS_STREAM_SERIALIZATION
 // define node specifics
-class ARU_Console_Node :public ARU_API_Node
+class CoreTest_Console_Node :public API_NODE
 {
 private:
 
 	// create interface instances
-	PacketInterface_ASCII<SPD4> PortA_OutputIface;
-	PacketInterface_ASCII<SPD4> PortA_InputIface;
+	PacketInterface_ASCII<SPD4>			PortA_OutputIface;
+	PacketInterface_ASCII<SPD4>			PortA_InputIface;
 
-	PolymorphicPacketPort TestPortA;
+	PolymorphicPacketPort				TestPortA;
 public:
-	void Setup() { ; }
-	PolymorphicPacketPort* getPacketPort(int i) { return &TestPortA; };
-	const int getNumPacketPorts() { return 1; }
-	ARU_Console_Node() :
-		ARU_API_Node(),
+	void								Setup()					{ ; }
+	PolymorphicPacketPort*				getPacketPort(int i)	{ return &TestPortA; };
+	const int							getNumPacketPorts()		{ return 1; }
+	CoreTest_Console_Node() :
+		API_NODE(),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this),
 		PortA_OutputIface(&std::cout),
 		PortA_InputIface(&std::cin)
@@ -110,7 +112,7 @@ public:
 };
 
 // create api node instance, linked to port object instances
-ARU_Console_Node theARUNode;
+CoreTest_Console_Node theTestNode;
 #endif
 
 
