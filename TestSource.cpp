@@ -36,10 +36,10 @@ using namespace IMSPacketsAPICore;
 	be used to derive application nodes and define specific api endpoint functions.
 
 */
-class Test_API_Node : public API_NODE
+class Test_API_Node_Default : public API_NODE
 {
 public:
-			Test_API_Node() :API_NODE()							{ ; }
+	Test_API_Node_Default() :API_NODE()							{ ; }
 	void	Setup()												{ ; }
 protected:
 
@@ -81,7 +81,7 @@ public:
 };
 
 // define node specifics
-class CoreTest_CustomConsole_Node :public Test_API_Node
+class CoreTest_CustomConsole_Node :public Test_API_Node_Default
 {
 public:
 	PolymorphicPacketPort*		getPacketPort(int i)	{ return &TestPortA; };
@@ -93,14 +93,14 @@ public:
 	PolymorphicPacketPort				TestPortA;
 
 	CoreTest_CustomConsole_Node() :
-		Test_API_Node(),
+		Test_API_Node_Default(),
 		PortA_OutputIface(&std::cout),
 		PortA_InputIface(&std::cin),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this){;}
 };
 
 // define node specifics
-class CoreTest_Console_Node :public Test_API_Node
+class CoreTest_Console_Node :public Test_API_Node_Default
 {
 private:
 
@@ -114,7 +114,7 @@ public:
 	PolymorphicPacketPort*				getPacketPort(int i)	{ return &TestPortA; };
 	const int							getNumPacketPorts()		{ return 1; }
 	CoreTest_Console_Node() :
-		Test_API_Node(),
+		Test_API_Node_Default(),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this),
 		PortA_OutputIface(&std::cout),
 		PortA_InputIface(&std::cin)

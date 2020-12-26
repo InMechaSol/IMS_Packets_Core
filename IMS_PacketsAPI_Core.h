@@ -51,9 +51,6 @@
 #define STRINGBUFFER_CHARCOUNT ((PACKETBUFFER_TOKENCOUNT-1)*STRINGBUFFER_TOKENRATIO+STRINGBUFFER_IDTOKENRATIO)
 /*! @}*/
 
-#define xstr(s) #s
-#define str(s) xstr(s)
-
 #define HDRPACK (0)
 #define Index_PackID (0)
 #define Index_PackLEN (1)
@@ -68,6 +65,8 @@
 #define Index_DevFlag (HDR_Offset+4)
 
 // ASCII Constants for Communication Interfaces
+#define xstr(s) #s
+#define str(s) xstr(s)
 #define ASCII_space             32
 #define ASCII_A                 65
 #define ASCII_Z                 90
