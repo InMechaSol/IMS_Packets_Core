@@ -45,4 +45,28 @@ namespace TestsIMSPacketsCore
 		{
 		}
 	};
+
+	/// <summary>
+	/// Focus this test class on testing multiple instances of Nodes using their API and partners
+	/// </summary>
+	TEST_CLASS(TestsIMSPacketsCore_Network)
+	{
+	public:
+
+		TEST_METHOD(Network_TestMethod1)
+		{
+		}
+	};
+
+	/// <summary>
+	/// Focus this test class on testing an instance of a Node using its API and various communication partners
+	/// </summary>
+	TEST_CLASS(TestsIMSPacketsCore_Comms)
+	{
+	public:
+
+		TEST_METHOD(Comms_TestMethod1)
+		{
+		}
+	};
 }

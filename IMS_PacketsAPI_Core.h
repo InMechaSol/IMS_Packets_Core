@@ -20,11 +20,26 @@
 	Physically Reading from the Interface Hardware, Converting to/from the stream's byte or char 
 	arrays and the PacketInterface packet buffer.
 */
+/*! \defgroup EcosystemRestrictions
+	\brief Design Configuration for a derived micro-EcoSystem
+
+	A particular product or application node is fundamentally restricted at compile time by a small
+	set of Design Configuration settings.  Any node that "is a" node built from this particular file
+	will be:
+	- linking the iostream standard library (then optionally using linked standard library)
+	- have a common token count that is used to instantiate token buffers
+	- have a common token string ratio that is used to instantiate string token buffers
+	- have a common ID string token size that is used to instantiate ID string token buffers
+	- have a common binary buffer size equal to token count multiplied by token size (configured at application layer)
+	- have a common string buffer size equal to the string buffer character count macro
+	@{
+*/
 #include <iostream>
 #define PACKETBUFFER_TOKENCOUNT (32)
 #define STRINGBUFFER_TOKENRATIO (10)
 #define STRINGBUFFER_IDTOKENRATIO (32)
 #define STRINGBUFFER_CHARCOUNT ((PACKETBUFFER_TOKENCOUNT-1)*STRINGBUFFER_TOKENRATIO+STRINGBUFFER_IDTOKENRATIO)
+/*! @}*/
 
 #define xstr(s) #s
 #define str(s) xstr(s)
