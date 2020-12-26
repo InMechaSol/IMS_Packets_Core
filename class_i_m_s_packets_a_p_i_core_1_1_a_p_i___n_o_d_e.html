@@ -9,6 +9,10 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -46,6 +50,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('class_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +81,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="namespace_i_m_s_packets_a_p_i_core.html">IMSPacketsAPICore</a></li><li class="navelem"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e.html">API_NODE</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -81,7 +97,7 @@ Inheritance diagram for IMSPacketsAPICore::API_NODE:</div>
   <img src="class_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e.png" usemap="#IMSPacketsAPICore::API_5FNODE_map" alt=""/>
   <map id="IMSPacketsAPICore::API_5FNODE_map" name="IMSPacketsAPICore::API_5FNODE_map">
 <area href="class_i_m_s_packets_a_p_i_core_1_1_abstract_data_execution.html" title="An Abstraction of the Distributed Data and Execution System." alt="IMSPacketsAPICore::AbstractDataExecution" shape="rect" coords="135,0,395,24"/>
-<area href="class_test___a_p_i___node.html" alt="Test_API_Node" shape="rect" coords="135,112,395,136"/>
+<area href="class_test___a_p_i___node___default.html" title="An Example with Default Configuration." alt="Test_API_Node_Default" shape="rect" coords="135,112,395,136"/>
 <area href="class_core_test___console___node.html" alt="CoreTest_Console_Node" shape="rect" coords="0,168,260,192"/>
 <area href="class_core_test___custom_console___node.html" alt="CoreTest_CustomConsole_Node" shape="rect" coords="270,168,530,192"/>
   </map>
@@ -127,10 +143,7 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>API_CustomSha
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>API_CustomShared_HandleRx</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">HDR_Packet</a> *RxPackInPtr)=0</td></tr>
 <tr class="separator:ae0246370fcb0708978fe18a5985ffc1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00888">888</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a2553695b585dae44400d96d4aaaa77de"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2553695b585dae44400d96d4aaaa77de">&#9670;&nbsp;</a></span>HandleRxPacket()</h2>
 
@@ -159,8 +172,6 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>API_CustomSha
 <p>Called by a PacketPort Instance to execute API Endpoints on packet receipt </p>
 
 <p>Implements <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_abstract_data_execution.html#a4a9b5ec278e2956773a36ca91ac919c7">IMSPacketsAPICore::AbstractDataExecution</a>.</p>
-
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00907">907</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
 
 </div>
 </div>
@@ -191,8 +202,6 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>API_CustomSha
 <p>Called by the top level main function of an api node's running application. Ideally this function will be designed as cyclic and non-blocking, though it is a design choice and not a design restriction. </p>
 
 <p>Implements <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_abstract_data_execution.html#a65eaa114545b8120ca6e84de32eec429">IMSPacketsAPICore::AbstractDataExecution</a>.</p>
-
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00901">901</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
 
 </div>
 </div>
@@ -225,17 +234,19 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>API_CustomSha
 
 <p>Implements <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_abstract_data_execution.html#a831e864e8047410ee24cb4ffd54136c9">IMSPacketsAPICore::AbstractDataExecution</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00917">917</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a></li>
+<li><a class="el" href="_i_m_s___packets_a_p_i___core_8h.html">IMS_PacketsAPI_Core.h</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="namespace_i_m_s_packets_a_p_i_core.html">IMSPacketsAPICore</a></li><li class="navelem"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e.html">API_NODE</a></li>
+    <li class="footer">Generated by <a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20 </li>
+  </ul>
+</div>
 </body>
 </html>

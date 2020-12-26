@@ -9,6 +9,10 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -46,6 +50,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('_i_m_s___packets_a_p_i___core_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,7 +81,6 @@ $(function() {
 </iframe>
 </div>
 
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
@@ -75,9 +95,7 @@ $(function() {
 <p>Abstract base of a distributed polymorphic data and execution system.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;iostream&gt;</code><br />
-</div>
-<p><a href="_i_m_s___packets_a_p_i___core_8h_source.html">Go to the source code of this file.</a></p>
-<table class="memberdecls">
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">union &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="union_i_m_s_packets_a_p_i_core_1_1_s_p_d1.html">IMSPacketsAPICore::SPD1</a></td></tr>
@@ -139,12 +157,6 @@ Macros</h2></td></tr>
 <tr class="memitem:gabbbbe69dc2d5a4f1f282c78b48ae8856"><td class="memItemLeft" align="right" valign="top">
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>STRINGBUFFER_CHARCOUNT</b>&#160;&#160;&#160;((PACKETBUFFER_TOKENCOUNT-1)*STRINGBUFFER_TOKENRATIO+STRINGBUFFER_IDTOKENRATIO)</td></tr>
 <tr class="separator:gabbbbe69dc2d5a4f1f282c78b48ae8856"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeec40e2b433cc2844853d184006edff0"><td class="memItemLeft" align="right" valign="top"><a id="aeec40e2b433cc2844853d184006edff0"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>xstr</b>(s)&#160;&#160;&#160;#s</td></tr>
-<tr class="separator:aeec40e2b433cc2844853d184006edff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8ab729381f270b100f3d05b6c6676fc"><td class="memItemLeft" align="right" valign="top"><a id="ad8ab729381f270b100f3d05b6c6676fc"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>str</b>(s)&#160;&#160;&#160;xstr(s)</td></tr>
-<tr class="separator:ad8ab729381f270b100f3d05b6c6676fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85240c6ceca22b9c712e9a49b2bcf3d6"><td class="memItemLeft" align="right" valign="top"><a id="a85240c6ceca22b9c712e9a49b2bcf3d6"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>HDRPACK</b>&#160;&#160;&#160;(0)</td></tr>
 <tr class="separator:a85240c6ceca22b9c712e9a49b2bcf3d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,6 +190,12 @@ Macros</h2></td></tr>
 <tr class="memitem:a27ed4ef62de04aba73979e78d3670395"><td class="memItemLeft" align="right" valign="top"><a id="a27ed4ef62de04aba73979e78d3670395"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>Index_DevFlag</b>&#160;&#160;&#160;(HDR_Offset+4)</td></tr>
 <tr class="separator:a27ed4ef62de04aba73979e78d3670395"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeec40e2b433cc2844853d184006edff0"><td class="memItemLeft" align="right" valign="top"><a id="aeec40e2b433cc2844853d184006edff0"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>xstr</b>(s)&#160;&#160;&#160;#s</td></tr>
+<tr class="separator:aeec40e2b433cc2844853d184006edff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8ab729381f270b100f3d05b6c6676fc"><td class="memItemLeft" align="right" valign="top"><a id="ad8ab729381f270b100f3d05b6c6676fc"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>str</b>(s)&#160;&#160;&#160;xstr(s)</td></tr>
+<tr class="separator:ad8ab729381f270b100f3d05b6c6676fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3011fd31f84b522ed5d09f63c1135692"><td class="memItemLeft" align="right" valign="top"><a id="a3011fd31f84b522ed5d09f63c1135692"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>ASCII_space</b>&#160;&#160;&#160;32</td></tr>
 <tr class="separator:a3011fd31f84b522ed5d09f63c1135692"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -263,8 +281,6 @@ Enumerations</h2></td></tr>
 </p>
 <p>Each api node is linked with an application specific number of PolymorphicPacketPort class object instances to facilitate sharing of AbstractDataExecution members and functions over an application configurable packet communication interface.</p>
 <p>Each application packet port is linked with two PacketInterface object instances, 1 Rx and 1 Tx. The PacketInterface object instances link Hardware and Platform specific libraries for Physically Reading from the Interface Hardware, Converting to/from the stream's byte or char arrays and the PacketInterface packet buffer. </p>
-
-<p class="definition">Definition in file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a3d686728977d5d36d87f2245d76b2673"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3d686728977d5d36d87f2245d76b2673">&#9670;&nbsp;</a></span>TEMPLATE_RX_HANDLER</h2>
@@ -316,8 +332,6 @@ Enumerations</h2></td></tr>
 <div class="line">        HandlerFunc(&amp;my##Packet_Type);<span class="keywordflow">return</span>;}}\</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00103">103</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 <a id="aa87fea55c62f63f07acf9ac1b750feae"></a>
@@ -356,8 +370,6 @@ Enumerations</h2></td></tr>
 <div class="line">void <span class="keyword">get</span>##fID(SPD4* SPDvar){getSPDat(pID,SPDvar);}\</div>
 <div class="line">void <span class="keyword">get</span>##fID(SPD8* SPDvar){getSPDat(pID,SPDvar);}\</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00097">97</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 <a id="a9dac6a50346331367f736467ffd09293"></a>
@@ -396,8 +408,6 @@ Enumerations</h2></td></tr>
 <div class="line">void <span class="keyword">set</span>##fID(SPD4* SPDvar){setSPDat(pID,SPDvar);}\</div>
 <div class="line">void <span class="keyword">set</span>##fID(SPD8* SPDvar){setSPDat(pID,SPDvar);}\</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00091">91</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 <a id="ab7336a082452f17ae1f795af8803ffe9"></a>
@@ -442,8 +452,6 @@ Enumerations</h2></td></tr>
 <div class="line">void <span class="keyword">set</span>##fID(SPD4* SPDvar){SPDval_eq_this;setSPDat(pID,SPDvar);}\</div>
 <div class="line">void <span class="keyword">set</span>##fID(SPD8* SPDvar){SPDval_eq_this;setSPDat(pID,SPDvar);}\</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00085">85</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 <a id="a7ce1078c8b77a4bb96693409c5c04f1c"></a>
@@ -492,14 +500,16 @@ Enumerations</h2></td></tr>
 <div class="line">    return <span class="keyword">true</span>; }\</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00116">116</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="_i_m_s___packets_a_p_i___core_8h.html">IMS_PacketsAPI_Core.h</a></li>
+    <li class="footer">Generated by <a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20 </li>
+  </ul>
+</div>
 </body>
 </html>

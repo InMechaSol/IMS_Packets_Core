@@ -9,6 +9,10 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -46,6 +50,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +81,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="namespace_i_m_s_packets_a_p_i_core.html">IMSPacketsAPICore</a></li><li class="navelem"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">PacketInterface</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -79,7 +95,7 @@ $(function() {
 <p>An Abstraction of the serial interface connecting two api nodes.  
  <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>&gt;</code></p>
+<p><code>#include &lt;IMS_PacketsAPI_Core.h&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for IMSPacketsAPICore::PacketInterface:</div>
 <div class="dyncontent">
@@ -161,8 +177,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>tokenIndex</b> = 0</td
 <div class="textblock"><p>An Abstraction of the serial interface connecting two api nodes. </p>
 <p>A <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html" title="An Abstraction of the serial interface connecting two api nodes.">PacketInterface</a> instance links the physical layer and application layer via appliation specific serialization/deserialization to/from platform specific physical layer drivers using abstract api Packets.</p>
 <p>Bytes are read from and written to physical hardware using devices specific functions. Bytes (or Chars) are serialized/deserialized to/from <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet.html" title="An Abstract container for serial parameter data (SPD) objects.">Packet</a> instances by a <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html" title="An Abstraction of the serial interface connecting two api nodes.">PacketInterface</a>. A <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_polymorphic_packet_port.html" title="An Abstraction of the Distributed Node Link.">PolymorphicPacketPort</a> has two interfaces, 1 input and 1 output. </p>
-
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00476">476</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a50c83e5997ce2726f178da2e3d4daad6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a50c83e5997ce2726f178da2e3d4daad6">&#9670;&nbsp;</a></span>ReadFrom()</h2>
@@ -189,8 +203,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>tokenIndex</b> = 0</td
 
 <p>Abstract De-Serialize Function. </p>
 <p>Reads bytes (or chars) from their stream instance then convert to Packets in a packet buffer </p>
-
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00526">526</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
 
 </div>
 </div>
@@ -220,17 +232,19 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>tokenIndex</b> = 0</td
 <p>Abstract Serialize Function. </p>
 <p>Converts <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet.html" title="An Abstract container for serial parameter data (SPD) objects.">Packet</a> to bytes (or chars) then writes them to their stream instance </p>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00512">512</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a></li>
+<li><a class="el" href="_i_m_s___packets_a_p_i___core_8h.html">IMS_PacketsAPI_Core.h</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="namespace_i_m_s_packets_a_p_i_core.html">IMSPacketsAPICore</a></li><li class="navelem"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">PacketInterface</a></li>
+    <li class="footer">Generated by <a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20 </li>
+  </ul>
+</div>
 </body>
 </html>
