@@ -1,5 +1,3 @@
-#ifndef __IMS_PACKETSAPI_CORE__
-#define __IMS_PACKETSAPI_CORE__
 /*! \file  IMS_PacketsAPI_Core.h
 	\brief Abstract base of a distributed polymorphic data and execution system
 
@@ -20,18 +18,30 @@
 	Physically Reading from the Interface Hardware, Converting to/from the stream's byte or char 
 	arrays and the PacketInterface packet buffer.
 */
+#ifndef __IMS_PACKETSAPI_CORE__
+#define __IMS_PACKETSAPI_CORE__
 /*! \defgroup EcosystemRestrictions
 	\brief Design Configuration for a derived micro-EcoSystem
 
 	A particular product or application node is fundamentally restricted at compile time by a small
 	set of Design Configuration settings.  Any node that "is a" node built from this particular file
-	will be:
-	- linking the iostream standard library (then optionally using linked standard library)
+	will:
+	- link the iostream standard library (then optionally use linked library)
 	- have a common token count that is used to instantiate token buffers
 	- have a common token string ratio that is used to instantiate string token buffers
 	- have a common ID string token size that is used to instantiate ID string token buffers
 	- have a common binary buffer size equal to token count multiplied by token size (configured at application layer)
 	- have a common string buffer size equal to the string buffer character count macro
+
+	When reading and writing tokens over a packet interface a buffer 
+	(on either the stack, heap, or data/bss sections of RAM) is required.  
+	These limitations provide mathematical gaurantees on static data allocation.
+
+	Testable:
+	- Functions reading from buffers do not overrun high or low address limits
+	- Functions writing to buffers do not overrun high or low address limits
+	- in a defined language, no ID string exceeds ID token ratio limit
+	- in a defined language, no format string exceeds token ratio limit
 	@{
 */
 #include <iostream>
