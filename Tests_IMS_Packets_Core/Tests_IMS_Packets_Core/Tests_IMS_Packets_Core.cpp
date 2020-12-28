@@ -5,6 +5,9 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace TestsIMSPacketsCore
 {
+	/*! \defgroup IntendedUseTesting
+		@{
+	*/
 	/// <summary>
 	/// Focus this test class on directly testing an instance of a Node
 	/// </summary>
@@ -69,4 +72,5 @@ namespace TestsIMSPacketsCore
 		{
 		}
 	};
+	/*! @} */
 }

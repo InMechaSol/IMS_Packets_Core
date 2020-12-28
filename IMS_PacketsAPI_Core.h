@@ -25,80 +25,262 @@
 
 	A particular product or application node is fundamentally restricted at compile time by a small
 	set of Design Configuration settings.  Any node that "is a" node built from this particular file
-	will:
-	- link the iostream standard library (then optionally use linked library)
+	will:	
 	- have a common token count that is used to instantiate token buffers
-	- have a common token string ratio that is used to instantiate string token buffers
-	- have a common ID string token size that is used to instantiate ID string token buffers
 	- have a common binary buffer size equal to token count multiplied by token size (configured at application layer)
+	And if also using string interfaces nodes will: 
+	- link the iostream standard library (then optionally use linked library)
+	- have a common token string ratio that is used to instantiate string token buffers
+	- have a common ID string token size that is used to instantiate ID string token buffers	
 	- have a common string buffer size equal to the string buffer character count macro
 
 	When reading and writing tokens over a packet interface a buffer 
 	(on either the stack, heap, or data/bss sections of RAM) is required.  
 	These limitations provide mathematical gaurantees on static data allocation.
 
-	Testable:
+	\par Testable:
 	- Functions reading from buffers do not overrun high or low address limits
 	- Functions writing to buffers do not overrun high or low address limits
 	- in a defined language, no ID string exceeds ID token ratio limit
 	- in a defined language, no format string exceeds token ratio limit
+
+	\note	
+	For now, the Packets Core links a standard library for simplification of common use cases where
+	the iostream library can be linked.  If it cannot be linked, cutom interfaces can be used.  The stream
+	library can be useful in transferring data to/from physical layer drivers. <A HREF="http://www.cplusplus.com/reference/iostream/">more on iostream</A>
+	\code 
+	#include <iostream> // istream, ostream, and iostream (packet interface objects)
+	\endcode
+	\note
+	On visual studio c++ console applications and cpp test framework applications several
+	standard libraries are linked by default.  Depending on node platform, other standard 
+	libraries may need to be directly linked
+	\code
+	#include <cstdio>	// snprintf()
+	#include <cstdlib>	// atoi() and atof()
+	#include <cstdint>	// uint8_t, int8_t, uint16_t, ... etc.
+	\endcode
 	@{
 */
-#include <iostream>
+/*! \def PACKETBUFFER_TOKENCOUNT
+	\brief The number of tokens stored in an interface buffer
+
+	This is only the count of token to be stored.
+	The size in bytes of a buffer depends on other factors like:
+	- the token size
+	- and serialization type (if string or binary)
+	
+*/
 #define PACKETBUFFER_TOKENCOUNT (32)
+#include <iostream>
+/*! \def STRINGBUFFER_TOKENRATIO
+	\brief The number of string characters per token
+
+	This is only the number of characters.
+	For now, encoding is restricted to ASCII so there
+	is a 1-to-1 ratio for bytes to chars.
+*/
 #define STRINGBUFFER_TOKENRATIO (10)
+/*! \def STRINGBUFFER_IDTOKENRATIO
+	\brief The number of string characters per ID string
+
+	This is only the number of characters.
+	For now, encoding is restricted to ASCII so there
+	is a 1-to-1 ratio for bytes to chars.
+*/
 #define STRINGBUFFER_IDTOKENRATIO (32)
+/*! \def STRINGBUFFER_CHARCOUNT
+	\brief The number of characters allocated in a string buffer
+
+	Space for:
+	- 1 Token ID String, and
+	- TokenRatio * (TokenCount-1) Token String Characters
+
+	This is only the number of characters.
+	For now, encoding is restricted to ASCII so there
+	is a 1-to-1 ratio for bytes to chars.
+*/
 #define STRINGBUFFER_CHARCOUNT ((PACKETBUFFER_TOKENCOUNT-1)*STRINGBUFFER_TOKENRATIO+STRINGBUFFER_IDTOKENRATIO)
 /*! @}*/
 
+/*! \defgroup LanguageConstructs
+	\brief Fundamental Elements of Packet Communications
+
+	An abstract communication link exists between two nodes.  An exchange of information between the two
+	nodes is possible when the two nodes understand common languages and actions.  By defining a set of
+	language constructs, both nodes and communication components can be built from the common definitions.
+
+	IMS Packets Core relies on a few communication components to exchange information between nodes.
+	- A Packet can exhange data tokens to/from buffers with an application node
+	- A Packet is defined with message specific data model information
+	- A Packet is an interface to a buffer of data	
+	- A Packet is an interface to an array of tokens
+	- Tokens are the fundamental element of information exchange
+	- Tokens provide a block size for buffer allocations and encoding strategies
+	- Serial Parameter Data (SPD) is a type of data token ranging from 1 to 8 bytes in size
+	- Packet Ports are serviced (cyclic and non-blocking) by an application node execution system
+	- Packet Ports are created by an application node and contain 2 Packet Interfaces	
+	- Packet Interfaces are linked to Packet Ports when created by an application node
+	- Packet Interfaces contain a physical token buffer, 1 each interface
+	- Packet Interfaces define and execute 
+	-- read(), 
+	-- write(), 
+	-- serialize(), and
+	-- deserialize() functions on token data
+	- Packet Interfaces link the to the physical communication layer
+
+	IMS Packets Core relies on a packet structure with header information followed by payload data.
+	All packets begin with:
+	- Packet ID token, followed by a
+	- Packet Length token, followed by a
+	- Packet Type token, followed by a
+	- Packet Option token
+
+	An Application Node creates and services packet port objects to exchange tokens of information
+	with another node.  Port objects control the execution of input and output packet interface
+	objects to exchange data with physical communication layer drivers.  A packet is exchanged
+	as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application 
+	Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
+
+	Languanges are defined by deriving new Packet types.  Deriving a new Packet type involves:
+	- Setting Token Index Constants and
+	- Implementing Template Code for Token Accessors.
+
+	The VERSION Packet is provided as an example implemenation and useful
+	tool to get the version of IMS Core Source by default.  Overriding
+	the API enpoint for the VERSION Packet on an application node will override the default action.
+	- Overriding Application Node API Endpoint functions and
+	- Overloading Packet Accessor functions for Token types
+
+	are two means of personalizing the Packets Core to a specific application.
+
+	Template macros are provided to simplify implementation and reduce error when defining overloaded accessor functions.
+	- TEMPLATE_SPDSET_toVALUE(fID, SPDvar,pID, SPDval_eq_this)
+	- TEMPLATE_SPDSET(fID, SPDvar,pID)
+	- TEMPLATE_SPDGET(fID, SPDvar, pID)
+
+	Template macros are provided to simplify implementation and reduce error when defining overridden api endpoint functions.
+	- TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
+	- TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
+
+	@{
+*/
+/*! \def HDRPACK
+	\brief Token ID value for default HDR Packet
+*/
 #define HDRPACK (0)
+/*! \def Index_PackID
+	\brief Token Index for Packet ID Token
+*/
 #define Index_PackID (0)
+/*! \def Index_PackLEN
+	\brief Token Index for Packet Length Token
+*/
 #define Index_PackLEN (1)
+/*! \def Index_PackTYPE
+	\brief Token Index for Packet Type Token
+*/
 #define Index_PackTYPE (2)
+/*! \def Index_PackOPTION
+	\brief Token Index for Packet Option Token
+*/
 #define Index_PackOPTION (3)
+/*! \def HDR_Offset
+	\brief Token Index Offset for Derived Packet Payload Data Tokens
+*/
 #define HDR_Offset Index_PackOPTION
+/*! \def VERSION
+	\brief Token ID value for VERSION Packet
 
+	VERSION is of the form major.minor.build with a -dev indication
+*/
 #define VERSION (1)
+/*! \def Index_MajorVersion
+	\brief Token Index for Major Version Number Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
 #define Index_MajorVersion (HDR_Offset+1)
+/*! \def Index_MinorVersion
+	\brief Token Index for Minor Version Number Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
 #define Index_MinorVersion (HDR_Offset+2)
+/*! \def Index_BuildNumber
+	\brief Token Index for Build Number Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
 #define Index_BuildNumber (HDR_Offset+3)
+/*! \def Index_DevFlag
+	\brief Token Index for -def indication Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
 #define Index_DevFlag (HDR_Offset+4)
+/*! \def TEMPLATE_SPDSET_toVALUE(fID, SPDvar,pID, SPDval_eq_this)
+	\brief Code Template for Packet Accessor (SET) Functions with Initialization Value
 
-// ASCII Constants for Communication Interfaces
-#define xstr(s) #s
-#define str(s) xstr(s)
-#define ASCII_space             32
-#define ASCII_A                 65
-#define ASCII_Z                 90
-#define ASCII_a                 97
-#define ASCII_z                 122
-#define ASCII_0                 48
-#define ASCII_9                 57
-#define ASCII_plus              43
-#define ASCII_minus             45
-#define ASCII_dot               46
-#define ASCII_colon             58
-#define ASCII_semicolon         59
-#define ASCII_tilda             126
+	This template creates a set of accessor functions overloaded for each 
+	possible token type, currently:
+	-SPD1
+	-SPD2
+	-SPD4
+	-SPD8
 
+*/
 #define TEMPLATE_SPDSET_toVALUE(fID, SPDvar,pID, SPDval_eq_this)\
 void set##fID(SPD1* SPDvar){SPDval_eq_this;setSPDat(pID,SPDvar);}\
 void set##fID(SPD2* SPDvar){SPDval_eq_this;setSPDat(pID,SPDvar);}\
 void set##fID(SPD4* SPDvar){SPDval_eq_this;setSPDat(pID,SPDvar);}\
 void set##fID(SPD8* SPDvar){SPDval_eq_this;setSPDat(pID,SPDvar);}\
 
+/*! \def TEMPLATE_SPDSET(fID, SPDvar,pID)
+	\brief Code Template for Packet Accessor (SET) Functions
+
+	This template creates a set of accessor functions overloaded for each
+	possible token type, currently:
+	-SPD1
+	-SPD2
+	-SPD4
+	-SPD8
+
+*/
 #define TEMPLATE_SPDSET(fID, SPDvar,pID)\
 void set##fID(SPD1* SPDvar){setSPDat(pID,SPDvar);}\
 void set##fID(SPD2* SPDvar){setSPDat(pID,SPDvar);}\
 void set##fID(SPD4* SPDvar){setSPDat(pID,SPDvar);}\
 void set##fID(SPD8* SPDvar){setSPDat(pID,SPDvar);}\
 
+/*! \def TEMPLATE_SPDGET(fID, SPDvar, pID)
+	\brief Code Template for Packet Accessor (GET) Functions
+
+	This template creates a set of accessor functions overloaded for each
+	possible token type, currently:
+	-SPD1
+	-SPD2
+	-SPD4
+	-SPD8
+
+*/
 #define TEMPLATE_SPDGET(fID, SPDvar, pID)\
 void get##fID(SPD1* SPDvar){getSPDat(pID,SPDvar);}\
 void get##fID(SPD2* SPDvar){getSPDat(pID,SPDvar);}\
 void get##fID(SPD4* SPDvar){getSPDat(pID,SPDvar);}\
 void get##fID(SPD8* SPDvar){getSPDat(pID,SPDvar);}\
 
+/*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
+	\brief Code Template for Application Node API EndPoint (Rx) Functions
+
+	This template creates an on receipt api endpoint function.  The function
+	determines if the linked packet is binary or string based then determines
+	if a particular packet ID has been received.  If so, a packet interface 
+	object of type corresponding to the ID received is instantiated on the stack.
+	Finally the stack packet object, which points to the packet interface buffer
+	is passed to a polymorphic api endpoint specific to packet type and ID.
+
+*/
 #define TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc){\
 if(tempHDRPack.isASCIIPacket()){\
 	if(tempHDRPack.StringBuffer_IDString_Equals(#TokenID)){\
@@ -112,6 +294,15 @@ else{\
 		HandlerFunc(&my##Packet_Type);return;}}\
 }
 
+/*! \def TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
+	\brief Code Template for Application Node API EndPoint (Tx) Functions
+
+	This template creates before transmission api endpoint function.  The function
+	monitors a trigger variable and if triggerred, packages a particular packet type,
+	to the linked Packet Interface buffer, before resetting the trigger variable and
+	returning true which will indicate to the port object that a packet is ready for transmission.
+
+*/
 #define TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc){\
 if(tVar){\
 	pType tempPack;\
@@ -120,6 +311,32 @@ if(tVar){\
 	tVar=false;\
 	return true; }\
 }
+
+/*! @}*/
+
+/*! \addtogroup PacketPortLink
+	@{
+*/
+// String-ize macros
+#define xstr(s) #s
+#define str(s) xstr(s)
+// ASCII Constants for Communication Interfaces
+#define ASCII_space             32
+#define ASCII_A                 65
+#define ASCII_Z                 90
+#define ASCII_a                 97
+#define ASCII_z                 122
+#define ASCII_0                 48
+#define ASCII_9                 57
+#define ASCII_plus              43
+#define ASCII_minus             45
+#define ASCII_dot               46
+#define ASCII_colon             58
+#define ASCII_semicolon         59
+#define ASCII_tilda             126
+/*! @}*/
+
+
 /*! \namespace IMSPacketsAPICore
 	\brief Namespace Isolation for the Packets API Core Components
 
@@ -131,10 +348,10 @@ namespace IMSPacketsAPICore
 {	
 	/*! \union SPD1
 		\brief Data abstraction element
+		\ingroup LanguageConstructs
 
 		A 1 byte block, 8 bits, represented in its possible forms
-	*/
-	
+	*/	
 	union SPD1
 	{
 		int8_t		intVal;
@@ -142,6 +359,7 @@ namespace IMSPacketsAPICore
 	};
 	/*! \union SPD2
 		\brief Data abstraction element
+		\ingroup LanguageConstructs
 
 		A 2 byte block, 16 bits, represented in its possible forms
 	*/
@@ -154,6 +372,7 @@ namespace IMSPacketsAPICore
 	};
 	/*! \union SPD4
 		\brief Data abstraction element
+		\ingroup LanguageConstructs
 
 		A 4 byte block, 32 bits, represented in its possible forms
 	*/
@@ -166,6 +385,7 @@ namespace IMSPacketsAPICore
 	};
 	/*! \union SPD8
 		\brief Data abstraction element
+		\ingroup LanguageConstructs
 
 		An 8 byte block, 64 bits, represented in its possible forms
 	*/
@@ -176,7 +396,12 @@ namespace IMSPacketsAPICore
 		int64_t		intVal;
 		uint64_t	uintVal;
 	};
+	/*! \class SPDInterfaceBuffer
+		\brief template class for binary token buffers
+		\ingroup LanguageConstructs
 
+		Here data space is allocated for token buffers
+	*/
 	template<class TokenType>
 	class SPDInterfaceBuffer
 	{
@@ -186,44 +411,20 @@ namespace IMSPacketsAPICore
 			uint8_t				bytes[sizeof(TokenType) * PACKETBUFFER_TOKENCOUNT];
 		};
 	};
-	/// <summary>
-	/// 
-	/// </summary>
+	/*! \class SPDASCIIInterfaceBuffer
+		\brief class for string token buffers
+		\ingroup LanguageConstructs
+
+		Here data space is allocated for token buffers
+	*/
 	class SPDASCIIInterfaceBuffer
 	{
 	public:
 		char					chars[STRINGBUFFER_CHARCOUNT];
-	};
-
-	enum SPDValTypeEnum
-	{
-		typeUINT,
-		typeINT,
-		typeFLT
-	};
-	enum PacketPort_SRCommState
-	{
-		sr_Init,
-		sr_Waiting,
-		sr_Sending,
-		sr_Sent,
-		sr_Reading,
-		sr_Handling
-	};
-	enum PacketPort_FCCommState
-	{
-		fc_Init,
-		fc_Connected
-	};
-	enum PacketPortPartnerType
-	{
-		SenderResponder_Responder,
-		SenderResponder_Sender,
-		FullCylic_Partner
-	};
-		
+	};		
 	/*!	\class Packet
-		\brief An Abstract container for serial parameter data (SPD) objects
+		\brief A structured interface to a token buffer
+		\ingroup LanguageConstructs
 
 		Packets provide data abstraction and api endpoint identification required
 		to communicate with common data and execute common api endpoints
@@ -460,17 +661,74 @@ namespace IMSPacketsAPICore
 		static bool				isIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isIntegerchar(inStringPtr[index++])) return false; return true; }
 		static bool				isUnsignedIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isUnsignedIntegerchar(inStringPtr[index++])) return false; return true; }
 	};
+	/*! \class HDR_Packet
+		\brief A Packet Interface with Header Information
+		\ingroup LanguageConstructs
+	*/
+	class HDR_Packet :public Packet
+	{
+	public:
+		int						getNumSPDs()			const { return 4; }
+		virtual const char* getPacketIDString()		const { return xstr(HDRPACK); }
+		virtual int				getPacketID()			const { return HDRPACK; }
+
+		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
+
+			int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
+		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
+		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
+		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
+
+		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
+
+			TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
+			TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
+			TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
+			TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
+	};
+	/*! \class Packet_Version
+		\brief A Common Versions Packet for Application Nodes
+		\ingroup LanguageConstructs
+	*/
+	class Packet_Version :public HDR_Packet
+	{
+	public:
+		int			getNumSPDs()			const { return (HDR_Packet::getNumSPDs() + 4); }
+		const char* getPacketIDString()		const { return xstr(VERSION); }
+		int			getPacketID()			const { return VERSION; }
+
+		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
+		TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
+		TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
+		TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
+		TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
+		TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
+		TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
+		TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
+	};
+	/*! \defgroup PacketPortLink
+		\brief Abstract Communication Objects
 	
+		An Application Node creates and services packet port objects to exchange tokens of information
+		with another node.  Port objects control the execution of input and output packet interface
+		objects to exchange data with physical communication layer drivers.  A packet is exchanged
+		as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application 
+		Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
+
+		@{
+	*/
+
+
 	/*! \class PacketInterface
-	\brief An Abstraction of the serial interface connecting two api nodes
+		\brief An Abstraction of the serial interface connecting two api nodes
 
-	A PacketInterface instance links the physical layer and application layer via
-	appliation specific serialization/deserialization
-	to/from platform specific physical layer drivers using abstract api Packets.
+		A PacketInterface instance links the physical layer and application layer via
+		appliation specific serialization/deserialization
+		to/from platform specific physical layer drivers using abstract api Packets.
 
-	Bytes are read from and written to physical hardware using devices specific functions.
-	Bytes (or Chars) are serialized/deserialized to/from Packet instances by a PacketInterface.
-	A PolymorphicPacketPort has two interfaces, 1 input and 1 output.
+		Bytes are read from and written to physical hardware using devices specific functions.
+		Bytes (or Chars) are serialized/deserialized to/from Packet instances by a PacketInterface.
+		A PolymorphicPacketPort has two interfaces, 1 input and 1 output.
 	*/
 	class PacketInterface
 	{
@@ -685,12 +943,12 @@ namespace IMSPacketsAPICore
 	};
 		
 	/*! \class AbstractDataExecution
-	\brief An Abstraction of the Distributed Data and Execution System
+		\brief An Abstraction of the Distributed Data and Execution System
 
-	Provides two public packet handler functions, one to execute on incomming
-	packet receipt and another to execute when packaging a packet for transmission.
-	An application member must inherit from this base and add application specific
-	language, data, and api endpoints.
+		Provides two public packet handler functions, one to execute on incomming
+		packet receipt and another to execute when packaging a packet for transmission.
+		An application member must inherit from this base and add application specific
+		language, data, and api endpoints.
 	*/
 	class AbstractDataExecution
 	{
@@ -721,15 +979,15 @@ namespace IMSPacketsAPICore
 	};
 
 	/*! \class PolymorphicPacketPort
-	\brief An Abstraction of the Distributed Node Link
+		\brief An Abstraction of the Distributed Node Link
 
-	Distributed Nodes can exchange shared data structures via a configurable
-	serial interface (USB, Ethernet, UART, SPI, IIC, ...) using a PolymorphicPacketPort.
+		Distributed Nodes can exchange shared data structures via a configurable
+		serial interface (USB, Ethernet, UART, SPI, IIC, ...) using a PolymorphicPacketPort.
 
-	The PolymorphicPacketPort establishes an abstract link between instances of api nodes
-	on either side of a communication link.  It is linked to two instances of PacketInterface
-	objects to facilitate (serialization and deserializtion) of packet objects (to and from) a stream
-	of (bytes or chars).
+		The PolymorphicPacketPort establishes an abstract link between instances of api nodes
+		on either side of a communication link.  It is linked to two instances of PacketInterface
+		objects to facilitate (serialization and deserializtion) of packet objects (to and from) a stream
+		of (bytes or chars).
 	*/
 	class PolymorphicPacketPort
 	{
@@ -840,50 +1098,7 @@ namespace IMSPacketsAPICore
 
 	};
 
-	class HDR_Packet :public Packet
-	{
-	public:
-		int						getNumSPDs()			const { return 4; }
-		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
-		virtual int				getPacketID()			const { return HDRPACK; }
-
-		TEMPLATE_SPDSET_toVALUE(PacketID,		pid, Index_PackID, pid->intVal = getPacketID())
-
-		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
-		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
-		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
-		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
-
-		TEMPLATE_SPDSET_toVALUE(PacketLength,	len, Index_PackLEN, len->intVal = getPacketLength(*len))
-
-		TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
-		TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
-		TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
-		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
-	};
-
-	/*! \class ARU_Packet_VERSION
-		\brief A Common Versions Packet for ARU FW
-
-	*/
-
-	class Packet_Version :public HDR_Packet
-	{
-	public:
-		int						getNumSPDs()			const { return (HDR_Packet::getNumSPDs() + 4); }
-		const char*				getPacketIDString()		const { return xstr(VERSION); }
-		int						getPacketID()			const { return VERSION; }
-
-		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
-		TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
-		TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
-		TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
-		TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
-		TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
-		TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
-		TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
-	};
-
+	
 	class API_NODE :public AbstractDataExecution
 	{
 	private:
@@ -920,5 +1135,6 @@ namespace IMSPacketsAPICore
 			return API_CustomShared_PrepareTx(TxPackOutPtr);
 		}
 	};
+	/*! @}*/
 } // !IMSPacketsAPICore
 #endif //!__IMS_PACKETSAPI_CORE__

@@ -20,7 +20,9 @@
 */
 #include "IMS_PacketsAPI_Core.h"
 using namespace IMSPacketsAPICore;
-
+/*! \defgroup APINodePersonalization
+	@{
+*/
 /*! \class Test_API_Node_Default
 	\brief An Example with Default Configuration
 
@@ -53,7 +55,6 @@ protected:
 
 };
 
-
 // define interface functions (*link the stream)
 class TestASCIIConsole_InputInterface :public PacketInterface_ASCII<SPD4>
 {
@@ -80,7 +81,7 @@ public:
 	bool SerializePacket() { return false; }
 };
 
-// define node specifics
+// define api node with custom input/output interface instances
 class CoreTest_CustomConsole_Node :public Test_API_Node_Default
 {
 public:
@@ -98,8 +99,7 @@ public:
 		PortA_InputIface(&std::cin),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this){;}
 };
-
-// define node specifics
+// define api node with default ascii spd4 serialization to/from cout/cin
 class CoreTest_Console_Node :public Test_API_Node_Default
 {
 private:
@@ -122,3 +122,5 @@ public:
 		;
 	}
 };
+
+/*! @}*/
