@@ -8,7 +8,6 @@ var hierarchy =
         ] ]
       ] ]
     ] ],
-    [ "ARU_Packet_VERSION", "class_a_r_u___packet___v_e_r_s_i_o_n.html", null ],
     [ "IMSPacketsAPICore::Packet", "class_i_m_s_packets_a_p_i_core_1_1_packet.html", [
       [ "IMSPacketsAPICore::HDR_Packet", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html", [
         [ "IMSPacketsAPICore::Packet_Version", "class_i_m_s_packets_a_p_i_core_1_1_packet___version.html", null ]
