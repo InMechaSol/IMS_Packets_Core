@@ -72,7 +72,10 @@
 	
 */
 #define PACKETBUFFER_TOKENCOUNT (32)
-#include <iostream>
+#include <iostream> // istream, ostream, and iostream (packet interface objects)
+//#include <cstdio>	// snprintf()
+//#include <cstdlib>	// atoi() and atof()
+//#include <cstdint>	// uint8_t, int8_t, uint16_t, ... etc.
 /*! \def STRINGBUFFER_TOKENRATIO
 	\brief The number of string characters per token
 
@@ -422,6 +425,33 @@ namespace IMSPacketsAPICore
 	public:
 		char					chars[STRINGBUFFER_CHARCOUNT];
 	};		
+	
+	enum SPDValTypeEnum
+	{
+		typeUINT,
+		typeINT,
+		typeFLT
+	};
+	enum PacketPort_SRCommState
+	{
+		sr_Init,
+		sr_Waiting,
+		sr_Sending,
+		sr_Sent,
+		sr_Reading,
+		sr_Handling
+	};
+	enum PacketPort_FCCommState
+	{
+		fc_Init,
+		fc_Connected
+	};
+	enum PacketPortPartnerType
+	{
+		SenderResponder_Responder,
+		SenderResponder_Sender,
+		FullCylic_Partner
+	};
 	/*!	\class Packet
 		\brief A structured interface to a token buffer
 		\ingroup LanguageConstructs
@@ -669,22 +699,22 @@ namespace IMSPacketsAPICore
 	{
 	public:
 		int						getNumSPDs()			const { return 4; }
-		virtual const char* getPacketIDString()		const { return xstr(HDRPACK); }
+		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
 		virtual int				getPacketID()			const { return HDRPACK; }
 
 		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
 
-			int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
+		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
 		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
 		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
 		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
 
 		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
 
-			TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
-			TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
-			TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
-			TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
+		TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
+		TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
+		TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
+		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
 	};
 	/*! \class Packet_Version
 		\brief A Common Versions Packet for Application Nodes
