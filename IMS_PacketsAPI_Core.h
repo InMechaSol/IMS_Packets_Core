@@ -676,7 +676,7 @@ namespace IMSPacketsAPICore
 		virtual const char*		getPacketIDString()		const { return ""; }
 		virtual int				getSPDCount() { return 0; }
 		bool					isASCIIPacket() { return(charsBufferPtr != nullptr); }
-		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; } // TODO :
+		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
 		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
 		static bool				isASCIIchar(char inChar) {return ((inChar >= ASCII_space && inChar <= ASCII_tilda));}
 		static bool				isLetterchar(char inChar) {return ((inChar >= ASCII_A && inChar <= ASCII_Z) || (inChar >= ASCII_a && inChar <= ASCII_z));}

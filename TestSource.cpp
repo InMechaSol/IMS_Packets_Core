@@ -99,6 +99,7 @@ public:
 		PortA_InputIface(&std::cin),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this){;}
 };
+
 // define api node with default ascii spd4 serialization to/from cout/cin
 class CoreTest_Console_Node :public Test_API_Node_Default
 {
