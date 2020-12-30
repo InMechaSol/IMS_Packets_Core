@@ -1,6 +1,5 @@
 var class_i_m_s_packets_a_p_i_core_1_1_packet =
 [
-    [ "ByteBuffer_ID_Equals", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#ae24a17e688124e3c154c1b45c207d7d2", null ],
     [ "CopyTokenBufferPtrs", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a31c323da5a6fde050f4ecc07d5ad2e26", null ],
     [ "getBytesBuffer", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a33b9869ec28f589b8c013e6084fa4b75", null ],
     [ "getCharsBuffer", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#afc7cde20b25eb6838b3085a6010a0b62", null ],
@@ -24,6 +23,5 @@ var class_i_m_s_packets_a_p_i_core_1_1_packet =
     [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a8ff986ab7e3e6d77c73b33e3df93702a", null ],
     [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a8e49fc0e81b8b5c184b441ed7922773c", null ],
     [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a0d99e6e0e0daa0d3b7aed136c016948c", null ],
-    [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#ac58d70a7012cf63c43c31b1b3ca92219", null ],
-    [ "StringBuffer_IDString_Equals", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a66c2ddcbc23e70226301e40e3c68e0c0", null ]
+    [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#ac58d70a7012cf63c43c31b1b3ca92219", null ]
 ];

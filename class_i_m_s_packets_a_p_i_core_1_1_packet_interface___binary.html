@@ -26,7 +26,7 @@
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">IMS Packets Core
    </div>
-   <div id="projectbrief">Abstract Distributed Data and Execution System</div>
+   <div id="projectbrief">Distributed Computing, Data-Execution System</div>
   </td>
  </tr>
  </tbody>
@@ -58,9 +58,14 @@ $(document).ready(function(){initNavTree('class_i_m_s_packets_a_p_i_core_1_1_pac
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">IMSPacketsAPICore::PacketInterface_Binary&lt; TokenType &gt; Class Template Reference<div class="ingroups"><a class="el" href="group___packet_port_link.html">PacketPortLink</a></div></div>  </div>
+<div class="title">IMSPacketsAPICore::PacketInterface_Binary&lt; TokenType &gt; Class Template Reference<div class="ingroups"><a class="el" href="group___a_p_i_node_link.html">APINodeLink</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>API Node Binary Interface for HDR_Packets.  
+ <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for IMSPacketsAPICore::PacketInterface_Binary&lt; TokenType &gt;:</div>
 <div class="dyncontent">
@@ -104,9 +109,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteToStream</b> ()<
 <tr class="memitem:a6042dc0ef1efe7bbffc9fec0c662b5e5"><td class="memItemLeft" align="right" valign="top"><a id="a6042dc0ef1efe7bbffc9fec0c662b5e5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFromStream</b> ()</td></tr>
 <tr class="separator:a6042dc0ef1efe7bbffc9fec0c662b5e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc74cddac89445d4f6c367dbc2c4a450"><td class="memItemLeft" align="right" valign="top"><a id="acc74cddac89445d4f6c367dbc2c4a450"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>DeSerializePacket</b> ()</td></tr>
-<tr class="separator:acc74cddac89445d4f6c367dbc2c4a450"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38a1fff4916293425ed879d8f625d1bd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a38a1fff4916293425ed879d8f625d1bd">DeSerializePacket</a> ()</td></tr>
+<tr class="memdesc:a38a1fff4916293425ed879d8f625d1bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cyclic Non-Blocking Conditional Assembly.  <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a38a1fff4916293425ed879d8f625d1bd">More...</a><br /></td></tr>
+<tr class="separator:a38a1fff4916293425ed879d8f625d1bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a562f24614ac4da05ede0799590daa91c"><td class="memItemLeft" align="right" valign="top"><a id="a562f24614ac4da05ede0799590daa91c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>SerializePacket</b> ()</td></tr>
 <tr class="separator:a562f24614ac4da05ede0799590daa91c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,9 +137,9 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:a57510b18d01713ce5d745ee39bff4a03"><td class="memItemLeft" align="right" valign="top"><a id="a57510b18d01713ce5d745ee39bff4a03"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>ByteIndexLast</b> = 0</td></tr>
 <tr class="separator:a57510b18d01713ce5d745ee39bff4a03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6335c8ce8a26f0fb10d969cfc1bf92d7"><td class="memItemLeft" align="right" valign="top"><a id="a6335c8ce8a26f0fb10d969cfc1bf92d7"></a>
-<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet.html">Packet</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BufferPacket</b></td></tr>
-<tr class="separator:a6335c8ce8a26f0fb10d969cfc1bf92d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e38db6e398fe6c8c1dedd21ce4b5d1a"><td class="memItemLeft" align="right" valign="top"><a id="a1e38db6e398fe6c8c1dedd21ce4b5d1a"></a>
+<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">HDR_Packet</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BufferPacket</b></td></tr>
+<tr class="separator:a1e38db6e398fe6c8c1dedd21ce4b5d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93e5952f27b05ba76c8de2601659dcfd"><td class="memItemLeft" align="right" valign="top"><a id="a93e5952f27b05ba76c8de2601659dcfd"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>ByteIndex</b> = 0</td></tr>
 <tr class="separator:a93e5952f27b05ba76c8de2601659dcfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,9 +176,45 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>tokenIndex</b> = 0</td
 <div class="textblock"><h3>template&lt;class TokenType&gt;<br />
 class IMSPacketsAPICore::PacketInterface_Binary&lt; TokenType &gt;</h3>
 
+<p>API Node Binary Interface for HDR_Packets. </p>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00795">795</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l01017">1017</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a38a1fff4916293425ed879d8f625d1bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38a1fff4916293425ed879d8f625d1bd">&#9670;&nbsp;</a></span>DeSerializePacket()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TokenType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html">IMSPacketsAPICore::PacketInterface_Binary</a>&lt; TokenType &gt;::DeSerializePacket </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Cyclic Non-Blocking Conditional Assembly. </p>
+<p>Bytes are intended to enter the system one by one, or at least, token by token. As bytes are read into the packet buffer, this function analyzes the bytes to determine first the full size of the packet from it length token at index 1 </p>
+
+<p>Implements <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">IMSPacketsAPICore::PacketInterface</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l01057">1057</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a></li>
 </ul>
 </div><!-- contents -->

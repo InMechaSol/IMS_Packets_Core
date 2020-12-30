@@ -9,7 +9,7 @@ var class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i =
     [ "ReadFromStream", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#a84e1a350272b3159d6b0fbbe84323b50", null ],
     [ "SerializePacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#a721d900d00a634a4ca88bfeb0c60c57d", null ],
     [ "WriteToStream", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#ada4810eb9247905a1b7fb16159baf5a3", null ],
-    [ "BufferPacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#a0ec38676f7a6b6e50f50698fddebabbc", null ],
+    [ "BufferPacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#a67233654fca752476915136aa6422ce1", null ],
     [ "CharIndex", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#acd42ed8850f40fa1a5d946004195b392", null ],
     [ "TokenBuffer", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html#a1d187d6914d4d6db04c2052d2d48a9a1", null ]
 ];

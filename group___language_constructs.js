@@ -30,7 +30,6 @@ var group___language_constructs =
       [ "chars", "class_i_m_s_packets_a_p_i_core_1_1_s_p_d_a_s_c_i_i_interface_buffer.html#a68b563a9cab41cb881f2d79875693756", null ]
     ] ],
     [ "Packet", "class_i_m_s_packets_a_p_i_core_1_1_packet.html", [
-      [ "ByteBuffer_ID_Equals", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#ae24a17e688124e3c154c1b45c207d7d2", null ],
       [ "CopyTokenBufferPtrs", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a31c323da5a6fde050f4ecc07d5ad2e26", null ],
       [ "getBytesBuffer", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a33b9869ec28f589b8c013e6084fa4b75", null ],
       [ "getCharsBuffer", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#afc7cde20b25eb6838b3085a6010a0b62", null ],
@@ -54,37 +53,9 @@ var group___language_constructs =
       [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a8ff986ab7e3e6d77c73b33e3df93702a", null ],
       [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a8e49fc0e81b8b5c184b441ed7922773c", null ],
       [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a0d99e6e0e0daa0d3b7aed136c016948c", null ],
-      [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#ac58d70a7012cf63c43c31b1b3ca92219", null ],
-      [ "StringBuffer_IDString_Equals", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#a66c2ddcbc23e70226301e40e3c68e0c0", null ]
+      [ "setSPDat", "class_i_m_s_packets_a_p_i_core_1_1_packet.html#ac58d70a7012cf63c43c31b1b3ca92219", null ]
     ] ],
-    [ "HDR_Packet", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html", [
-      [ "getNumSPDs", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#a766732b5fedcfee744e30b5334724cbb", null ],
-      [ "getPacketID", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#a17181d389dfa9d3d73ea1dcd747a6dec", null ],
-      [ "getPacketIDString", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#aa5ee96c7db2cc76c4d748fe7af199f56", null ],
-      [ "getPacketLength", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#a22cba0e96833307f7e434c32f08159c0", null ],
-      [ "getPacketLength", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#a1e92119810fc3cd3e5df9febdcf3df46", null ],
-      [ "getPacketLength", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#a1e200cde44df28c28afe32a33039b784", null ],
-      [ "TEMPLATE_SPDSET_toVALUE", "class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html#a986744264938b7ce3523a569b03ba262", null ]
-    ] ],
-    [ "Packet_Version", "class_i_m_s_packets_a_p_i_core_1_1_packet___version.html", [
-      [ "getNumSPDs", "class_i_m_s_packets_a_p_i_core_1_1_packet___version.html#abe89c5bd65a61d54db1efc872a6040bf", null ],
-      [ "getPacketID", "class_i_m_s_packets_a_p_i_core_1_1_packet___version.html#ab28f07ff4edc0844cc40b8b1900b6e65", null ],
-      [ "getPacketIDString", "class_i_m_s_packets_a_p_i_core_1_1_packet___version.html#aec753493e74482d8cc971ca5f7ba2564", null ]
-    ] ],
-    [ "HDR_Offset", "group___language_constructs.html#ga79bf18236cd54b633124886f248541e3", null ],
-    [ "HDRPACK", "group___language_constructs.html#ga85240c6ceca22b9c712e9a49b2bcf3d6", null ],
-    [ "Index_BuildNumber", "group___language_constructs.html#ga84cf835ba3711db55d4fb9cb2ae40e0b", null ],
-    [ "Index_DevFlag", "group___language_constructs.html#ga27ed4ef62de04aba73979e78d3670395", null ],
-    [ "Index_MajorVersion", "group___language_constructs.html#gace972e1ebb44f40e2fc7ad58037d3949", null ],
-    [ "Index_MinorVersion", "group___language_constructs.html#ga51aae15fc5dcc876c793f5d14649fc5c", null ],
-    [ "Index_PackID", "group___language_constructs.html#gabbb768c761ffd0aa575955aae22bfd2e", null ],
-    [ "Index_PackLEN", "group___language_constructs.html#ga75bc30dd3158f2f7c276ab59195bafb9", null ],
-    [ "Index_PackOPTION", "group___language_constructs.html#ga507c41ef1484d0a9c15ec63c9c2a23a6", null ],
-    [ "Index_PackTYPE", "group___language_constructs.html#gad00e41513d3afb838af4658f4f8b2873", null ],
-    [ "TEMPLATE_RX_HANDLER", "group___language_constructs.html#ga3d686728977d5d36d87f2245d76b2673", null ],
     [ "TEMPLATE_SPDGET", "group___language_constructs.html#gaa87fea55c62f63f07acf9ac1b750feae", null ],
     [ "TEMPLATE_SPDSET", "group___language_constructs.html#ga9dac6a50346331367f736467ffd09293", null ],
-    [ "TEMPLATE_SPDSET_toVALUE", "group___language_constructs.html#gab7336a082452f17ae1f795af8803ffe9", null ],
-    [ "TEMPLATE_TX_PACKAGER", "group___language_constructs.html#ga7ce1078c8b77a4bb96693409c5c04f1c", null ],
-    [ "VERSION", "group___language_constructs.html#ga1c6d5de492ac61ad29aec7aa9a436bbf", null ]
+    [ "TEMPLATE_SPDSET_toVALUE", "group___language_constructs.html#gab7336a082452f17ae1f795af8803ffe9", null ]
 ];

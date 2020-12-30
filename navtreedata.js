@@ -57,7 +57,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_console_test___i_m_s___packets___core_8cpp_source.html",
-"union_i_m_s_packets_a_p_i_core_1_1_s_p_d8.html#a7cd6900ce687773c0c0f7dc3fb313e7c"
+"namespace_i_m_s_packets_a_p_i_core.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
