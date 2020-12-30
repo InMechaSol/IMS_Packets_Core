@@ -675,9 +675,7 @@ namespace IMSPacketsAPICore
 		}
 		virtual const char*		getPacketIDString()		const { return ""; }
 		virtual int				getSPDCount() { return 0; }
-		bool					isASCIIPacket() { return(charsBufferPtr != nullptr); }
-		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
-		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
+		bool					isASCIIPacket() { return(charsBufferPtr != nullptr); }		
 		static bool				isASCIIchar(char inChar) {return ((inChar >= ASCII_space && inChar <= ASCII_tilda));}
 		static bool				isLetterchar(char inChar) {return ((inChar >= ASCII_A && inChar <= ASCII_Z) || (inChar >= ASCII_a && inChar <= ASCII_z));}
 		static bool				isNumberchar(char inChar) {return ((inChar >= ASCII_0 && inChar <= ASCII_9) || inChar == ASCII_plus || inChar == ASCII_minus || inChar == ASCII_dot);}
@@ -701,6 +699,9 @@ namespace IMSPacketsAPICore
 		int						getNumSPDs()			const { return 4; }
 		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
 		virtual int				getPacketID()			const { return HDRPACK; }
+
+		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
+		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
 
 		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
 
@@ -788,7 +789,7 @@ namespace IMSPacketsAPICore
 		}
 	public:		
 		virtual int					getTokenSize() = 0;
-		virtual Packet*				getPacketPtr() = 0;
+		virtual HDR_Packet*			getPacketPtr() = 0;
 		virtual bool				DeSerializePacket() = 0;
 		virtual bool				SerializePacket()	= 0;
 		//! Abstract Serialize Function
@@ -826,7 +827,7 @@ namespace IMSPacketsAPICore
 	{
 	protected:
 		int								ByteIndexLast = 0;
-		Packet							BufferPacket;
+		HDR_Packet						BufferPacket;
 	
 		int								ByteIndex = 0;
 		SPDInterfaceBuffer<TokenType>	TokenBuffer;
@@ -855,7 +856,13 @@ namespace IMSPacketsAPICore
 		int deSerializedPacketSize = 0;
 		int deSerializedTokenIndex = 0;
 		TokenType deSerializedTokenLength;
+		/*! \fn DeSerializePacket
+			\brief Cyclic Non-Blocking Conditional Assembly
 
+			Bytes are intended to enter the system one by one, or at least, token by token.
+			As bytes are read into the packet buffer, this function analyzes the bytes to 
+			determine first the full size of the packet from it length token at index 1
+		*/
 		bool DeSerializePacket()
 		{
 			// called cyclically
@@ -866,7 +873,7 @@ namespace IMSPacketsAPICore
 				if ((ByteIndex % getTokenSize()) == 0)
 				{
 					if (++deSerializedTokenIndex == 2)
-						BufferPacket.getSPDat(2, &deSerializedTokenLength);
+						BufferPacket.getPacketLength(&deSerializedTokenLength);
 				}
 				
 				// decide if error, then reset
@@ -917,7 +924,7 @@ namespace IMSPacketsAPICore
 	protected:
 		int									CharIndex = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
-		Packet							BufferPacket;
+		HDR_Packet							BufferPacket;
 		void WriteToStream()
 		{
 			if (ifaceStreamPtr != nullptr)
@@ -1139,7 +1146,7 @@ namespace IMSPacketsAPICore
 		virtual void CustomLoop() = 0;
 		virtual void VERSION_Handler(Packet_Version* inPack) = 0;
 		virtual void VERSION_Packager(Packet_Version* outPack) = 0;
-		virtual bool API_CustomShared_PrepareTx(Packet* TxPackOutPtr) = 0;
+		virtual bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr) = 0;
 		virtual void API_CustomShared_HandleRx(HDR_Packet* RxPackInPtr) = 0;
 	public:
 		void Loop()
@@ -1160,9 +1167,12 @@ namespace IMSPacketsAPICore
 
 		bool PrepareTxPacket(Packet* TxPackOutPtr)
 		{
+			HDR_Packet tempPack;
+			tempPack.CopyTokenBufferPtrs(TxPackOutPtr);
+
 			TEMPLATE_TX_PACKAGER(triggerVERSIONPackager, Packet_Version, VERSION, VERSION_Packager)
 		
-			return API_CustomShared_PrepareTx(TxPackOutPtr);
+			return API_CustomShared_PrepareTx(&tempPack);
 		}
 	};
 	/*! @}*/
