@@ -60,6 +60,7 @@
 	#include <cstdlib>	// atoi() and atof()
 	#include <cstdint>	// uint8_t, int8_t, uint16_t, ... etc.
 	\endcode
+
 	@{
 */
 /*! \def PACKETBUFFER_TOKENCOUNT
@@ -106,65 +107,9 @@
 #define STRINGBUFFER_CHARCOUNT ((PACKETBUFFER_TOKENCOUNT-1)*STRINGBUFFER_TOKENRATIO+STRINGBUFFER_IDTOKENRATIO)
 /*! @}*/
 
-/*! \defgroup LanguageConstructs
-	\brief Fundamental Elements of Packet Communications
 
-	An abstract communication link exists between two nodes.  An exchange of information between the two
-	nodes is possible when the two nodes understand common languages and actions.  By defining a set of
-	language constructs, both nodes and communication components can be built from the common definitions.
-
-	IMS Packets Core relies on a few communication components to exchange information between nodes.
-	- A Packet can exhange data tokens to/from buffers with an application node
-	- A Packet is defined with message specific data model information
-	- A Packet is an interface to a buffer of data	
-	- A Packet is an interface to an array of tokens
-	- Tokens are the fundamental element of information exchange
-	- Tokens provide a block size for buffer allocations and encoding strategies
-	- Serial Parameter Data (SPD) is a type of data token ranging from 1 to 8 bytes in size
-	- Packet Ports are serviced (cyclic and non-blocking) by an application node execution system
-	- Packet Ports are created by an application node and contain 2 Packet Interfaces	
-	- Packet Interfaces are linked to Packet Ports when created by an application node
-	- Packet Interfaces contain a physical token buffer, 1 each interface
-	- Packet Interfaces define and execute 
-	-- read(), 
-	-- write(), 
-	-- serialize(), and
-	-- deserialize() functions on token data
-	- Packet Interfaces link the to the physical communication layer
-
-	IMS Packets Core relies on a packet structure with header information followed by payload data.
-	All packets begin with:
-	- Packet ID token, followed by a
-	- Packet Length token, followed by a
-	- Packet Type token, followed by a
-	- Packet Option token
-
-	An Application Node creates and services packet port objects to exchange tokens of information
-	with another node.  Port objects control the execution of input and output packet interface
-	objects to exchange data with physical communication layer drivers.  A packet is exchanged
-	as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application 
-	Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
-
-	Languanges are defined by deriving new Packet types.  Deriving a new Packet type involves:
-	- Setting Token Index Constants and
-	- Implementing Template Code for Token Accessors.
-
-	The VERSION Packet is provided as an example implemenation and useful
-	tool to get the version of IMS Core Source by default.  Overriding
-	the API enpoint for the VERSION Packet on an application node will override the default action.
-	- Overriding Application Node API Endpoint functions and
-	- Overloading Packet Accessor functions for Token types
-
-	are two means of personalizing the Packets Core to a specific application.
-
-	Template macros are provided to simplify implementation and reduce error when defining overloaded accessor functions.
-	- TEMPLATE_SPDSET_toVALUE(fID, SPDvar,pID, SPDval_eq_this)
-	- TEMPLATE_SPDSET(fID, SPDvar,pID)
-	- TEMPLATE_SPDGET(fID, SPDvar, pID)
-
-	Template macros are provided to simplify implementation and reduce error when defining overridden api endpoint functions.
-	- TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
-	- TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
+/*! \defgroup APINodeLink
+	\brief API Node and Interface Objects
 
 	@{
 */
@@ -222,10 +167,78 @@
 	VERSION is of the form major.minor.build with a -dev indication
 */
 #define Index_DevFlag (HDR_Offset+4)
+
+/*! @}*/
+
+
+
+
+/*! \defgroup LanguageConstructs
+	\brief Fundamental Elements of Packet Communications
+
+	An abstract communication link exists between two nodes.  An exchange of information between the two
+	nodes is possible when the two nodes understand common languages and actions.  By defining a set of
+	language constructs, both nodes and communication components can be built from the common definitions.
+
+	IMS Packets Core relies on a few communication components to exchange information between nodes.
+	- A Packet can exhange data tokens to/from buffers with an application node
+	- A Packet is defined with message specific data model information
+	- A Packet is an interface to a buffer of data
+	- A Packet is an interface to an array of tokens
+	- Tokens are the fundamental element of information exchange
+	- Tokens provide a block size for buffer allocations and encoding strategies
+	- Serial Parameter Data (SPD) is a type of data token ranging from 1 to 8 bytes in size
+	- Packet Ports are serviced (cyclic and non-blocking) by an application node execution system
+	- Packet Ports are created by an application node and contain 2 Packet Interfaces
+	- Packet Interfaces are linked to Packet Ports when created by an application node
+	- Packet Interfaces contain a physical token buffer, 1 each interface
+	- Packet Interfaces define and execute
+	-- read(),
+	-- write(),
+	-- serialize(), and
+	-- deserialize() functions on token data
+	- Packet Interfaces link the to the physical communication layer
+
+	IMS Packets Core relies on a packet structure with header information followed by payload data.
+	All packets begin with:
+	- Packet ID token, followed by a
+	- Packet Length token, followed by a
+	- Packet Type token, followed by a
+	- Packet Option token
+
+	An Application Node creates and services packet port objects to exchange tokens of information
+	with another node.  Port objects control the execution of input and output packet interface
+	objects to exchange data with physical communication layer drivers.  A packet is exchanged
+	as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application
+	Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
+
+	Languanges are defined by deriving new Packet types.  Deriving a new Packet type involves:
+	- Setting Token Index Constants and
+	- Implementing Template Code for Token Accessors.
+
+	The VERSION Packet is provided as an example implemenation and useful
+	tool to get the version of IMS Core Source by default.  Overriding
+	the API enpoint for the VERSION Packet on an application node will override the default action.
+	- Overriding Application Node API Endpoint functions and
+	- Overloading Packet Accessor functions for Token types
+
+	are two means of personalizing the Packets Core to a specific application.
+
+	Template macros are provided to simplify implementation and reduce error when defining overloaded accessor functions.
+	- TEMPLATE_SPDSET_toVALUE(fID, SPDvar,pID, SPDval_eq_this)
+	- TEMPLATE_SPDSET(fID, SPDvar,pID)
+	- TEMPLATE_SPDGET(fID, SPDvar, pID)
+
+	Template macros are provided to simplify implementation and reduce error when defining overridden api endpoint functions.
+	- TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
+	- TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
+
+	@{
+*/
 /*! \def TEMPLATE_SPDSET_toVALUE(fID, SPDvar,pID, SPDval_eq_this)
 	\brief Code Template for Packet Accessor (SET) Functions with Initialization Value
 
-	This template creates a set of accessor functions overloaded for each 
+	This template creates a set of accessor functions overloaded for each
 	possible token type, currently:
 	-SPD1
 	-SPD2
@@ -273,12 +286,20 @@ void get##fID(SPD2* SPDvar){getSPDat(pID,SPDvar);}\
 void get##fID(SPD4* SPDvar){getSPDat(pID,SPDvar);}\
 void get##fID(SPD8* SPDvar){getSPDat(pID,SPDvar);}\
 
+/*! @} */
+
+
+/*! \addtogroup APINodeLink
+
+	@{
+*/
+
 /*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
 	\brief Code Template for Application Node API EndPoint (Rx) Functions
-
+	
 	This template creates an on receipt api endpoint function.  The function
 	determines if the linked packet is binary or string based then determines
-	if a particular packet ID has been received.  If so, a packet interface 
+	if a particular packet ID has been received.  If so, a packet interface
 	object of type corresponding to the ID received is instantiated on the stack.
 	Finally the stack packet object, which points to the packet interface buffer
 	is passed to a polymorphic api endpoint specific to packet type and ID.
@@ -299,6 +320,7 @@ else{\
 
 /*! \def TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
 	\brief Code Template for Application Node API EndPoint (Tx) Functions
+	
 
 	This template creates before transmission api endpoint function.  The function
 	monitors a trigger variable and if triggerred, packages a particular packet type,
@@ -316,6 +338,7 @@ if(tVar){\
 }
 
 /*! @}*/
+
 
 /*! \addtogroup PacketPortLink
 	@{
@@ -337,6 +360,7 @@ if(tVar){\
 #define ASCII_colon             58
 #define ASCII_semicolon         59
 #define ASCII_tilda             126
+
 /*! @}*/
 
 
@@ -452,6 +476,8 @@ namespace IMSPacketsAPICore
 		SenderResponder_Sender,
 		FullCylic_Partner
 	};
+	
+	
 	/*!	\class Packet
 		\brief A structured interface to a token buffer
 		\ingroup LanguageConstructs
@@ -690,7 +716,19 @@ namespace IMSPacketsAPICore
 		static bool				isUnsignedIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isUnsignedIntegerchar(inStringPtr[index++])) return false; return true; }
 	};
 	
-	
+
+
+	/*! \defgroup PacketPortLink
+		\brief Abstract Communication Objects
+
+		An Application Node creates and services packet port objects to exchange tokens of information
+		with another node.  Port objects control the execution of input and output packet interface
+		objects to exchange data with physical communication layer drivers.  A packet is exchanged
+		as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application
+		Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
+
+		@{
+	*/	
 	/*! \class PacketInterface
 		\brief An Abstraction of the serial interface connecting two api nodes
 
@@ -762,7 +800,6 @@ namespace IMSPacketsAPICore
 			}
 		}
 	};
-
 	/*! \class AbstractDataExecution
 		\brief An Abstraction of the Distributed Data and Execution System
 
@@ -919,10 +956,16 @@ namespace IMSPacketsAPICore
 		}
 
 	};
+	/*! @}*/
 
+
+
+
+	/*! \addtogroup APINodeLink
+		@{
+	*/	
 	/*! \class HDR_Packet
-		\brief A Packet Interface with Header Information
-		\ingroup LanguageConstructs
+		\brief A Packet with Header Information
 	*/
 	class HDR_Packet :public Packet
 	{
@@ -949,8 +992,7 @@ namespace IMSPacketsAPICore
 		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
 	};
 	/*! \class Packet_Version
-		\brief A Common Versions Packet for Application Nodes
-		\ingroup LanguageConstructs
+		\brief A Version Packet for Application Nodes
 	*/
 	class Packet_Version :public HDR_Packet
 	{
@@ -968,19 +1010,9 @@ namespace IMSPacketsAPICore
 			TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
 			TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
 	};
-	/*! \defgroup PacketPortLink
-		\brief Abstract Communication Objects
-
-		An Application Node creates and services packet port objects to exchange tokens of information
-		with another node.  Port objects control the execution of input and output packet interface
-		objects to exchange data with physical communication layer drivers.  A packet is exchanged
-		as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application
-		Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
-
-		@{
+	/*! \class PacketInterface_Binary
+		\brief API Node Binary Interface for HDR_Packets
 	*/
-
-
 	template<class TokenType>
 	class PacketInterface_Binary : public PacketInterface
 	{
@@ -1076,7 +1108,9 @@ namespace IMSPacketsAPICore
 			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 		}
 	};
-
+	/*! \class PacketInterface_ASCII
+		\brief API Node ASCII Interface for HDR_Packets
+	*/
 	template<class TokenType>
 	class PacketInterface_ASCII : public PacketInterface
 	{
@@ -1137,9 +1171,9 @@ namespace IMSPacketsAPICore
 		}
 		
 	};
-		
-	
-	
+	/*! \class API_NODE
+		\brief API Node for HDR_Packets
+	*/
 	class API_NODE :public AbstractDataExecution
 	{
 	private:
@@ -1180,5 +1214,7 @@ namespace IMSPacketsAPICore
 		}
 	};
 	/*! @}*/
+
+
 } // !IMSPacketsAPICore
 #endif //!__IMS_PACKETSAPI_CORE__
