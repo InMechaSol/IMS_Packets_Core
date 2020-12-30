@@ -1,11 +1,12 @@
 // ConsoleTest_IMS_Packets_Core.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include "TestSource.cpp"
+#include "5_IntendedUseTesting.cpp"
 
 int main()
 {
     std::cout << "Hello World!\n";
+    CoreTest_Console_Node theTestNode;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

@@ -18,12 +18,24 @@
     <ClCompile Include="ConsoleTest_IMS_Packets_Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\TestSource.cpp">
+    <ClCompile Include="..\..\4_APINodePersonalization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\5_IntendedUseTesting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\IMS_PacketsAPI_Core.h">
+    <ClInclude Include="..\..\0_EcoSystemRestrictions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\1_LanguageConstructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\2_PacketPortLink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3_APINodeLink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

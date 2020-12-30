@@ -1,13 +1,11 @@
 #include "pch.h"
 #include "CppUnitTest.h"
-#include "TestSource.cpp"
+#include "5_IntendedUseTesting.cpp"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace TestsIMSPacketsCore
 {
-	/*! \defgroup IntendedUseTesting
-		@{
-	*/
+	
 	/// <summary>
 	/// Focus this test class on directly testing an instance of a Node
 	/// </summary>
@@ -72,5 +70,5 @@ namespace TestsIMSPacketsCore
 		{
 		}
 	};
-	/*! @} */
+	
 }

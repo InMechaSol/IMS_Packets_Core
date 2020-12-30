@@ -20,6 +20,8 @@
 */
 #ifndef __IMS_PACKETSAPI_CORE__
 #define __IMS_PACKETSAPI_CORE__
+
+
 /*! \defgroup EcosystemRestrictions
 	\brief Design Configuration for a derived micro-EcoSystem
 
@@ -63,6 +65,8 @@
 
 	@{
 */
+
+
 /*! \def PACKETBUFFER_TOKENCOUNT
 	\brief The number of tokens stored in an interface buffer
 
@@ -73,10 +77,17 @@
 	
 */
 #define PACKETBUFFER_TOKENCOUNT (32)
-#include <iostream> // istream, ostream, and iostream (packet interface objects)
-//#include <cstdio>	// snprintf()
-//#include <cstdlib>	// atoi() and atof()
+
+
+#include <iostream>		// istream, ostream, and iostream (packet interface objects)
 //#include <cstdint>	// uint8_t, int8_t, uint16_t, ... etc.
+
+
+#pragma region String Packets Require char* and binary-string conversion
+//#include <cstdio>		// snprintf()
+//#include <cstdlib>	// atoi() and atof()
+
+
 /*! \def STRINGBUFFER_TOKENRATIO
 	\brief The number of string characters per token
 
@@ -106,8 +117,10 @@
 */
 #define STRINGBUFFER_CHARCOUNT ((PACKETBUFFER_TOKENCOUNT-1)*STRINGBUFFER_TOKENRATIO+STRINGBUFFER_IDTOKENRATIO)
 /*! @}*/
+#pragma endregion
 
 
+#pragma region HDR Packets Require Macro Constants and Code Template Macros 
 /*! \defgroup APINodeLink
 	\brief API Node and Interface Objects
 
@@ -169,7 +182,7 @@
 #define Index_DevFlag (HDR_Offset+4)
 
 /*! @}*/
-
+#pragma endregion
 
 
 
@@ -768,7 +781,7 @@ namespace IMSPacketsAPICore
 		}
 	public:		
 		virtual int					getTokenSize() = 0;
-		virtual HDR_Packet*			getPacketPtr() = 0;
+		virtual Packet*				getPacketPtr() = 0;
 		virtual bool				DeSerializePacket() = 0;
 		virtual bool				SerializePacket()	= 0;
 		//! Abstract Serialize Function

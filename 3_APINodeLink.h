@@ -1,0 +1,370 @@
+#ifndef __APINODELINK__
+#define __APINODELINK__
+#include "2_PacketPortLink.h"
+
+#pragma region HDR Packets Require Macro Constants and Code Template Macros 
+/*! \defgroup APINodeLink
+	\brief API Node and Interface Objects
+
+	@{
+*/
+/*! \def HDRPACK
+	\brief Token ID value for default HDR Packet
+*/
+#define HDRPACK (0)
+/*! \def Index_PackID
+	\brief Token Index for Packet ID Token
+*/
+#define Index_PackID (0)
+/*! \def Index_PackLEN
+	\brief Token Index for Packet Length Token
+*/
+#define Index_PackLEN (1)
+/*! \def Index_PackTYPE
+	\brief Token Index for Packet Type Token
+*/
+#define Index_PackTYPE (2)
+/*! \def Index_PackOPTION
+	\brief Token Index for Packet Option Token
+*/
+#define Index_PackOPTION (3)
+/*! \def HDR_Offset
+	\brief Token Index Offset for Derived Packet Payload Data Tokens
+*/
+#define HDR_Offset Index_PackOPTION
+/*! \def VERSION
+	\brief Token ID value for VERSION Packet
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
+#define VERSION (1)
+/*! \def Index_MajorVersion
+	\brief Token Index for Major Version Number Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
+#define Index_MajorVersion (HDR_Offset+1)
+/*! \def Index_MinorVersion
+	\brief Token Index for Minor Version Number Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
+#define Index_MinorVersion (HDR_Offset+2)
+/*! \def Index_BuildNumber
+	\brief Token Index for Build Number Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
+#define Index_BuildNumber (HDR_Offset+3)
+/*! \def Index_DevFlag
+	\brief Token Index for -def indication Token
+
+	VERSION is of the form major.minor.build with a -dev indication
+*/
+#define Index_DevFlag (HDR_Offset+4)
+
+/*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
+	\brief Code Template for Application Node API EndPoint (Rx) Functions
+
+	This template creates an on receipt api endpoint function.  The function
+	determines if the linked packet is binary or string based then determines
+	if a particular packet ID has been received.  If so, a packet interface
+	object of type corresponding to the ID received is instantiated on the stack.
+	Finally the stack packet object, which points to the packet interface buffer
+	is passed to a polymorphic api endpoint specific to packet type and ID.
+
+*/
+#define TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc){\
+if(tempHDRPack.isASCIIPacket()){\
+	if(tempHDRPack.StringBuffer_IDString_Equals(#TokenID)){\
+		Packet_Type my##Packet_Type;\
+		my##Packet_Type.CopyTokenBufferPtrs(RxPackInPtr);\
+		HandlerFunc(&my##Packet_Type);return;}}\
+else{\
+	if(tempHDRPack.ByteBuffer_ID_Equals(TokenID)){\
+		Packet_Type my##Packet_Type;\
+		my##Packet_Type.CopyTokenBufferPtrs(RxPackInPtr);\
+		HandlerFunc(&my##Packet_Type);return;}}\
+}
+
+/*! \def TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
+	\brief Code Template for Application Node API EndPoint (Tx) Functions
+
+
+	This template creates before transmission api endpoint function.  The function
+	monitors a trigger variable and if triggerred, packages a particular packet type,
+	to the linked Packet Interface buffer, before resetting the trigger variable and
+	returning true which will indicate to the port object that a packet is ready for transmission.
+
+*/
+#define TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc){\
+if(tVar){\
+	pType tempPack;\
+	tempPack.CopyTokenBufferPtrs(TxPackOutPtr);\
+	packFunc(&tempPack);\
+	tVar=false;\
+	return true; }\
+}
+
+/*! @}*/
+#pragma endregion
+
+
+namespace IMSPacketsAPICore
+{
+	/*! \addtogroup APINodeLink
+		@{
+	*/
+	/*! \class HDR_Packet
+		\brief A Packet with Header Information
+	*/
+	class HDR_Packet :public Packet
+	{
+	public:
+		int						getNumSPDs()			const { return 4; }
+		virtual const char* getPacketIDString()		const { return xstr(HDRPACK); }
+		virtual int				getPacketID()			const { return HDRPACK; }
+
+		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
+		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
+
+		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
+
+			int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
+		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
+		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
+		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
+
+		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
+
+			TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
+			TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
+			TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
+			TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
+	};
+	/*! \class Packet_Version
+		\brief A Version Packet for Application Nodes
+	*/
+	class Packet_Version :public HDR_Packet
+	{
+	public:
+		int			getNumSPDs()			const { return (HDR_Packet::getNumSPDs() + 4); }
+		const char* getPacketIDString()		const { return xstr(VERSION); }
+		int			getPacketID()			const { return VERSION; }
+
+		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
+			TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
+			TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
+			TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
+			TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
+			TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
+			TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
+			TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
+	};
+	/*! \class PacketInterface_Binary
+		\brief API Node Binary Interface for HDR_Packets
+	*/
+	template<class TokenType>
+	class PacketInterface_Binary : public PacketInterface
+	{
+	protected:
+		int								ByteIndexLast = 0;
+		HDR_Packet						BufferPacket;
+
+		int								ByteIndex = 0;
+		SPDInterfaceBuffer<TokenType>	TokenBuffer;
+
+		void WriteToStream()
+		{
+			if (ifaceStreamPtr != nullptr)
+				ifaceStreamPtr->write(&(TokenBuffer.bytes[0]), serializedPacketSize);
+			else if (ifaceOutStreamPtr != nullptr)
+				ifaceOutStreamPtr->write(&(TokenBuffer.bytes[0]), serializedPacketSize);
+		}
+		void ReadFromStream()
+		{
+			if (ifaceStreamPtr != nullptr)
+			{
+				if (ifaceStreamPtr->peek() != EOF)
+					ifaceStreamPtr->read(&(TokenBuffer.bytes[ByteIndex++]), 1);
+			}
+			else if (ifaceInStreamPtr != nullptr)
+			{
+				if (ifaceInStreamPtr->peek() != EOF)
+					ifaceInStreamPtr->read(&(TokenBuffer.bytes[ByteIndex++]), 1);
+			}
+		}
+
+		int deSerializedPacketSize = 0;
+		int deSerializedTokenIndex = 0;
+		TokenType deSerializedTokenLength;
+		/*! \fn DeSerializePacket
+			\brief Cyclic Non-Blocking Conditional Assembly
+
+			Bytes are intended to enter the system one by one, or at least, token by token.
+			As bytes are read into the packet buffer, this function analyzes the bytes to
+			determine first the full size of the packet from it length token at index 1
+		*/
+		bool DeSerializePacket()
+		{
+			// called cyclically
+			// monitor ByteIndex for change
+			if (ByteIndex != ByteIndexLast)
+			{
+				// analyze byte array
+				if ((ByteIndex % getTokenSize()) == 0)
+				{
+					if (++deSerializedTokenIndex == 2)
+						BufferPacket.getPacketLength(&deSerializedTokenLength);
+				}
+
+				// decide if error, then reset
+				if ()							// TODO:
+				{
+					deSerializedPacketSize = 0;
+					deSerializedTokenIndex = 0;
+					deSerializedTokenLength.uintVal = 0;
+				}
+			}
+
+			// Capture history for change detect
+			ByteIndexLast = ByteIndex;
+
+			// decide if complete packet
+			// return true or false
+			// true will trigger the packet handler of the data execution instance
+			if (ByteIndexLast == (deSerializedTokenLength.uintVal - 1))
+				return true;
+			return false;
+		}
+		bool SerializePacket()
+		{
+			// called single-shot
+			// optionally swap bytes order before sending
+			// return true or false
+		}
+	public:
+		Packet* getPacketPtr() { return &BufferPacket; }
+		int					getTokenSize() { return sizeof(TokenType); }
+		PacketInterface_Binary(std::iostream* ifaceStreamPtrIn = nullptr) :
+			PacketInterface(ifaceStreamPtrIn) {
+			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
+		}
+		PacketInterface_Binary(std::istream* ifaceInStreamPtrIn) :
+			PacketInterface(ifaceInStreamPtrIn) {
+			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
+		}
+		PacketInterface_Binary(std::ostream* ifaceOutStreamPtrIn) :
+			PacketInterface(ifaceOutStreamPtrIn) {
+			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
+		}
+	};
+	/*! \class PacketInterface_ASCII
+		\brief API Node ASCII Interface for HDR_Packets
+	*/
+	template<class TokenType>
+	class PacketInterface_ASCII : public PacketInterface
+	{
+	protected:
+		int									CharIndex = 0;
+		SPDASCIIInterfaceBuffer				TokenBuffer;
+		HDR_Packet							BufferPacket;
+		void WriteToStream()
+		{
+			if (ifaceStreamPtr != nullptr)
+				ifaceStreamPtr->write(&(TokenBuffer.chars[0]), serializedPacketSize);
+			else if (ifaceOutStreamPtr != nullptr)
+				ifaceOutStreamPtr->write(&(TokenBuffer.chars[0]), serializedPacketSize);
+		}
+		void ReadFromStream()
+		{
+			if (ifaceStreamPtr != nullptr)
+			{
+				if (ifaceStreamPtr->peek() != EOF)
+					ifaceStreamPtr->read(&(TokenBuffer.chars[CharIndex++]), 1);
+			}
+			else if (ifaceInStreamPtr != nullptr)
+			{
+				if (ifaceInStreamPtr->peek() != EOF)
+					ifaceInStreamPtr->read(&(TokenBuffer.chars[CharIndex++]), 1);
+			}
+
+		}
+		bool DeSerializePacket()
+		{
+			// called cyclically
+			// monitor CharIndex for change
+			// analyze char array
+			// decide if complete packet
+			// decide if error
+			// return true or false
+			// true will trigger the packet handler of the data execution instance
+		}
+		bool SerializePacket()
+		{
+			// called single-shot
+			// return true or false
+		}
+	public:
+		Packet* getPacketPtr() { return &BufferPacket; }
+		int					getTokenSize() { return sizeof(TokenType); }
+		PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn = nullptr) :
+			PacketInterface(ifaceStreamPtrIn) {
+			BufferPacket.setBytesBuffer(&(TokenBuffer.chars[0]));
+		}
+		PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn) :
+			PacketInterface(ifaceInStreamPtrIn) {
+			BufferPacket.setBytesBuffer(&(TokenBuffer.chars[0]));
+		}
+		PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn) :
+			PacketInterface(ifaceOutStreamPtrIn) {
+			BufferPacket.setBytesBuffer(&(TokenBuffer.chars[0]));
+		}
+
+	};
+	/*! \class API_NODE
+		\brief API Node for HDR_Packets
+	*/
+	class API_NODE :public AbstractDataExecution
+	{
+	private:
+		bool triggerVERSIONPackager = false;
+	protected:
+		virtual PolymorphicPacketPort* getPacketPort(int i) = 0;
+		virtual const int getNumPacketPorts() = 0;
+		virtual void CustomLoop() = 0;
+		virtual void VERSION_Handler(Packet_Version* inPack) = 0;
+		virtual void VERSION_Packager(Packet_Version* outPack) = 0;
+		virtual bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr) = 0;
+		virtual void API_CustomShared_HandleRx(HDR_Packet* RxPackInPtr) = 0;
+	public:
+		void Loop()
+		{
+			CustomLoop();
+			for (int i = 0; i < getNumPacketPorts(); i++)
+				(getPacketPort(i))->ServicePort();
+		}
+		void HandleRxPacket(Packet* RxPackInPtr)
+		{
+			HDR_Packet tempPack;
+			tempPack.CopyTokenBufferPtrs(RxPackInPtr);
+
+			TEMPLATE_RX_HANDLER(tempPack, Packet_Version, VERSION, VERSION_Handler)
+
+				API_CustomShared_HandleRx(&tempPack);
+		}
+
+		bool PrepareTxPacket(Packet* TxPackOutPtr)
+		{
+			HDR_Packet tempPack;
+			tempPack.CopyTokenBufferPtrs(TxPackOutPtr);
+
+			TEMPLATE_TX_PACKAGER(triggerVERSIONPackager, Packet_Version, VERSION, VERSION_Packager)
+
+				return API_CustomShared_PrepareTx(&tempPack);
+		}
+	};
+	/*! @}*/
+}
+
+#endif // !__APINODELINK__

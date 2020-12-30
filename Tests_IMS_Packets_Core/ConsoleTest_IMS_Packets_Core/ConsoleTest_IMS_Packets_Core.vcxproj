@@ -143,11 +143,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\TestSource.cpp" />
+    <ClCompile Include="..\..\4_APINodePersonalization.cpp" />
+    <ClCompile Include="..\..\5_IntendedUseTesting.cpp" />
     <ClCompile Include="ConsoleTest_IMS_Packets_Core.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\IMS_PacketsAPI_Core.h" />
+    <ClInclude Include="..\..\0_EcoSystemRestrictions.h" />
+    <ClInclude Include="..\..\1_LanguageConstructs.h" />
+    <ClInclude Include="..\..\2_PacketPortLink.h" />
+    <ClInclude Include="..\..\3_APINodeLink.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
