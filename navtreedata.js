@@ -32,9 +32,6 @@ var NAVTREE =
       [ "An Abstract Base", "index.html#autotoc_md4", null ]
     ] ],
     [ "Modules", "modules.html", "modules" ],
-    [ "Namespaces", "namespaces.html", [
-      [ "Namespace List", "namespaces.html", "namespaces_dup" ]
-    ] ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -56,8 +53,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_console_test___i_m_s___packets___core_8cpp_source.html",
-"namespace_i_m_s_packets_a_p_i_core.html"
+"0___eco_system_restrictions_8h.html",
+"union_i_m_s_packets_a_p_i_core_1_1_s_p_d4.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

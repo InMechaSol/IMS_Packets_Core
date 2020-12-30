@@ -6,7 +6,7 @@ var class_i_m_s_packets_a_p_i_core_1_1_packet_interface =
     [ "CustomReadFrom", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a714ecb8cdceda4c1b5df0fe7bd9f7e5e", null ],
     [ "CustomWriteTo", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a20b1cb7b7e874a6a14e911a5a8bd21a5", null ],
     [ "DeSerializePacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a14d0776e9a28d742a73a77b3977c76e3", null ],
-    [ "getPacketPtr", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#af08a6a1333459a45b51a62ddadb884f0", null ],
+    [ "getPacketPtr", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a42ffc48e258cfe8ebf133ceebe0828c7", null ],
     [ "getTokenSize", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a8a6b06251dfeaad163cee67cfacfb1b9", null ],
     [ "ReadFrom", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a50c83e5997ce2726f178da2e3d4daad6", null ],
     [ "ReadFromStream", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html#a35582768b2c73053052e602b80215268", null ],

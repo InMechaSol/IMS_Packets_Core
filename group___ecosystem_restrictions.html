@@ -79,18 +79,15 @@ Macros</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Design Configuration for a derived micro-EcoSystem. </p>
-<p>A particular product or application node is fundamentally restricted at compile time by a small set of Design Configuration settings. Any node that "is a" node built from this particular file will: <br  />
-</p><ul>
+<p>A particular product or application node is fundamentally restricted at compile time by a small set of Design Configuration settings. Any node that "is a" node built from this particular file will:</p><ul>
 <li>have a common token count that is used to instantiate token buffers</li>
 <li>have a common binary buffer size equal to token count multiplied by token size (configured at application layer) And if also using string interfaces nodes will:</li>
 <li>link the iostream standard library (then optionally use linked library)</li>
 <li>have a common token string ratio that is used to instantiate string token buffers</li>
-<li>have a common ID string token size that is used to instantiate ID string token buffers <br  />
-</li>
+<li>have a common ID string token size that is used to instantiate ID string token buffers</li>
 <li>have a common string buffer size equal to the string buffer character count macro</li>
 </ul>
-<p>When reading and writing tokens over a packet interface a buffer (on either the stack, heap, or data/bss sections of RAM) is required. <br  />
- These limitations provide mathematical gaurantees on static data allocation.</p>
+<p>When reading and writing tokens over a packet interface a buffer (on either the stack, heap, or data/bss sections of RAM) is required. These limitations provide mathematical gaurantees on static data allocation.</p>
 <dl class="section user"><dt>Testable:</dt><dd><ul>
 <li>Functions reading from buffers do not overrun high or low address limits</li>
 <li>Functions writing to buffers do not overrun high or low address limits</li>
@@ -98,8 +95,7 @@ Macros</h2></td></tr>
 <li>in a defined language, no format string exceeds token ratio limit</li>
 </ul>
 </dd></dl>
-<dl class="section note"><dt>Note</dt><dd><br  />
- For now, the Packets Core links a standard library for simplification of common use cases where the iostream library can be linked. If it cannot be linked, cutom interfaces can be used. The stream library can be useful in transferring data to/from physical layer drivers. <a href="http://www.cplusplus.com/reference/iostream/">more on iostream</a> <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span> <span class="comment">// istream, ostream, and iostream (packet interface objects)</span></div>
+<dl class="section note"><dt>Note</dt><dd>For now, the Packets Core links a standard library for simplification of common use cases where the iostream library can be linked. If it cannot be linked, cutom interfaces can be used. The stream library can be useful in transferring data to/from physical layer drivers. <a href="http://www.cplusplus.com/reference/iostream/">more on iostream</a> <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span> <span class="comment">// istream, ostream, and iostream (packet interface objects)</span></div>
 </div><!-- fragment --> </dd>
 <dd>
 On visual studio c++ console applications and cpp test framework applications several standard libraries are linked by default. Depending on node platform, other standard libraries may need to be directly linked <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;cstdio&gt;</span>   <span class="comment">// snprintf()</span></div>
@@ -125,7 +121,7 @@ On visual studio c++ console applications and cpp test framework applications se
 <li>and serialization type (if string or binary) </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00075">75</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="0___eco_system_restrictions_8h_source.html#l00063">63</a> of file <a class="el" href="0___eco_system_restrictions_8h_source.html">0_EcoSystemRestrictions.h</a>.</p>
 
 </div>
 </div>
@@ -148,7 +144,7 @@ On visual studio c++ console applications and cpp test framework applications se
 </ul>
 <p>This is only the number of characters. For now, encoding is restricted to ASCII so there is a 1-to-1 ratio for bytes to chars. </p>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00107">107</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="0___eco_system_restrictions_8h_source.html#l00102">102</a> of file <a class="el" href="0___eco_system_restrictions_8h_source.html">0_EcoSystemRestrictions.h</a>.</p>
 
 </div>
 </div>
@@ -167,7 +163,7 @@ On visual studio c++ console applications and cpp test framework applications se
 <p>The number of string characters per ID string. </p>
 <p>This is only the number of characters. For now, encoding is restricted to ASCII so there is a 1-to-1 ratio for bytes to chars. </p>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00095">95</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="0___eco_system_restrictions_8h_source.html#l00090">90</a> of file <a class="el" href="0___eco_system_restrictions_8h_source.html">0_EcoSystemRestrictions.h</a>.</p>
 
 </div>
 </div>
@@ -186,7 +182,7 @@ On visual studio c++ console applications and cpp test framework applications se
 <p>The number of string characters per token. </p>
 <p>This is only the number of characters. For now, encoding is restricted to ASCII so there is a 1-to-1 ratio for bytes to chars. </p>
 
-<p class="definition">Definition at line <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html#l00087">87</a> of file <a class="el" href="_i_m_s___packets_a_p_i___core_8h_source.html">IMS_PacketsAPI_Core.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="0___eco_system_restrictions_8h_source.html#l00082">82</a> of file <a class="el" href="0___eco_system_restrictions_8h_source.html">0_EcoSystemRestrictions.h</a>.</p>
 
 </div>
 </div>
