@@ -689,67 +689,8 @@ namespace IMSPacketsAPICore
 		static bool				isIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isIntegerchar(inStringPtr[index++])) return false; return true; }
 		static bool				isUnsignedIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isUnsignedIntegerchar(inStringPtr[index++])) return false; return true; }
 	};
-	/*! \class HDR_Packet
-		\brief A Packet Interface with Header Information
-		\ingroup LanguageConstructs
-	*/
-	class HDR_Packet :public Packet
-	{
-	public:
-		int						getNumSPDs()			const { return 4; }
-		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
-		virtual int				getPacketID()			const { return HDRPACK; }
-
-		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
-		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
-
-		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
-
-		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
-		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
-		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
-		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
-
-		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
-
-		TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
-		TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
-		TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
-		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
-	};
-	/*! \class Packet_Version
-		\brief A Common Versions Packet for Application Nodes
-		\ingroup LanguageConstructs
-	*/
-	class Packet_Version :public HDR_Packet
-	{
-	public:
-		int			getNumSPDs()			const { return (HDR_Packet::getNumSPDs() + 4); }
-		const char* getPacketIDString()		const { return xstr(VERSION); }
-		int			getPacketID()			const { return VERSION; }
-
-		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
-		TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
-		TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
-		TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
-		TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
-		TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
-		TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
-		TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
-	};
-	/*! \defgroup PacketPortLink
-		\brief Abstract Communication Objects
 	
-		An Application Node creates and services packet port objects to exchange tokens of information
-		with another node.  Port objects control the execution of input and output packet interface
-		objects to exchange data with physical communication layer drivers.  A packet is exchanged
-		as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application 
-		Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
-
-		@{
-	*/
-
-
+	
 	/*! \class PacketInterface
 		\brief An Abstraction of the serial interface connecting two api nodes
 
@@ -821,6 +762,224 @@ namespace IMSPacketsAPICore
 			}
 		}
 	};
+
+	/*! \class AbstractDataExecution
+		\brief An Abstraction of the Distributed Data and Execution System
+
+		Provides two public packet handler functions, one to execute on incomming
+		packet receipt and another to execute when packaging a packet for transmission.
+		An application member must inherit from this base and add application specific
+		language, data, and api endpoints.
+	*/
+	class AbstractDataExecution
+	{
+	public:
+		//! Abstract HandleRxPacket Function
+		/*!
+			Called by a PacketPort Instance to execute API Endpoints on packet receipt
+		*/
+		virtual void				HandleRxPacket(Packet* RxPackInPtr) = 0;
+		//! Abstract PrepareTxPacket Function
+		/*!
+			Called by a PacketPort Instance to deque packet objects and write them
+			to the PacketInterface buffer
+		*/
+		virtual bool				PrepareTxPacket(Packet* TxPackOutPtr) = 0;
+		//! Abstract Initialization Function
+		/*!
+			Called by the top level main function of an api node's running application
+		*/
+		virtual void				Setup() = 0;
+		//! Abstract Cyclic Execution Function
+		/*!
+			Called by the top level main function of an api node's running application.
+			Ideally this function will be designed as cyclic and non-blocking, though it
+			is a design choice and not a design restriction.
+		*/
+		virtual void				Loop() = 0;
+	};
+
+	/*! \class PolymorphicPacketPort
+		\brief An Abstraction of the Distributed Node Link
+
+		Distributed Nodes can exchange shared data structures via a configurable
+		serial interface (USB, Ethernet, UART, SPI, IIC, ...) using a PolymorphicPacketPort.
+
+		The PolymorphicPacketPort establishes an abstract link between instances of api nodes
+		on either side of a communication link.  It is linked to two instances of PacketInterface
+		objects to facilitate (serialization and deserializtion) of packet objects (to and from) a stream
+		of (bytes or chars).
+	*/
+	class PolymorphicPacketPort
+	{
+	private:
+		enum PacketPortPartnerType		PortType = SenderResponder_Responder;
+		PacketInterface* InputInterface = nullptr;
+		PacketInterface* OutputInterface = nullptr;
+		AbstractDataExecution* DataExecution = nullptr;
+		PacketPort_SRCommState			SRCommState = sr_Init;
+		PacketPort_FCCommState			FCCommState = fc_Init;
+	protected:
+		void ServicePort_SR_Sender()
+		{
+			switch (SRCommState)
+			{
+			case sr_Init: SRCommState = sr_Handling; break;
+			case sr_Reading:
+				InputInterface->ReadFrom();
+				if (InputInterface->DeSerializePacket()) {
+					DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
+					SRCommState = sr_Handling;
+				}
+				else
+					break;
+			case sr_Handling:
+				if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
+					SRCommState = sr_Sending;
+				else
+					break;
+			case sr_Sending:
+				if (OutputInterface->SerializePacket()) {
+					OutputInterface->WriteTo();
+					SRCommState = sr_Sent;
+				}
+				else
+					SRCommState = sr_Init;
+				break;
+			case sr_Sent:SRCommState = sr_Reading; break;
+			}
+		}
+		void ServicePort_SR_Responder()
+		{
+			switch (SRCommState)
+			{
+			case sr_Init: SRCommState = sr_Reading; break;
+			case sr_Reading:
+				InputInterface->ReadFrom();
+				if (InputInterface->DeSerializePacket())
+				{
+					DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
+					SRCommState = sr_Handling;
+				}
+				else
+					break;
+			case sr_Handling:
+				if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
+					SRCommState = sr_Sending;
+				else
+					break;
+			case sr_Sending:
+				if (OutputInterface->SerializePacket()) {
+					OutputInterface->WriteTo();
+					SRCommState = sr_Sent;
+				}
+				else
+					SRCommState = sr_Init;
+				break;
+			case sr_Sent:SRCommState = sr_Reading; break;
+			}
+		}
+		void ServicePort_FCP_Partner()
+		{
+			InputInterface->ReadFrom();
+			if (InputInterface->DeSerializePacket())
+			{
+				DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
+			}
+
+			if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
+			{
+				if (OutputInterface->SerializePacket())
+					OutputInterface->WriteTo();
+			}
+		}
+	public:
+		//! Abstract ServicePort Function
+		/*!
+			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
+			and calls the Handle/Package functions of the api node instance.
+		*/
+		void				ServicePort()
+		{
+			if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
+			{
+				switch (PortType)
+				{
+				case SenderResponder_Responder:		ServicePort_SR_Responder();		break;
+				case SenderResponder_Sender:		ServicePort_SR_Sender();		break;
+				case FullCylic_Partner:				ServicePort_FCP_Partner();		break;
+				}
+			}
+		}
+		PolymorphicPacketPort(PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn)
+		{
+			InputInterface = InputInterfaceIn;
+			OutputInterface = OutputInterfaceIn;
+			DataExecution = DataExecutionIn;
+		}
+
+	};
+
+	/*! \class HDR_Packet
+		\brief A Packet Interface with Header Information
+		\ingroup LanguageConstructs
+	*/
+	class HDR_Packet :public Packet
+	{
+	public:
+		int						getNumSPDs()			const { return 4; }
+		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
+		virtual int				getPacketID()			const { return HDRPACK; }
+
+		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
+		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
+
+		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
+
+		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
+		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
+		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
+		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
+
+		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
+
+		TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
+		TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
+		TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
+		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
+	};
+	/*! \class Packet_Version
+		\brief A Common Versions Packet for Application Nodes
+		\ingroup LanguageConstructs
+	*/
+	class Packet_Version :public HDR_Packet
+	{
+	public:
+		int			getNumSPDs()			const { return (HDR_Packet::getNumSPDs() + 4); }
+		const char* getPacketIDString()		const { return xstr(VERSION); }
+		int			getPacketID()			const { return VERSION; }
+
+		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
+			TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
+			TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
+			TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
+			TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
+			TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
+			TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
+			TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
+	};
+	/*! \defgroup PacketPortLink
+		\brief Abstract Communication Objects
+
+		An Application Node creates and services packet port objects to exchange tokens of information
+		with another node.  Port objects control the execution of input and output packet interface
+		objects to exchange data with physical communication layer drivers.  A packet is exchanged
+		as an array of tokens stored in a byte buffer.  Packets are exchanged between two Application
+		Nodes and Common API Enpionts are called on reciept or before transmission of Packets.
+
+		@{
+	*/
+
 
 	template<class TokenType>
 	class PacketInterface_Binary : public PacketInterface
@@ -979,162 +1138,7 @@ namespace IMSPacketsAPICore
 		
 	};
 		
-	/*! \class AbstractDataExecution
-		\brief An Abstraction of the Distributed Data and Execution System
-
-		Provides two public packet handler functions, one to execute on incomming
-		packet receipt and another to execute when packaging a packet for transmission.
-		An application member must inherit from this base and add application specific
-		language, data, and api endpoints.
-	*/
-	class AbstractDataExecution
-	{
-	public:
-		//! Abstract HandleRxPacket Function
-		/*!
-			Called by a PacketPort Instance to execute API Endpoints on packet receipt
-		*/
-		virtual void				HandleRxPacket(Packet* RxPackInPtr) = 0;
-		//! Abstract PrepareTxPacket Function
-		/*!
-			Called by a PacketPort Instance to deque packet objects and write them
-			to the PacketInterface buffer
-		*/
-		virtual bool				PrepareTxPacket(Packet* TxPackOutPtr) = 0;
-		//! Abstract Initialization Function
-		/*!
-			Called by the top level main function of an api node's running application
-		*/
-		virtual void				Setup() = 0;
-		//! Abstract Cyclic Execution Function
-		/*!
-			Called by the top level main function of an api node's running application.
-			Ideally this function will be designed as cyclic and non-blocking, though it
-			is a design choice and not a design restriction.
-		*/
-		virtual void				Loop() = 0;
-	};
-
-	/*! \class PolymorphicPacketPort
-		\brief An Abstraction of the Distributed Node Link
-
-		Distributed Nodes can exchange shared data structures via a configurable
-		serial interface (USB, Ethernet, UART, SPI, IIC, ...) using a PolymorphicPacketPort.
-
-		The PolymorphicPacketPort establishes an abstract link between instances of api nodes
-		on either side of a communication link.  It is linked to two instances of PacketInterface
-		objects to facilitate (serialization and deserializtion) of packet objects (to and from) a stream
-		of (bytes or chars).
-	*/
-	class PolymorphicPacketPort
-	{
-	private:
-		enum PacketPortPartnerType		PortType			= SenderResponder_Responder;
-		PacketInterface*				InputInterface		= nullptr;
-		PacketInterface*				OutputInterface		= nullptr;
-		AbstractDataExecution*			DataExecution		= nullptr;
-		PacketPort_SRCommState			SRCommState			= sr_Init;
-		PacketPort_FCCommState			FCCommState			= fc_Init;
-	protected:
-		void ServicePort_SR_Sender()
-		{
-			switch (SRCommState)
-			{
-			case sr_Init: SRCommState = sr_Handling; break;
-			case sr_Reading:
-				InputInterface->ReadFrom();
-				if (InputInterface->DeSerializePacket()) {
-					DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
-					SRCommState = sr_Handling;
-				}
-				else
-					break;
-			case sr_Handling:
-				if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
-					SRCommState = sr_Sending;
-				else
-					break;
-			case sr_Sending:
-				if (OutputInterface->SerializePacket()) {
-					OutputInterface->WriteTo();
-					SRCommState = sr_Sent;
-				}
-				else
-					SRCommState = sr_Init;
-				break;
-			case sr_Sent:SRCommState = sr_Reading; break;
-			}
-		}
-		void ServicePort_SR_Responder()
-		{		
-			switch (SRCommState)
-			{
-			case sr_Init: SRCommState = sr_Reading; break;
-			case sr_Reading: 
-				InputInterface->ReadFrom(); 
-				if (InputInterface->DeSerializePacket()) 
-				{
-					DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
-					SRCommState = sr_Handling;
-				}
-				else
-					break;
-			case sr_Handling:
-				if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
-					SRCommState = sr_Sending;
-				else
-					break;
-			case sr_Sending: 
-				if(OutputInterface->SerializePacket()){				
-					OutputInterface->WriteTo();
-					SRCommState = sr_Sent;}
-				else
-					SRCommState = sr_Init;
-				break;
-			case sr_Sent:SRCommState = sr_Reading; break;
-			}
-		}
-		void ServicePort_FCP_Partner()
-		{
-			InputInterface->ReadFrom();
-			if (InputInterface->DeSerializePacket())
-			{
-				DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
-			}
-
-			if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
-			{
-				if (OutputInterface->SerializePacket())
-					OutputInterface->WriteTo();
-			}
-		}
-	public:
-		//! Abstract ServicePort Function
-		/*!
-			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
-			and calls the Handle/Package functions of the api node instance.
-		*/
-		void				ServicePort() 
-		{ 
-			if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
-			{
-				switch (PortType)
-				{
-				case SenderResponder_Responder:		ServicePort_SR_Responder();		break;
-				case SenderResponder_Sender:		ServicePort_SR_Sender();		break;
-				case FullCylic_Partner:				ServicePort_FCP_Partner();		break;
-				}			
-			}
-		}
-		PolymorphicPacketPort(PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn)
-		{
-			InputInterface = InputInterfaceIn;
-			OutputInterface = OutputInterfaceIn;
-			DataExecution = DataExecutionIn;
-		}
-
-	};
-
+	
 	
 	class API_NODE :public AbstractDataExecution
 	{
