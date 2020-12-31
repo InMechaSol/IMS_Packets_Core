@@ -2,7 +2,7 @@
 #define __APINODELINK__
 #include "2_PacketPortLink.h"
 
-#pragma region HDR Packets Require Macro Constants and Code Template Macros 
+#pragma region HDR Packets Utilize Constant and Code Template Macros 
 /*! \defgroup APINodeLink
 	\brief API Node and Interface Objects
 
@@ -447,6 +447,7 @@ namespace IMSPacketsAPICore
 	private:
 		bool triggerVERSIONPackager = false;
 	protected:
+		void setVersionPackTrigger() { triggerVERSIONPackager = true; }
 		virtual PolymorphicPacketPort* getPacketPort(int i) = 0;
 		virtual const int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
@@ -468,7 +469,7 @@ namespace IMSPacketsAPICore
 
 			TEMPLATE_RX_HANDLER(tempPack, Packet_Version, VERSION, VERSION_Handler)
 
-				API_CustomShared_HandleRx(&tempPack);
+			API_CustomShared_HandleRx(&tempPack);
 		}
 
 		bool PrepareTxPacket(Packet* TxPackOutPtr)
@@ -478,7 +479,7 @@ namespace IMSPacketsAPICore
 
 			TEMPLATE_TX_PACKAGER(triggerVERSIONPackager, Packet_Version, VERSION, VERSION_Packager)
 
-				return API_CustomShared_PrepareTx(&tempPack);
+			return API_CustomShared_PrepareTx(&tempPack);
 		}
 	};
 	/*! @}*/

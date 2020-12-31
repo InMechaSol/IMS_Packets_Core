@@ -38,14 +38,10 @@ public:
 
 	CoreTest_CustomConsole_Node() :
 		Test_API_Node_Default(),
-		PortA_OutputIface(&std::cout),
-		PortA_InputIface(&std::cin),
+		PortA_OutputIface(),
+		PortA_InputIface(),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this) {
 		;
-	}
-	bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr)
-	{
-		return false; // TODO:
 	}
 };
 
@@ -59,21 +55,17 @@ private:
 	PacketInterface_ASCII<SPD4>			PortA_InputIface;
 	PolymorphicPacketPort				TestPortA;
 public:
-
-	PolymorphicPacketPort* getPacketPort(int i) { return &TestPortA; };
-	const int							getNumPacketPorts() { return 1; }
 	CoreTest_Console_Node() :
 		Test_API_Node_Default(),
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this),
 		PortA_OutputIface(&std::cout),
-		PortA_InputIface(&std::cin)
-	{
+		PortA_InputIface(&std::cin)	{
 		;
 	}
-	bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr)
-	{
-		return false; // TODO:
-	}
+
+	PolymorphicPacketPort*				getPacketPort(int i) { return &TestPortA; };
+	const int							getNumPacketPorts() { return 1; }
+
 };
 
 /*! @} */

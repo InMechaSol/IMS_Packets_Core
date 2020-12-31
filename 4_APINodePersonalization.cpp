@@ -29,10 +29,15 @@ protected:
 
 	void	CustomLoop() { ; }
 
-	void	VERSION_Handler(Packet_Version* inPack) { ; }
+	void	VERSION_Handler(Packet_Version* inPack) 
+	{ 
+		// if in pack is a read packet
+		switch(inPack->getPacketType(,))
+		setVersionPackTrigger();
+	}
 	void	VERSION_Packager(Packet_Version* outPack) { ; }
 
-	bool	API_CustomShared_PrepareTx(Packet* TxPackOutPtr) { ; }
+	bool	API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr) { return false; }  
 	void	API_CustomShared_HandleRx(HDR_Packet* RxPackInPtr) { ; }
 
 };
