@@ -42,7 +42,9 @@ class TestASCIIConsole_InputInterface :public PacketInterface_ASCII<SPD4>
 {
 public:
 	TestASCIIConsole_InputInterface(std::istream* ifaceInStreamPtrIn = nullptr) :
-		PacketInterface_ASCII<SPD4>(ifaceInStreamPtrIn) { ; }
+		PacketInterface_ASCII<SPD4>(ifaceInStreamPtrIn) { 
+		BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0])); 
+	}
 	void CustomReadFrom()
 	{
 		ReadFromStream_ASCII(this, &std::cin);

@@ -359,11 +359,11 @@ namespace IMSPacketsAPICore
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		HDR_Packet							BufferPacket;
 
-		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::ostream PcktInterfaceStream)
+		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::ostream* PcktInterfaceStream)
 		{
 			PcktInterfaceStream->write(&(PcktInterface->TokenBuffer.chars[0]), PcktInterface->serializedPacketSize);
 		}
-		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::iostream PcktInterfaceStream)
+		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::iostream* PcktInterfaceStream)
 		{
 			PcktInterfaceStream->write(&(PcktInterface->TokenBuffer.chars[0]), PcktInterface->serializedPacketSize);
 		}

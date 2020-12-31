@@ -43,6 +43,10 @@ public:
 		TestPortA(&PortA_InputIface, &PortA_OutputIface, this) {
 		;
 	}
+	bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr)
+	{
+		return false; // TODO:
+	}
 };
 
 // define api node with default ascii spd4 serialization to/from cout/cin
@@ -65,6 +69,10 @@ public:
 		PortA_InputIface(&std::cin)
 	{
 		;
+	}
+	bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr)
+	{
+		return false; // TODO:
 	}
 };
 
