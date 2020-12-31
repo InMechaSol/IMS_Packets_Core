@@ -58,16 +58,16 @@ namespace IMSPacketsAPICore
 	class PacketInterface
 	{
 	protected:
-		std::iostream* ifaceStreamPtr;
-		std::istream* ifaceInStreamPtr = nullptr;
-		std::ostream* ifaceOutStreamPtr = nullptr;
+		std::iostream*		ifaceStreamPtr;
+		std::istream*		ifaceInStreamPtr		= nullptr;
+		std::ostream*		ifaceOutStreamPtr		= nullptr;
 
-		int					serializedPacketSize = 0;
-		int					tokenIndex = 0;
-		virtual void		CustomWriteTo() { ; }
-		virtual void		CustomReadFrom() { ; }
-		virtual void		WriteToStream() = 0;
-		virtual void		ReadFromStream() = 0;
+		int					serializedPacketSize	= 0;
+		int					tokenIndex				= 0;
+		virtual void		CustomWriteTo()			{ ; }
+		virtual void		CustomReadFrom()		{ ; }
+		virtual void		WriteToStream()			= 0;
+		virtual void		ReadFromStream()		= 0;
 
 		PacketInterface(std::iostream* ifaceStreamPtrIn)
 		{
@@ -82,10 +82,10 @@ namespace IMSPacketsAPICore
 			ifaceOutStreamPtr = ifaceOutStreamPtrIn;
 		}
 	public:
-		virtual int					getTokenSize() = 0;
-		virtual Packet* getPacketPtr() = 0;
+		virtual int					getTokenSize()		= 0;
+		virtual Packet*				getPacketPtr()		= 0;
 		virtual bool				DeSerializePacket() = 0;
-		virtual bool				SerializePacket() = 0;
+		virtual bool				SerializePacket()	= 0;
 		//! Abstract Serialize Function
 		/*!
 			Converts Packet to bytes (or chars) then writes them

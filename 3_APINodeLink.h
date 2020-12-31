@@ -122,7 +122,7 @@ namespace IMSPacketsAPICore
 	{
 	public:
 		int						getNumSPDs()			const { return 4; }
-		virtual const char* getPacketIDString()		const { return xstr(HDRPACK); }
+		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
 		virtual int				getPacketID()			const { return HDRPACK; }
 
 		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
@@ -130,17 +130,17 @@ namespace IMSPacketsAPICore
 
 		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
 
-			int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
+		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
 		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
 		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
 		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
 
 		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
 
-			TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
-			TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
-			TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
-			TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
+		TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
+		TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
+		TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
+		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
 	};
 	/*! \class Packet_Version
 		\brief A Version Packet for Application Nodes
@@ -153,13 +153,13 @@ namespace IMSPacketsAPICore
 		int			getPacketID()			const { return VERSION; }
 
 		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
-			TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
-			TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
-			TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
-			TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
-			TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
-			TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
-			TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
+		TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
+		TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
+		TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
+		TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
+		TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
+		TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
+		TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
 	};
 	/*! \class PacketInterface_Binary
 		\brief API Node Binary Interface for HDR_Packets
@@ -181,6 +181,7 @@ namespace IMSPacketsAPICore
 			else if (ifaceOutStreamPtr != nullptr)
 				ifaceOutStreamPtr->write(&(TokenBuffer.bytes[0]), serializedPacketSize);
 		}
+		
 		void ReadFromStream()
 		{
 			if (ifaceStreamPtr != nullptr)
@@ -198,54 +199,139 @@ namespace IMSPacketsAPICore
 		int deSerializedPacketSize = 0;
 		int deSerializedTokenIndex = 0;
 		TokenType deSerializedTokenLength;
+		bool deSerializeReset = false;
+		void ResetdeSerialize()
+		{
+			ByteIndex = 0;
+			deSerializedPacketSize = 0;
+			deSerializedTokenIndex = 0;
+			deSerializedTokenLength.uintVal = 0;
+			deSerializeReset = false;
+		}
+		
+		template<class TokenType>
+		static bool DeSerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
+		{
+			// called cyclically
+			// monitor ByteIndex for change
+			if (PcktInterface->ByteIndex != PcktInterface->ByteIndexLast)
+			{
+				// monitor byte array for token boundary
+				if ((PcktInterface->ByteIndex % PcktInterface->getTokenSize()) == 0)
+				{
+					// optionally and conditionally swap byte order of tokens here
+					;
+
+					// if its the length token
+					if (++PcktInterface->deSerializedTokenIndex == Index_PackLEN)
+						PcktInterface->BufferPacket.getPacketLength(&PcktInterface->deSerializedTokenLength);
+				}
+
+				// decide if error, then reset
+				PcktInterface->deSerializeReset = false;
+				if (PcktInterface->deSerializeReset)							// TODO:
+				{
+					PcktInterface->ResetdeSerialize();
+				}
+			}
+
+			// Capture history for change detect
+			PcktInterface->ByteIndexLast = PcktInterface->ByteIndex;
+
+			// decide if complete packet
+			// return true or false
+			// true will trigger the rx packet handler of the data execution instance
+			if (PcktInterface->ByteIndexLast == (PcktInterface->deSerializedTokenLength.uintVal - 1))
+			{
+				PcktInterface->ResetdeSerialize();
+				return true;
+			}
+			return false;
+		}
+
+		template<class TokenType>
+		static bool SerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
+		{
+			// called single-shot after tx packet handler of the data execution instance
+				// optionally swap bytes order before sending
+			;
+
+			// return true or false as error indication, true means all is well
+			// true will permit sending by the output packet interface instance
+			return true;
+		}
+
+
 		/*! \fn DeSerializePacket
 			\brief Cyclic Non-Blocking Conditional Assembly
 
 			Bytes are intended to enter the system one by one, or at least, token by token.
 			As bytes are read into the packet buffer, this function analyzes the bytes to
-			determine first the full size of the packet from it length token at index 1
+			determine 
+			- the full size of the packet from its length token at index 1, and
+			- when either an error in Deserialization has occurred, or
+			- when a complete packet has been deserialized into the packet interface buffer
+
+			\return if a complete packet has been deserialized and is ready for handling
 		*/
 		bool DeSerializePacket()
 		{
-			// called cyclically
-			// monitor ByteIndex for change
-			if (ByteIndex != ByteIndexLast)
-			{
-				// analyze byte array
-				if ((ByteIndex % getTokenSize()) == 0)
-				{
-					if (++deSerializedTokenIndex == 2)
-						BufferPacket.getPacketLength(&deSerializedTokenLength);
-				}
+			return DeSerializePacket_Binary(this);
 
-				// decide if error, then reset
-				if ()							// TODO:
-				{
-					deSerializedPacketSize = 0;
-					deSerializedTokenIndex = 0;
-					deSerializedTokenLength.uintVal = 0;
-				}
-			}
+			//// called cyclically
+			//// monitor ByteIndex for change
+			//if (ByteIndex != ByteIndexLast)
+			//{
+			//	// monitor byte array for token boundary
+			//	if ((ByteIndex % getTokenSize()) == 0)
+			//	{
+			//		// optionally and conditionally swap byte order of tokens here
+			//		;
 
-			// Capture history for change detect
-			ByteIndexLast = ByteIndex;
+			//		// if its the length token
+			//		if (++deSerializedTokenIndex == Index_PackLEN)
+			//			BufferPacket.getPacketLength(&deSerializedTokenLength);
+			//	}
 
-			// decide if complete packet
-			// return true or false
-			// true will trigger the packet handler of the data execution instance
-			if (ByteIndexLast == (deSerializedTokenLength.uintVal - 1))
-				return true;
-			return false;
+			//	// decide if error, then reset
+			//	deSerializeReset = false;
+			//	if (deSerializeReset)							// TODO:
+			//	{
+			//		ResetdeSerialize();
+			//	}
+			//}
+
+			//// Capture history for change detect
+			//ByteIndexLast = ByteIndex;
+
+			//// decide if complete packet
+			//// return true or false
+			//// true will trigger the rx packet handler of the data execution instance
+			//if (ByteIndexLast == (deSerializedTokenLength.uintVal - 1))
+			//{
+			//	ResetdeSerialize();
+			//	return true;
+			//}
+			//return false;
 		}
+		 
+		/*! \fn SerializePacket
+			\brief Single Shot Non-Blocking Conditional Assembly
+
+			A Packet Port Instance ensures this functions is called in once immediately after 
+			the positive return of the tx packet handler of the associated data execution instance.
+
+			\return Serialization Status (true - success, false - otherwise)
+		*/
 		bool SerializePacket()
 		{
-			// called single-shot
-			// optionally swap bytes order before sending
-			// return true or false
+			return SerializePacket_Binary();
 		}
 	public:
-		Packet* getPacketPtr() { return &BufferPacket; }
+		Packet*				getPacketPtr() { return &BufferPacket; }
 		int					getTokenSize() { return sizeof(TokenType); }
+
+
 		PacketInterface_Binary(std::iostream* ifaceStreamPtrIn = nullptr) :
 			PacketInterface(ifaceStreamPtrIn) {
 			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
@@ -259,6 +345,9 @@ namespace IMSPacketsAPICore
 			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 		}
 	};
+	
+	
+	
 	/*! \class PacketInterface_ASCII
 		\brief API Node ASCII Interface for HDR_Packets
 	*/
@@ -269,28 +358,46 @@ namespace IMSPacketsAPICore
 		int									CharIndex = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		HDR_Packet							BufferPacket;
+
+		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::ostream PcktInterfaceStream)
+		{
+			PcktInterfaceStream->write(&(PcktInterface->TokenBuffer.chars[0]), PcktInterface->serializedPacketSize);
+		}
+		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::iostream PcktInterfaceStream)
+		{
+			PcktInterfaceStream->write(&(PcktInterface->TokenBuffer.chars[0]), PcktInterface->serializedPacketSize);
+		}
 		void WriteToStream()
 		{
 			if (ifaceStreamPtr != nullptr)
-				ifaceStreamPtr->write(&(TokenBuffer.chars[0]), serializedPacketSize);
+				WriteToStream_ASCII(this, ifaceStreamPtr);
 			else if (ifaceOutStreamPtr != nullptr)
-				ifaceOutStreamPtr->write(&(TokenBuffer.chars[0]), serializedPacketSize);
+				WriteToStream_ASCII(this, ifaceOutStreamPtr);
+		}
+		static void ReadFromStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::istream* PcktInterfaceStream)
+		{
+			if (PcktInterfaceStream->peek() != EOF)
+				PcktInterfaceStream->read(&(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex++]), 1);
+			
+		}
+		static void ReadFromStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::iostream* PcktInterfaceStream)
+		{
+			if (PcktInterfaceStream->peek() != EOF)
+				PcktInterfaceStream->read(&(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex++]), 1);
+
 		}
 		void ReadFromStream()
 		{
 			if (ifaceStreamPtr != nullptr)
 			{
-				if (ifaceStreamPtr->peek() != EOF)
-					ifaceStreamPtr->read(&(TokenBuffer.chars[CharIndex++]), 1);
+				ReadFromStream_ASCII(this, ifaceStreamPtr);
 			}
 			else if (ifaceInStreamPtr != nullptr)
 			{
-				if (ifaceInStreamPtr->peek() != EOF)
-					ifaceInStreamPtr->read(&(TokenBuffer.chars[CharIndex++]), 1);
+				ReadFromStream_ASCII(this, ifaceInStreamPtr);
 			}
-
 		}
-		bool DeSerializePacket()
+		static bool DeSerializePacket_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface)
 		{
 			// called cyclically
 			// monitor CharIndex for change
@@ -299,26 +406,36 @@ namespace IMSPacketsAPICore
 			// decide if error
 			// return true or false
 			// true will trigger the packet handler of the data execution instance
+			return false;
 		}
-		bool SerializePacket()
+		bool DeSerializePacket()
+		{
+			return DeSerializePacket_ASCII(this);
+		}
+		static bool SerializePacket_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface)
 		{
 			// called single-shot
 			// return true or false
+			return false;
+		}
+		bool SerializePacket()
+		{
+			return SerializePacket_ASCII(this);
 		}
 	public:
 		Packet* getPacketPtr() { return &BufferPacket; }
 		int					getTokenSize() { return sizeof(TokenType); }
 		PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn = nullptr) :
 			PacketInterface(ifaceStreamPtrIn) {
-			BufferPacket.setBytesBuffer(&(TokenBuffer.chars[0]));
+			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 		}
 		PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn) :
 			PacketInterface(ifaceInStreamPtrIn) {
-			BufferPacket.setBytesBuffer(&(TokenBuffer.chars[0]));
+			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 		}
 		PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn) :
 			PacketInterface(ifaceOutStreamPtrIn) {
-			BufferPacket.setBytesBuffer(&(TokenBuffer.chars[0]));
+			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 		}
 
 	};

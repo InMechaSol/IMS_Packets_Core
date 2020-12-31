@@ -41,14 +41,18 @@ protected:
 class TestASCIIConsole_InputInterface :public PacketInterface_ASCII<SPD4>
 {
 public:
-	TestASCIIConsole_InputInterface(std::istream* ifaceInStreamPtrIn) :
+	TestASCIIConsole_InputInterface(std::istream* ifaceInStreamPtrIn = nullptr) :
 		PacketInterface_ASCII<SPD4>(ifaceInStreamPtrIn) { ; }
 	void CustomReadFrom()
 	{
-		;// std::cin >> ;
+		ReadFromStream_ASCII(this, &std::cin);
 	}
-	bool DeSerializePacket() { return false; }
+	bool DeSerializePacket() 
+	{ 
+		return DeSerializePacket_ASCII(this);
+	}
 };
+
 class TestASCIIConsole_OutputInterface :public PacketInterface_ASCII<SPD4>
 {
 public:
@@ -58,9 +62,12 @@ public:
 	}
 	void CustomWriteTo()
 	{
-		;// std::cout << ;
+		WriteToStream_ASCII(this, &std::cout);
 	}
-	bool SerializePacket() { return false; }
+	bool SerializePacket() 
+	{ 
+		return SerializePacket_ASCII(this); 
+	}
 };
 
 
