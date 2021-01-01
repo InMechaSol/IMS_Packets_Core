@@ -12,56 +12,76 @@
 	\brief Token ID value for default HDR Packet
 */
 #define HDRPACK (0)
+
+
 /*! \def Index_PackID
 	\brief Token Index for Packet ID Token
 */
-#define Index_PackID (0)
+#define IndexHDR_PackID (0)
+
+
 /*! \def Index_PackLEN
 	\brief Token Index for Packet Length Token
 */
-#define Index_PackLEN (1)
+#define IndexHDR_PackLEN (1)
+
+
 /*! \def Index_PackTYPE
 	\brief Token Index for Packet Type Token
 */
-#define Index_PackTYPE (2)
+#define IndexHDR_PackTYPE (2)
+
+
 /*! \def Index_PackOPTION
 	\brief Token Index for Packet Option Token
 */
-#define Index_PackOPTION (3)
-/*! \def HDR_Offset
+#define IndexHDR_PackOPTION (3)
+
+
+/*! \def VERSION_Offset
 	\brief Token Index Offset for Derived Packet Payload Data Tokens
 */
-#define HDR_Offset Index_PackOPTION
+#define VERSION_Offset IndexHDR_PackOPTION
+
+
 /*! \def VERSION
 	\brief Token ID value for VERSION Packet
 
 	VERSION is of the form major.minor.build with a -dev indication
 */
-#define VERSION (1)
+#define VERSION (HDRPACK+1)
+
+
 /*! \def Index_MajorVersion
 	\brief Token Index for Major Version Number Token
 
 	VERSION is of the form major.minor.build with a -dev indication
 */
-#define Index_MajorVersion (HDR_Offset+1)
+#define IndexVERSION_MajorVersion (VERSION_Offset+1)
+
+
 /*! \def Index_MinorVersion
 	\brief Token Index for Minor Version Number Token
 
 	VERSION is of the form major.minor.build with a -dev indication
 */
-#define Index_MinorVersion (HDR_Offset+2)
+#define IndexVERSION_MinorVersion (VERSION_Offset+2)
+
+
 /*! \def Index_BuildNumber
 	\brief Token Index for Build Number Token
 
 	VERSION is of the form major.minor.build with a -dev indication
 */
-#define Index_BuildNumber (HDR_Offset+3)
+#define IndexVERSION_BuildNumber (VERSION_Offset+3)
+
+
 /*! \def Index_DevFlag
 	\brief Token Index for -def indication Token
 
 	VERSION is of the form major.minor.build with a -dev indication
 */
-#define Index_DevFlag (HDR_Offset+4)
+#define IndexVERSION_DevFlag (VERSION_Offset+4)
 
 /*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
 	\brief Code Template for Application Node API EndPoint (Rx) Functions
@@ -128,20 +148,22 @@ namespace IMSPacketsAPICore
 		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
 		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
 
-		TEMPLATE_SPDSET_toVALUE(PacketID, pid, Index_PackID, pid->intVal = getPacketID())
+		TEMPLATE_SPDSET_toVALUE(PacketID, pid, IndexHDR_PackID, pid->intVal = getPacketID())
 
 		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
 		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
 		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
 		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
 
-		TEMPLATE_SPDSET_toVALUE(PacketLength, len, Index_PackLEN, len->intVal = getPacketLength(*len))
+		TEMPLATE_SPDSET_toVALUE(PacketLength, len, IndexHDR_PackLEN, len->intVal = getPacketLength(*len))
 
-		TEMPLATE_SPDSET(PacketType, ptype, Index_PackTYPE)
-		TEMPLATE_SPDGET(PacketType, ptype, Index_PackTYPE)
-		TEMPLATE_SPDSET(PacketOption, popt, Index_PackOPTION)
-		TEMPLATE_SPDGET(PacketOption, popt, Index_PackOPTION)
+		TEMPLATE_SPDSET(PacketType, ptype, IndexHDR_PackTYPE)
+		TEMPLATE_SPDGET(PacketType, ptype, IndexHDR_PackTYPE)
+		TEMPLATE_SPDSET(PacketOption, popt, IndexHDR_PackOPTION)
+		TEMPLATE_SPDGET(PacketOption, popt, IndexHDR_PackOPTION)
 	};
+
+
 	/*! \class Packet_Version
 		\brief A Version Packet for Application Nodes
 	*/
@@ -152,15 +174,17 @@ namespace IMSPacketsAPICore
 		const char* getPacketIDString()		const { return xstr(VERSION); }
 		int			getPacketID()			const { return VERSION; }
 
-		TEMPLATE_SPDSET(MajorVersion, majVer, Index_MajorVersion)
-		TEMPLATE_SPDGET(MajorVersion, majVer, Index_MajorVersion)
-		TEMPLATE_SPDSET(MinorVersion, minVer, Index_MinorVersion)
-		TEMPLATE_SPDGET(MinorVersion, minVer, Index_MinorVersion)
-		TEMPLATE_SPDSET(BuildNumber, bldNum, Index_BuildNumber)
-		TEMPLATE_SPDGET(BuildNumber, bldNum, Index_BuildNumber)
-		TEMPLATE_SPDSET(DevFlag, DevFlg, Index_DevFlag)
-		TEMPLATE_SPDGET(DevFlag, DevFlg, Index_DevFlag)
+		TEMPLATE_SPDSET(MajorVersion, majVer, IndexVERSION_MajorVersion)
+		TEMPLATE_SPDGET(MajorVersion, majVer, IndexVERSION_MajorVersion)
+		TEMPLATE_SPDSET(MinorVersion, minVer, IndexVERSION_MinorVersion)
+		TEMPLATE_SPDGET(MinorVersion, minVer, IndexVERSION_MinorVersion)
+		TEMPLATE_SPDSET(BuildNumber, bldNum, IndexVERSION_BuildNumber)
+		TEMPLATE_SPDGET(BuildNumber, bldNum, IndexVERSION_BuildNumber)
+		TEMPLATE_SPDSET(DevFlag, DevFlg, IndexVERSION_DevFlag)
+		TEMPLATE_SPDGET(DevFlag, DevFlg, IndexVERSION_DevFlag)
 	};
+
+
 	/*! \class PacketInterface_Binary
 		\brief API Node Binary Interface for HDR_Packets
 	*/
@@ -448,7 +472,7 @@ namespace IMSPacketsAPICore
 		bool triggerVERSIONPackager = false;
 	protected:
 		void setVersionPackTrigger() { triggerVERSIONPackager = true; }
-		virtual PolymorphicPacketPort* getPacketPort(int i) = 0;
+		virtual PolymorphicPacketPort* getPacketPortat(int i) = 0;
 		virtual const int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
 		virtual void VERSION_Handler(Packet_Version* inPack) = 0;
@@ -460,7 +484,7 @@ namespace IMSPacketsAPICore
 		{
 			CustomLoop();
 			for (int i = 0; i < getNumPacketPorts(); i++)
-				(getPacketPort(i))->ServicePort();
+				(getPacketPortat(i))->ServicePort();
 		}
 		void HandleRxPacket(Packet* RxPackInPtr)
 		{

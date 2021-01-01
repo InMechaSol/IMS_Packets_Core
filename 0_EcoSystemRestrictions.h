@@ -54,7 +54,7 @@
 /*! \def PACKETBUFFER_TOKENCOUNT
 	\brief The number of tokens stored in an interface buffer
 
-	This is only the count of token to be stored.
+	This is only the count of tokens to be stored.
 	The size in bytes of a buffer depends on other factors like:
 	- the token size
 	- and serialization type (if string or binary)
@@ -80,6 +80,8 @@
 	is a 1-to-1 ratio for bytes to chars.
 */
 #define STRINGBUFFER_TOKENRATIO (10)
+
+
 /*! \def STRINGBUFFER_IDTOKENRATIO
 	\brief The number of string characters per ID string
 
@@ -88,6 +90,8 @@
 	is a 1-to-1 ratio for bytes to chars.
 */
 #define STRINGBUFFER_IDTOKENRATIO (32)
+
+
 /*! \def STRINGBUFFER_CHARCOUNT
 	\brief The number of characters allocated in a string buffer
 
