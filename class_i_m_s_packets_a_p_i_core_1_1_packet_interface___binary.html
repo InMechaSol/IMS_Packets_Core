@@ -109,12 +109,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteToStream</b> ()<
 <tr class="memitem:a6042dc0ef1efe7bbffc9fec0c662b5e5"><td class="memItemLeft" align="right" valign="top"><a id="a6042dc0ef1efe7bbffc9fec0c662b5e5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFromStream</b> ()</td></tr>
 <tr class="separator:a6042dc0ef1efe7bbffc9fec0c662b5e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae771ccf2883c39682fffa9b9ccf1302"><td class="memItemLeft" align="right" valign="top"><a id="aae771ccf2883c39682fffa9b9ccf1302"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ResetdeSerialize</b> ()</td></tr>
+<tr class="separator:aae771ccf2883c39682fffa9b9ccf1302"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38a1fff4916293425ed879d8f625d1bd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a38a1fff4916293425ed879d8f625d1bd">DeSerializePacket</a> ()</td></tr>
 <tr class="memdesc:a38a1fff4916293425ed879d8f625d1bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cyclic Non-Blocking Conditional Assembly.  <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a38a1fff4916293425ed879d8f625d1bd">More...</a><br /></td></tr>
 <tr class="separator:a38a1fff4916293425ed879d8f625d1bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a562f24614ac4da05ede0799590daa91c"><td class="memItemLeft" align="right" valign="top"><a id="a562f24614ac4da05ede0799590daa91c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>SerializePacket</b> ()</td></tr>
-<tr class="separator:a562f24614ac4da05ede0799590daa91c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5413ec95895a5e521edb843ffa76758a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a5413ec95895a5e521edb843ffa76758a">SerializePacket</a> ()</td></tr>
+<tr class="memdesc:a5413ec95895a5e521edb843ffa76758a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single Shot Non-Blocking Conditional Assembly.  <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a5413ec95895a5e521edb843ffa76758a">More...</a><br /></td></tr>
+<tr class="separator:a5413ec95895a5e521edb843ffa76758a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_class_i_m_s_packets_a_p_i_core_1_1_packet_interface"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_class_i_m_s_packets_a_p_i_core_1_1_packet_interface')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">IMSPacketsAPICore::PacketInterface</a></td></tr>
 <tr class="memitem:a20b1cb7b7e874a6a14e911a5a8bd21a5 inherit pro_methods_class_i_m_s_packets_a_p_i_core_1_1_packet_interface"><td class="memItemLeft" align="right" valign="top"><a id="a20b1cb7b7e874a6a14e911a5a8bd21a5"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>CustomWriteTo</b> ()</td></tr>
@@ -155,6 +158,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>deSerializedTokenIndex
 <tr class="memitem:a078ed0611072bb6db9381dc0e8458bc4"><td class="memItemLeft" align="right" valign="top"><a id="a078ed0611072bb6db9381dc0e8458bc4"></a>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>deSerializedTokenLength</b></td></tr>
 <tr class="separator:a078ed0611072bb6db9381dc0e8458bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a791a1300850403d04cd53d8cd4c39cce"><td class="memItemLeft" align="right" valign="top"><a id="a791a1300850403d04cd53d8cd4c39cce"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>deSerializeReset</b> = false</td></tr>
+<tr class="separator:a791a1300850403d04cd53d8cd4c39cce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_class_i_m_s_packets_a_p_i_core_1_1_packet_interface"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_class_i_m_s_packets_a_p_i_core_1_1_packet_interface')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">IMSPacketsAPICore::PacketInterface</a></td></tr>
 <tr class="memitem:a3a4df0c64d61073708e4cb94aec179e8 inherit pro_attribs_class_i_m_s_packets_a_p_i_core_1_1_packet_interface"><td class="memItemLeft" align="right" valign="top"><a id="a3a4df0c64d61073708e4cb94aec179e8"></a>
 std::iostream *&#160;</td><td class="memItemRight" valign="bottom"><b>ifaceStreamPtr</b></td></tr>
@@ -206,11 +212,51 @@ template&lt;class TokenType &gt; </div>
 </div><div class="memdoc">
 
 <p>Cyclic Non-Blocking Conditional Assembly. </p>
-<p>Bytes are intended to enter the system one by one, or at least, token by token. As bytes are read into the packet buffer, this function analyzes the bytes to determine first the full size of the packet from it length token at index 1 </p>
+<p>Bytes are intended to enter the system one by one, or at least, token by token. As bytes are read into the packet buffer, this function analyzes the bytes to determine</p><ul>
+<li>the full size of the packet from its length token at index 1, and</li>
+<li>when either an error in Deserialization has occurred, or</li>
+<li>when a complete packet has been deserialized into the packet interface buffer</li>
+</ul>
+<dl class="section return"><dt>Returns</dt><dd>if a complete packet has been deserialized and is ready for handling </dd></dl>
 
 <p>Implements <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">IMSPacketsAPICore::PacketInterface</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="3___a_p_i_node_link_8h_source.html#l00208">208</a> of file <a class="el" href="3___a_p_i_node_link_8h_source.html">3_APINodeLink.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="3___a_p_i_node_link_8h_source.html#l00223">223</a> of file <a class="el" href="3___a_p_i_node_link_8h_source.html">3_APINodeLink.h</a>.</p>
+
+</div>
+</div>
+<a id="a5413ec95895a5e521edb843ffa76758a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5413ec95895a5e521edb843ffa76758a">&#9670;&nbsp;</a></span>SerializePacket()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TokenType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html">IMSPacketsAPICore::PacketInterface_Binary</a>&lt; TokenType &gt;::SerializePacket </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Single Shot Non-Blocking Conditional Assembly. </p>
+<p>A <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet.html" title="A structured interface to a token buffer.">Packet</a> Port Instance ensures this functions is called in once immediately after the positive return of the tx packet handler of the associated data execution instance.</p>
+<dl class="section return"><dt>Returns</dt><dd>Serialization Status (true - success, false - otherwise) </dd></dl>
+
+<p>Implements <a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface.html">IMSPacketsAPICore::PacketInterface</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="3___a_p_i_node_link_8h_source.html#l00269">269</a> of file <a class="el" href="3___a_p_i_node_link_8h_source.html">3_APINodeLink.h</a>.</p>
 
 </div>
 </div>

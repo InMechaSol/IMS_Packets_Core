@@ -24,7 +24,8 @@ var group___a_p_i_node_link =
       [ "getPacketPtr", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a8f67bcf870b3be5fe80b9ab4f72da875", null ],
       [ "getTokenSize", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a237d50184feea9934f0416185f272483", null ],
       [ "ReadFromStream", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a6042dc0ef1efe7bbffc9fec0c662b5e5", null ],
-      [ "SerializePacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a562f24614ac4da05ede0799590daa91c", null ],
+      [ "ResetdeSerialize", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#aae771ccf2883c39682fffa9b9ccf1302", null ],
+      [ "SerializePacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a5413ec95895a5e521edb843ffa76758a", null ],
       [ "WriteToStream", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#add6cddf9276458e525edbed3103f59f3", null ],
       [ "BufferPacket", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a1e38db6e398fe6c8c1dedd21ce4b5d1a", null ],
       [ "ByteIndex", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a93e5952f27b05ba76c8de2601659dcfd", null ],
@@ -32,6 +33,7 @@ var group___a_p_i_node_link =
       [ "deSerializedPacketSize", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#abaebcb87d9263e8da0c57c8933acaf11", null ],
       [ "deSerializedTokenIndex", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a5baec242fc6e1a9010780bb8f93d2d41", null ],
       [ "deSerializedTokenLength", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a078ed0611072bb6db9381dc0e8458bc4", null ],
+      [ "deSerializeReset", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a791a1300850403d04cd53d8cd4c39cce", null ],
       [ "TokenBuffer", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___binary.html#a8bd8605b752e1186d066c7befc11602e", null ]
     ] ],
     [ "PacketInterface_ASCII", "class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html", [
