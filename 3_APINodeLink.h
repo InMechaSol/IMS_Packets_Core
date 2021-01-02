@@ -1,3 +1,7 @@
+/*! \file 3_APINodeLink.h
+	\brief Extension of the Packets Core utilizing Header Packets
+	\sa APINodeLink
+*/
 #ifndef __APINODELINK__
 #define __APINODELINK__
 #include "2_PacketPortLink.h"
@@ -247,7 +251,7 @@ namespace IMSPacketsAPICore
 					;
 
 					// if its the length token
-					if (++PcktInterface->deSerializedTokenIndex == Index_PackLEN)
+					if (++PcktInterface->deSerializedTokenIndex == IndexHDR_PackLEN)
 						PcktInterface->BufferPacket.getPacketLength(&PcktInterface->deSerializedTokenLength);
 				}
 
