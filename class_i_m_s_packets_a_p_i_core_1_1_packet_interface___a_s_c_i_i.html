@@ -55,6 +55,7 @@ $(document).ready(function(){initNavTree('class_i_m_s_packets_a_p_i_core_1_1_pac
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -132,6 +133,27 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>CustomReadFro
 &#160;</td><td class="memItemRight" valign="bottom"><b>PacketInterface</b> (std::ostream *ifaceOutStreamPtrIn)</td></tr>
 <tr class="separator:a707fac649aa68d12a7df8e4914227ac8 inherit pro_methods_class_i_m_s_packets_a_p_i_core_1_1_packet_interface"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-methods"></a>
+Static Protected Member Functions</h2></td></tr>
+<tr class="memitem:af45da8537a8143901bf389f4836a4b01"><td class="memItemLeft" align="right" valign="top"><a id="af45da8537a8143901bf389f4836a4b01"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteToStream_ASCII</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt; TokenType &gt; *PcktInterface, std::ostream *PcktInterfaceStream)</td></tr>
+<tr class="separator:af45da8537a8143901bf389f4836a4b01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaff6cea8364ab0cdb396e1bdebccb8b0"><td class="memItemLeft" align="right" valign="top"><a id="aaff6cea8364ab0cdb396e1bdebccb8b0"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteToStream_ASCII</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt; TokenType &gt; *PcktInterface, std::iostream *PcktInterfaceStream)</td></tr>
+<tr class="separator:aaff6cea8364ab0cdb396e1bdebccb8b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5f8246464830116e4ffc5c2927f7294"><td class="memItemLeft" align="right" valign="top"><a id="ae5f8246464830116e4ffc5c2927f7294"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFromStream_ASCII</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt; TokenType &gt; *PcktInterface, std::istream *PcktInterfaceStream)</td></tr>
+<tr class="separator:ae5f8246464830116e4ffc5c2927f7294"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7853c7ff3737ba485dcadb74a83b8021"><td class="memItemLeft" align="right" valign="top"><a id="a7853c7ff3737ba485dcadb74a83b8021"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFromStream_ASCII</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt; TokenType &gt; *PcktInterface, std::iostream *PcktInterfaceStream)</td></tr>
+<tr class="separator:a7853c7ff3737ba485dcadb74a83b8021"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a920322d87364318e84c8cf21977e7f14"><td class="memItemLeft" align="right" valign="top"><a id="a920322d87364318e84c8cf21977e7f14"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>DeSerializePacket_ASCII</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt; TokenType &gt; *PcktInterface)</td></tr>
+<tr class="separator:a920322d87364318e84c8cf21977e7f14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cccffaca6d1f2ca98004309198f7ff5"><td class="memItemLeft" align="right" valign="top"><a id="a9cccffaca6d1f2ca98004309198f7ff5"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>SerializePacket_ASCII</b> (<a class="el" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt; TokenType &gt; *PcktInterface)</td></tr>
+<tr class="separator:a9cccffaca6d1f2ca98004309198f7ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:acd42ed8850f40fa1a5d946004195b392"><td class="memItemLeft" align="right" valign="top"><a id="acd42ed8850f40fa1a5d946004195b392"></a>
@@ -166,7 +188,7 @@ class IMSPacketsAPICore::PacketInterface_ASCII&lt; TokenType &gt;</h3>
 
 <p>API Node ASCII Interface for HDR_Packets. </p>
 
-<p class="definition">Definition at line <a class="el" href="3___a_p_i_node_link_8h_source.html#l00301">301</a> of file <a class="el" href="3___a_p_i_node_link_8h_source.html">3_APINodeLink.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="3___a_p_i_node_link_8h_source.html#l00385">385</a> of file <a class="el" href="3___a_p_i_node_link_8h_source.html">3_APINodeLink.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="3___a_p_i_node_link_8h_source.html">3_APINodeLink.h</a></li>
 </ul>

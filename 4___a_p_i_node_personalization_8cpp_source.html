@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.20"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>IMS Packets Core: 4_APINodePersonalization.cpp Source File</title>
+<title>IMS Packets Core: C:/Users/geades/Documents/Tests_IMS_Packets_Core/4_APINodePersonalization.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -53,10 +53,10 @@ $(document).ready(function(){initNavTree('4___a_p_i_node_personalization_8cpp_so
 <div id="doc-content">
 <div class="header">
   <div class="headertitle">
-<div class="title">4_APINodePersonalization.cpp</div>  </div>
+<div class="title">C:/Users/geades/Documents/Tests_IMS_Packets_Core/4_APINodePersonalization.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;3_APINodeLink.h&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="3___a_p_i_node_link_8h.html">3_APINodeLink.h</a>&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">using namespace </span>IMSPacketsAPICore;</div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
@@ -69,52 +69,66 @@ $(document).ready(function(){initNavTree('4___a_p_i_node_personalization_8cpp_so
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">void</span>    CustomLoop() { ; }</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">void</span>    VERSION_Handler(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet___version.html">Packet_Version</a>* inPack) { ; }</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">void</span>    VERSION_Packager(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet___version.html">Packet_Version</a>* outPack) { ; }</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">bool</span>    API_CustomShared_PrepareTx(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet.html">Packet</a>* TxPackOutPtr) { ; }</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">void</span>    API_CustomShared_HandleRx(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">HDR_Packet</a>* RxPackInPtr) { ; }</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;};</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">void</span>    VERSION_Handler(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet___version.html">Packet_Version</a>* inPack) </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    { </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="comment">// if in pack is a read packet</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <span class="comment">//switch(inPack-&gt;getPacketType(,))</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        setVersionPackTrigger();</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    }</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">void</span>    VERSION_Packager(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet___version.html">Packet_Version</a>* outPack) { ; }</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// define interface functions (*link the stream)</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="class_test_a_s_c_i_i_console___input_interface.html">   41</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_test_a_s_c_i_i_console___input_interface.html">TestASCIIConsole_InputInterface</a> :<span class="keyword">public</span> <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt;SPD4&gt;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;{</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="class_test_a_s_c_i_i_console___input_interface.html">TestASCIIConsole_InputInterface</a>(std::istream* ifaceInStreamPtrIn) :</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII&lt;SPD4&gt;</a>(ifaceInStreamPtrIn) { ; }</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> CustomReadFrom()</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        ;<span class="comment">// std::cin &gt;&gt; ;</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> DeSerializePacket() { <span class="keywordflow">return</span> <span class="keyword">false</span>; }</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;};</div>
-<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="class_test_a_s_c_i_i_console___output_interface.html">   52</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_test_a_s_c_i_i_console___output_interface.html">TestASCIIConsole_OutputInterface</a> :<span class="keyword">public</span> <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt;SPD4&gt;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;{</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="class_test_a_s_c_i_i_console___output_interface.html">TestASCIIConsole_OutputInterface</a>(std::ostream* ifaceOutStreamPtrIn = <span class="keyword">nullptr</span>) :</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII&lt;SPD4&gt;</a>(ifaceOutStreamPtrIn) {</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        BufferPacket.setCharsBuffer(&amp;(TokenBuffer.chars[0]));</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    }</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">void</span> CustomWriteTo()</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        ;<span class="comment">// std::cout &lt;&lt; ;</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    }</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">bool</span> SerializePacket() { <span class="keywordflow">return</span> <span class="keyword">false</span>; }</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;};</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">bool</span>    API_CustomShared_PrepareTx(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">HDR_Packet</a>* TxPackOutPtr) { <span class="keywordflow">return</span> <span class="keyword">false</span>; }  </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">void</span>    API_CustomShared_HandleRx(<a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">HDR_Packet</a>* RxPackInPtr) { ; }</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;};</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">// define interface functions (*link the stream)</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="class_test_a_s_c_i_i_console___input_interface.html">   46</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_test_a_s_c_i_i_console___input_interface.html">TestASCIIConsole_InputInterface</a> :<span class="keyword">public</span> <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt;SPD4&gt;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;{</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <a class="code" href="class_test_a_s_c_i_i_console___input_interface.html">TestASCIIConsole_InputInterface</a>(std::istream* ifaceInStreamPtrIn = <span class="keyword">nullptr</span>) :</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII&lt;SPD4&gt;</a>(ifaceInStreamPtrIn) { </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        BufferPacket.setCharsBuffer(&amp;(TokenBuffer.chars[0])); </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    }</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">void</span> CustomReadFrom()</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        ReadFromStream_ASCII(<span class="keyword">this</span>, &amp;std::cin);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    }</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span> DeSerializePacket() </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    { </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <span class="keywordflow">return</span> DeSerializePacket_ASCII(<span class="keyword">this</span>);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;};</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="class_test_a_s_c_i_i_console___output_interface.html">   63</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_test_a_s_c_i_i_console___output_interface.html">TestASCIIConsole_OutputInterface</a> :<span class="keyword">public</span> <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII</a>&lt;SPD4&gt;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;{</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <a class="code" href="class_test_a_s_c_i_i_console___output_interface.html">TestASCIIConsole_OutputInterface</a>(std::ostream* ifaceOutStreamPtrIn = <span class="keyword">nullptr</span>) :</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <a class="code" href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">PacketInterface_ASCII&lt;SPD4&gt;</a>(ifaceOutStreamPtrIn) {</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        BufferPacket.setCharsBuffer(&amp;(TokenBuffer.chars[0]));</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> CustomWriteTo()</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        WriteToStream_ASCII(<span class="keyword">this</span>, &amp;std::cout);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    }</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">bool</span> SerializePacket() </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    { </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <span class="keywordflow">return</span> SerializePacket_ASCII(<span class="keyword">this</span>); </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    }</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;};</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="aclass_test_a_s_c_i_i_console___output_interface_html"><div class="ttname"><a href="class_test_a_s_c_i_i_console___output_interface.html">TestASCIIConsole_OutputInterface</a></div><div class="ttdef"><b>Definition:</b> <a href="4___a_p_i_node_personalization_8cpp_source.html#l00052">4_APINodePersonalization.cpp:53</a></div></div>
-<div class="ttc" id="aclass_test_a_s_c_i_i_console___input_interface_html"><div class="ttname"><a href="class_test_a_s_c_i_i_console___input_interface.html">TestASCIIConsole_InputInterface</a></div><div class="ttdef"><b>Definition:</b> <a href="4___a_p_i_node_personalization_8cpp_source.html#l00041">4_APINodePersonalization.cpp:42</a></div></div>
-<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e.html">IMSPacketsAPICore::API_NODE</a></div><div class="ttdoc">API Node for HDR_Packets.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00363">3_APINodeLink.h:364</a></div></div>
-<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">IMSPacketsAPICore::HDR_Packet</a></div><div class="ttdoc">A Packet with Header Information.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00121">3_APINodeLink.h:122</a></div></div>
-<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_packet___version_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_packet___version.html">IMSPacketsAPICore::Packet_Version</a></div><div class="ttdoc">A Version Packet for Application Nodes.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00148">3_APINodeLink.h:149</a></div></div>
+<div class="ttc" id="aclass_test_a_s_c_i_i_console___output_interface_html"><div class="ttname"><a href="class_test_a_s_c_i_i_console___output_interface.html">TestASCIIConsole_OutputInterface</a></div><div class="ttdef"><b>Definition:</b> <a href="4___a_p_i_node_personalization_8cpp_source.html#l00063">4_APINodePersonalization.cpp:64</a></div></div>
+<div class="ttc" id="aclass_test_a_s_c_i_i_console___input_interface_html"><div class="ttname"><a href="class_test_a_s_c_i_i_console___input_interface.html">TestASCIIConsole_InputInterface</a></div><div class="ttdef"><b>Definition:</b> <a href="4___a_p_i_node_personalization_8cpp_source.html#l00046">4_APINodePersonalization.cpp:47</a></div></div>
+<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_a_p_i___n_o_d_e.html">IMSPacketsAPICore::API_NODE</a></div><div class="ttdoc">API Node for HDR_Packets.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00475">3_APINodeLink.h:476</a></div></div>
+<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_h_d_r___packet.html">IMSPacketsAPICore::HDR_Packet</a></div><div class="ttdoc">A Packet with Header Information.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00145">3_APINodeLink.h:146</a></div></div>
+<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_packet___version_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_packet___version.html">IMSPacketsAPICore::Packet_Version</a></div><div class="ttdoc">A Version Packet for Application Nodes.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00175">3_APINodeLink.h:176</a></div></div>
 <div class="ttc" id="aclass_test___a_p_i___node___default_html"><div class="ttname"><a href="class_test___a_p_i___node___default.html">Test_API_Node_Default</a></div><div class="ttdoc">An Example with Default Configuration.</div><div class="ttdef"><b>Definition:</b> <a href="4___a_p_i_node_personalization_8cpp_source.html#l00023">4_APINodePersonalization.cpp:24</a></div></div>
 <div class="ttc" id="aclass_test___a_p_i___node___default_html_aae26d190088616d53af23182deedb8af"><div class="ttname"><a href="class_test___a_p_i___node___default.html#aae26d190088616d53af23182deedb8af">Test_API_Node_Default::Setup</a></div><div class="ttdeci">void Setup()</div><div class="ttdoc">Abstract Initialization Function.</div><div class="ttdef"><b>Definition:</b> <a href="4___a_p_i_node_personalization_8cpp_source.html#l00027">4_APINodePersonalization.cpp:27</a></div></div>
-<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_packet_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_packet.html">IMSPacketsAPICore::Packet</a></div><div class="ttdoc">A structured interface to a token buffer.</div><div class="ttdef"><b>Definition:</b> <a href="1___language_constructs_8h_source.html#l00238">1_LanguageConstructs.h:239</a></div></div>
-<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">IMSPacketsAPICore::PacketInterface_ASCII</a></div><div class="ttdoc">API Node ASCII Interface for HDR_Packets.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00301">3_APINodeLink.h:302</a></div></div>
+<div class="ttc" id="aclass_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i_html"><div class="ttname"><a href="class_i_m_s_packets_a_p_i_core_1_1_packet_interface___a_s_c_i_i.html">IMSPacketsAPICore::PacketInterface_ASCII</a></div><div class="ttdoc">API Node ASCII Interface for HDR_Packets.</div><div class="ttdef"><b>Definition:</b> <a href="3___a_p_i_node_link_8h_source.html#l00385">3_APINodeLink.h:386</a></div></div>
+<div class="ttc" id="a3___a_p_i_node_link_8h_html"><div class="ttname"><a href="3___a_p_i_node_link_8h.html">3_APINodeLink.h</a></div><div class="ttdoc">Extension of the Packets Core utilizing Header Packets.</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
