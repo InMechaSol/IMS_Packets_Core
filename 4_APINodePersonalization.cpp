@@ -32,7 +32,7 @@ protected:
 	void	VERSION_Handler(Packet_Version* inPack) 
 	{ 
 		// if in pack is a read packet
-		switch(inPack->getPacketType(,))
+		//switch(inPack->getPacketType(,))
 		setVersionPackTrigger();
 	}
 	void	VERSION_Packager(Packet_Version* outPack) { ; }

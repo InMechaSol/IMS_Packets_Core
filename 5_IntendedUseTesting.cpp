@@ -28,7 +28,7 @@ using namespace IMSPacketsAPICore;
 class CoreTest_CustomConsole_Node :public Test_API_Node_Default
 {
 public:
-	PolymorphicPacketPort*		getPacketPort(int i) { return &TestPortA; };
+	PolymorphicPacketPort*		getPacketPortat(int i) { return &TestPortA; };
 	const int					getNumPacketPorts() { return 1; }
 
 	// create custom interface instances
@@ -63,7 +63,7 @@ public:
 		;
 	}
 
-	PolymorphicPacketPort*				getPacketPort(int i) { return &TestPortA; };
+	PolymorphicPacketPort*				getPacketPortat(int i) { return &TestPortA; };
 	const int							getNumPacketPorts() { return 1; }
 
 };
