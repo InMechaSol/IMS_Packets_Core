@@ -237,7 +237,6 @@ namespace IMSPacketsAPICore
 			deSerializeReset = false;
 		}
 		
-		template<class TokenType>
 		static bool DeSerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
 		{
 			// called cyclically
@@ -277,7 +276,6 @@ namespace IMSPacketsAPICore
 			return false;
 		}
 
-		template<class TokenType>
 		static bool SerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
 		{
 			// called single-shot after tx packet handler of the data execution instance
