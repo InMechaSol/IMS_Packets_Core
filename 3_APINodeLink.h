@@ -163,6 +163,7 @@ namespace IMSPacketsAPICore
 
 		TEMPLATE_SPDSET(PacketType, ptype, IndexHDR_PackTYPE)
 		TEMPLATE_SPDGET(PacketType, ptype, IndexHDR_PackTYPE)
+
 		TEMPLATE_SPDSET(PacketOption, popt, IndexHDR_PackOPTION)
 		TEMPLATE_SPDGET(PacketOption, popt, IndexHDR_PackOPTION)
 	};
@@ -180,10 +181,13 @@ namespace IMSPacketsAPICore
 
 		TEMPLATE_SPDSET(MajorVersion, majVer, IndexVERSION_MajorVersion)
 		TEMPLATE_SPDGET(MajorVersion, majVer, IndexVERSION_MajorVersion)
+
 		TEMPLATE_SPDSET(MinorVersion, minVer, IndexVERSION_MinorVersion)
 		TEMPLATE_SPDGET(MinorVersion, minVer, IndexVERSION_MinorVersion)
+
 		TEMPLATE_SPDSET(BuildNumber, bldNum, IndexVERSION_BuildNumber)
 		TEMPLATE_SPDGET(BuildNumber, bldNum, IndexVERSION_BuildNumber)
+
 		TEMPLATE_SPDSET(DevFlag, DevFlg, IndexVERSION_DevFlag)
 		TEMPLATE_SPDGET(DevFlag, DevFlg, IndexVERSION_DevFlag)
 	};
@@ -477,8 +481,10 @@ namespace IMSPacketsAPICore
 		virtual PolymorphicPacketPort* getPacketPortat(int i) = 0;
 		virtual const int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
+
 		virtual void VERSION_Handler(Packet_Version* inPack) = 0;
 		virtual void VERSION_Packager(Packet_Version* outPack) = 0;
+
 		virtual bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr) = 0;
 		virtual void API_CustomShared_HandleRx(HDR_Packet* RxPackInPtr) = 0;
 	public:
