@@ -849,10 +849,10 @@ INPUT                  = README.md \
                          1_LanguageConstructs.h \
                          2_PacketPortLink.h \
                          3_APINodeLink.h \
-                         4_APINodePersonalization.cpp \
-                         5_IntendedUseTesting.cpp \
                          ../ConsoleTest_IMS_Packets_Core/ConsoleTest_IMS_Packets_Core.cpp \
-                         ../UnitTests_IMS_Packets_Core/UnitTests_IMS_Packets_Core.cpp
+                         ../UnitTests_IMS_Packets_Core/UnitTests_IMS_Packets_Core.cpp \
+                         ../4_APINodePersonalization.cpp \
+                         ../5_IntendedUseTesting.cpp
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
