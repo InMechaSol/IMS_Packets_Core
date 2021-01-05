@@ -201,6 +201,8 @@ namespace IMSPacketsAPICore
 		int64_t		intVal;
 		uint64_t	uintVal;
 	};
+
+
 	/*! \class SPDInterfaceBuffer
 		\brief template class for binary token buffers
 		\ingroup LanguageConstructs
@@ -216,6 +218,8 @@ namespace IMSPacketsAPICore
 			uint8_t				bytes[sizeof(TokenType) * PACKETBUFFER_TOKENCOUNT];
 		};
 	};
+	
+	
 	/*! \class SPDASCIIInterfaceBuffer
 		\brief class for string token buffers
 		\ingroup LanguageConstructs
@@ -227,6 +231,8 @@ namespace IMSPacketsAPICore
 	public:
 		char					chars[STRINGBUFFER_CHARCOUNT];
 	};
+	
+	
 	/*!	\class Packet
 		\brief A structured interface to a token buffer
 		\ingroup LanguageConstructs
@@ -433,12 +439,12 @@ namespace IMSPacketsAPICore
 		}
 
 	public:
-		uint8_t* getBytesBuffer() { return bytesBufferPtr; }
+		uint8_t*				getBytesBuffer() { return bytesBufferPtr; }
 		void					setBytesBuffer(uint8_t* bytesBufferPtrIn)
 		{
 			bytesBufferPtr = bytesBufferPtrIn;
 		}
-		char* getCharsBuffer() { return charsBufferPtr; }
+		char*					getCharsBuffer() { return charsBufferPtr; }
 		void					setCharsBuffer(char* charsBufferPtrIn)
 		{
 			charsBufferPtr = charsBufferPtrIn;
@@ -448,7 +454,7 @@ namespace IMSPacketsAPICore
 			bytesBufferPtr = copyPacketPtrs->bytesBufferPtr;
 			charsBufferPtr = copyPacketPtrs->charsBufferPtr;
 		}
-		virtual const char* getPacketIDString()		const { return ""; }
+		virtual const char*		getPacketIDString()		const { return ""; }
 		virtual int				getSPDCount() { return 0; }
 		bool					isASCIIPacket() { return(charsBufferPtr != nullptr); }
 		static bool				isASCIIchar(char inChar) { return ((inChar >= ASCII_space && inChar <= ASCII_tilda)); }
