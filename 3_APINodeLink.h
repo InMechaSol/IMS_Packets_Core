@@ -20,11 +20,11 @@ TEMPLATE_STATICPACKETINFO(HDRPACK, 4)
 
 enum TokenIndex_HDRPACK
 {
-	Index_PacketID			= Index_PackID,
-	Index_PacketLength		= Index_PackLEN,
-	Index_PacketType,
-	Index_PacketOption,
-	Index_HDRPACK_END
+	iHDRPACK_PacketID		= Index_PackID,
+	iHDRPACK_PacketLength	= Index_PackLEN,
+	iHDRPACK_PacketType,
+	iHDRPACK_PacketOption,
+	iHDRPACK_END
 };
 
 /*! \def VERSION
@@ -37,11 +37,11 @@ TEMPLATE_STATICPACKETINFO(VERSION, 4)
 
 enum TokenIndex_VERSION
 {
-	Index_Major	= Index_HDRPACK_END,
-	Index_Minor,
-	Index_Build,
-	Index_Dev,
-	Index_VERSION_END
+	iVERSION_Major	= iHDRPACK_END,
+	iVERSION_Minor,
+	iVERSION_Build,
+	iVERSION_Dev,
+	iVERSION_END
 };
 
 
@@ -118,8 +118,8 @@ namespace IMSPacketsAPICore
 		int					getPacketID()			{ return ID_HDRPACK; }
 		int					getNumSPDs()			{ return TokenCount_HDRPACK; }
 		
-		TEMPLATE_SPDACCESSORS(PacketType, Index_PacketType, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(PacketOption, Index_PacketOption, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(PacketType, iHDRPACK_PacketType, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(PacketOption, iHDRPACK_PacketOption, typeINT, "%d")
 	};
 
 
@@ -133,10 +133,10 @@ namespace IMSPacketsAPICore
 		int					getPacketID()			{ return ID_VERSION; }
 		int					getNumSPDs()			{ return TokenCount_VERSION; }
 
-		TEMPLATE_SPDACCESSORS(MajorVersion, Index_Major, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(MinorVersion, Index_Minor, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(BuildNumber, Index_Build, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(DevFlag, Index_Dev, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(MajorVersion, iVERSION_Major, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(MinorVersion, iVERSION_Minor, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(BuildNumber, iVERSION_Build, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(DevFlag, iVERSION_Dev, typeINT, "%d")
 
 	};
 
