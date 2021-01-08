@@ -16,19 +16,7 @@
 	\brief Token ID value for default HDR Packet
 */
 #define HDRPACK (0)
-
-
-/*! \def Index_PackID
-	\brief Token Index for Packet ID Token
-*/
-#define IndexHDR_PackID (0)
-
-
-/*! \def Index_PackLEN
-	\brief Token Index for Packet Length Token
-*/
-#define IndexHDR_PackLEN (1)
-
+static const char IDString_HDRPACK[] = xstr(HDRPACK);
 
 /*! \def Index_PackTYPE
 	\brief Token Index for Packet Type Token
@@ -54,7 +42,7 @@
 	VERSION is of the form major.minor.build with a -dev indication
 */
 #define VERSION (HDRPACK+1)
-
+static const char IDString_VERSION[] = xstr(VERSION);
 
 /*! \def Index_MajorVersion
 	\brief Token Index for Major Version Number Token
@@ -98,20 +86,20 @@
 	is passed to a polymorphic api endpoint specific to packet type and ID.
 
 */
-#define TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc){\
+#define TEMPLATE_RX_HANDLER(tempHDRPack, Packet_Type, Packet_ID, HandlerFunc){\
 if(tempHDRPack.isASCIIPacket()){\
-	if(tempHDRPack.StringBuffer_IDString_Equals(#TokenID)){\
+	if(tempHDRPack.StringBuffer_IDString_Equals(#Packet_ID)){\
 		Packet_Type my##Packet_Type;\
 		my##Packet_Type.CopyTokenBufferPtrs(RxPackInPtr);\
 		HandlerFunc(&my##Packet_Type);return;}}\
 else{\
-	if(tempHDRPack.ByteBuffer_ID_Equals(TokenID)){\
+	if(tempHDRPack.ByteBuffer_ID_Equals(Packet_ID)){\
 		Packet_Type my##Packet_Type;\
 		my##Packet_Type.CopyTokenBufferPtrs(RxPackInPtr);\
 		HandlerFunc(&my##Packet_Type);return;}}\
 }
 
-/*! \def TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc)
+/*! \def TEMPLATE_TX_PACKAGER(tVar, pType, packFunc)
 	\brief Code Template for Application Node API EndPoint (Tx) Functions
 
 
@@ -121,13 +109,12 @@ else{\
 	returning true which will indicate to the port object that a packet is ready for transmission.
 
 */
-#define TEMPLATE_TX_PACKAGER(tVar, pType, pID, packFunc){\
+#define TEMPLATE_TX_PACKAGER(tVar, pType, packFunc){\
 if(tVar){\
+	tVar=false;\
 	pType tempPack;\
 	tempPack.CopyTokenBufferPtrs(TxPackOutPtr);\
-	packFunc(&tempPack);\
-	tVar=false;\
-	return true; }\
+	return packFunc(&tempPack); }\
 }
 
 /*! @}*/
@@ -136,6 +123,18 @@ if(tVar){\
 
 namespace IMSPacketsAPICore
 {
+	enum PacketTypes
+	{
+		ReadComplete,
+		ReadTokenAt,
+		WriteComplete,
+		WriteTokenAt,
+		ResponseComplete,
+		ResponseTokenAt,
+		ResponseHDROnly,
+		FullCyclicPartner		
+	};
+
 	/*! \addtogroup APINodeLink
 		@{
 	*/
@@ -143,29 +142,16 @@ namespace IMSPacketsAPICore
 		\brief A Packet with Header Information
 	*/
 	class HDR_Packet :public Packet
-	{
-	public:
-		int						getNumSPDs()			const { return 4; }
-		virtual const char*		getPacketIDString()		const { return xstr(HDRPACK); }
-		virtual int				getPacketID()			const { return HDRPACK; }
-
-		bool					StringBuffer_IDString_Equals(const char* compareStringPtr) { return false; }	// TODO :
-		bool					ByteBuffer_ID_Equals(const int compareValue) { return false; }					// TODO :
-
-		TEMPLATE_SPDSET_toVALUE(PacketID, pid, IndexHDR_PackID, pid->intVal = getPacketID())
-
-		int						getPacketLength(SPD1 len)const { return (sizeof(SPD1) * getNumSPDs()); }
-		int						getPacketLength(SPD2 len)const { return (sizeof(SPD2) * getNumSPDs()); }
-		int						getPacketLength(SPD4 len)const { return (sizeof(SPD4) * getNumSPDs()); }
-		int						getPacketLength(SPD8 len)const { return (sizeof(SPD8) * getNumSPDs()); }
-
-		TEMPLATE_SPDSET_toVALUE(PacketLength, len, IndexHDR_PackLEN, len->intVal = getPacketLength(*len))
-
-		TEMPLATE_SPDSET(PacketType, ptype, IndexHDR_PackTYPE)
-		TEMPLATE_SPDGET(PacketType, ptype, IndexHDR_PackTYPE)
-
-		TEMPLATE_SPDSET(PacketOption, popt, IndexHDR_PackOPTION)
-		TEMPLATE_SPDGET(PacketOption, popt, IndexHDR_PackOPTION)
+	{	
+	public:		
+		char*				getPacketIDString()		{ return (char*)&IDString_HDRPACK[0]; }
+		static const int	PacketID				= HDRPACK;
+		int					getPacketID()			{ return HDR_Packet::PacketID; }
+		static const int	NumSPDs					= 4;
+		int					getNumSPDs()			{ return HDR_Packet::NumSPDs; }
+		
+		TEMPLATE_SPDACCESSORS(PacketType, IndexHDR_PackTYPE, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(PacketOption, IndexHDR_PackOPTION, typeINT, "%d")
 	};
 
 
@@ -175,21 +161,17 @@ namespace IMSPacketsAPICore
 	class Packet_Version :public HDR_Packet
 	{
 	public:
-		int			getNumSPDs()			const { return (HDR_Packet::getNumSPDs() + 4); }
-		const char* getPacketIDString()		const { return xstr(VERSION); }
-		int			getPacketID()			const { return VERSION; }
+		char*				getPacketIDString()		{ return (char*)&IDString_VERSION[0]; }
+		static const int	PacketID				= VERSION;
+		int					getPacketID()			{ return Packet_Version::PacketID; }
+		static const int	NumSPDs					= HDR_Packet::NumSPDs+4;
+		int					getNumSPDs()			{ return Packet_Version::NumSPDs; }
 
-		TEMPLATE_SPDSET(MajorVersion, majVer, IndexVERSION_MajorVersion)
-		TEMPLATE_SPDGET(MajorVersion, majVer, IndexVERSION_MajorVersion)
+		TEMPLATE_SPDACCESSORS(MajorVersion, IndexVERSION_MajorVersion, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(MinorVersion, IndexVERSION_MinorVersion, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(BuildNumber, IndexVERSION_BuildNumber, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(DevFlag, IndexVERSION_DevFlag, typeINT, "%d")
 
-		TEMPLATE_SPDSET(MinorVersion, minVer, IndexVERSION_MinorVersion)
-		TEMPLATE_SPDGET(MinorVersion, minVer, IndexVERSION_MinorVersion)
-
-		TEMPLATE_SPDSET(BuildNumber, bldNum, IndexVERSION_BuildNumber)
-		TEMPLATE_SPDGET(BuildNumber, bldNum, IndexVERSION_BuildNumber)
-
-		TEMPLATE_SPDSET(DevFlag, DevFlg, IndexVERSION_DevFlag)
-		TEMPLATE_SPDGET(DevFlag, DevFlg, IndexVERSION_DevFlag)
 	};
 
 
@@ -235,12 +217,20 @@ namespace IMSPacketsAPICore
 		void ResetdeSerialize()
 		{
 			ByteIndex = 0;
+			ByteIndexLast = 0;
 			deSerializedPacketSize = 0;
 			deSerializedTokenIndex = 0;
 			deSerializedTokenLength.uintVal = 0;
 			deSerializeReset = false;
 		}
 		
+		/*! \fn DeSerializePacket_Binary
+			\brief Cyclic Non-Blocking Conditional Assembly
+			\sa DeSerializePacket
+
+			Static workhorse function to facilitate testing of customization framework
+			with single validated function, the one used by default.
+		*/
 		static bool DeSerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
 		{
 			// called cyclically
@@ -253,33 +243,45 @@ namespace IMSPacketsAPICore
 					// optionally and conditionally swap byte order of tokens here
 					;
 
-					// if its the length token
-					if (++PcktInterface->deSerializedTokenIndex == IndexHDR_PackLEN)
-						PcktInterface->BufferPacket.getPacketLength(&PcktInterface->deSerializedTokenLength);
-				}
+					// decide if error, trigger reset
+					PcktInterface->deSerializeReset = false;// TODO:
 
-				// decide if error, then reset
-				PcktInterface->deSerializeReset = false;
-				if (PcktInterface->deSerializeReset)							// TODO:
-				{
-					PcktInterface->ResetdeSerialize();
+					// if its the length token index
+					if (++PcktInterface->deSerializedTokenIndex == Index_PackLEN)
+						PcktInterface->BufferPacket.readbuff_PackLength(&PcktInterface->deSerializedTokenLength);
+
+					// decide if complete packet
+					// return true or false
+					// true will trigger the rx packet handler of the data execution instance
+					if (PcktInterface->ByteIndex == (PcktInterface->deSerializedTokenLength.uintVal - 1))
+					{
+						PcktInterface->ResetdeSerialize();
+						return true;
+					}
 				}
+			}
+
+			
+
+			// Reset if triggerred
+			if (PcktInterface->deSerializeReset)							
+			{
+				PcktInterface->ResetdeSerialize();
 			}
 
 			// Capture history for change detect
-			PcktInterface->ByteIndexLast = PcktInterface->ByteIndex;
-
-			// decide if complete packet
-			// return true or false
-			// true will trigger the rx packet handler of the data execution instance
-			if (PcktInterface->ByteIndexLast == (PcktInterface->deSerializedTokenLength.uintVal - 1))
-			{
-				PcktInterface->ResetdeSerialize();
-				return true;
-			}
+			PcktInterface->ByteIndexLast = PcktInterface->ByteIndex;			
 			return false;
 		}
 
+
+		/*! \fn SerializePacket_Binary
+			\brief Single Shot Non-Blocking Conditional Assembly
+			\sa SerializePacket
+
+			Static workhorse function to facilitate testing of customization framework
+			with single validated function, the one used by default.
+		*/
 		static bool SerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
 		{
 			// called single-shot after tx packet handler of the data execution instance
@@ -294,6 +296,7 @@ namespace IMSPacketsAPICore
 
 		/*! \fn DeSerializePacket
 			\brief Cyclic Non-Blocking Conditional Assembly
+			\sa DeSerializePacket_Binary
 
 			Bytes are intended to enter the system one by one, or at least, token by token.
 			As bytes are read into the packet buffer, this function analyzes the bytes to
@@ -357,7 +360,16 @@ namespace IMSPacketsAPICore
 		{
 			return SerializePacket_Binary();
 		}
+
+
 	public:
+		/*! \fn getPacketPtr
+			\brief Interface Definition of Abstract Packet Accessor
+			\return Pointer to the Packet Buffer of the Interface Instance
+			\sa PacketInterface:getPacketPtr
+			\sa BufferPacket
+
+		*/
 		Packet*				getPacketPtr() { return &BufferPacket; }
 		int					getTokenSize() { return sizeof(TokenType); }
 
@@ -386,6 +398,7 @@ namespace IMSPacketsAPICore
 	{
 	protected:
 		int									CharIndex = 0;
+		int									CharIndexLast = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		HDR_Packet							BufferPacket;
 
@@ -404,6 +417,8 @@ namespace IMSPacketsAPICore
 			else if (ifaceOutStreamPtr != nullptr)
 				WriteToStream_ASCII(this, ifaceOutStreamPtr);
 		}
+		
+		
 		static void ReadFromStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::istream* PcktInterfaceStream)
 		{
 			if (PcktInterfaceStream->peek() != EOF)
@@ -427,33 +442,195 @@ namespace IMSPacketsAPICore
 				ReadFromStream_ASCII(this, ifaceInStreamPtr);
 			}
 		}
+		
+		int deSerializedTokenIndex = 0;
+		bool deSerializeReset = false;
+
+
+
+		void ResetdeSerialize()
+		{
+			CharIndex = 0;
+			CharIndexLast = 0;
+			deSerializedTokenIndex = 0;
+			deSerializeReset = false;
+		}
+
+
+		/*! \fn DeSerializePacket_ASCII
+			\brief Default ASCII Deserialization
+			\sa Packet
+			\sa DeSerializePacket
+			\param PcktInterface
+			\return True at Complete Packet Receiption, False otherwise
+
+			This static function is designed to be called cyclically on receipt of each
+			new character into the interface buffer.  On receipt, characters are analyzed for
+			token boundaries or errors.  If an error occurs, a reset is triggered.  Once the terminator
+			character is received, return true to trigger data execution instance handling.
+		*/
 		static bool DeSerializePacket_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface)
 		{
 			// called cyclically
 			// monitor CharIndex for change
-			// analyze char array
-			// decide if complete packet
-			// decide if error
-			// return true or false
-			// true will trigger the packet handler of the data execution instance
+			if (PcktInterface->CharIndexLast != PcktInterface->CharIndex)
+			{
+				// decide if error, trigger reset
+				if (!Packet::isASCIIchar(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex]))
+				{
+					PcktInterface->deSerializeReset = true; // TODO:  ??
+				}
+
+				// look for delimeter/terminator ?
+				else if (Packet::isDelimiterchar(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex]) || Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex]))
+				{
+					// increment token index
+					PcktInterface->deSerializedTokenIndex++;
+
+					// "strip" delimiter/terminator
+					// 0x00 to all chars from delimiter to next token start
+					for (int i = PcktInterface->CharIndex; i < (PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO); i++)
+						PcktInterface->TokenBuffer.chars[i] = 0x00;
+					
+					// decide if complete packet
+					// return true or false
+					// true will trigger the rx packet handler of the data execution instance
+					if (Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex]))
+					{
+						PcktInterface->ResetdeSerialize();
+						if(PcktInterface->deSerializedTokenIndex >= HDR_Packet::NumSPDs)
+							return true;
+					}
+
+					// advance index to next token start
+					PcktInterface->CharIndex = (PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
+				}
+			}
+			
+			// reset if triggered
+			if (PcktInterface->deSerializeReset)
+			{
+				PcktInterface->ResetdeSerialize();
+			}
+
+			// Capture history for change detect
+			PcktInterface->CharIndexLast = PcktInterface->CharIndex;			
 			return false;
 		}
+
+
+		/*! \fn DeSerializePacket
+			\brief Default ASCII Deserialization
+			\sa DeSerializePacket_ASCII
+			\return True at Complete Packet Receiption, False otherwise
+
+			Thin wrapper around static class function.
+		*/
 		bool DeSerializePacket()
 		{
 			return DeSerializePacket_ASCII(this);
 		}
+
+
+		/*! \fn SerializePacket_ASCII
+			\brief Default ASCII Serialization
+			\sa SerializePacket
+			\return True if no error, clear to send.  False otherwise.
+
+			Is called after the tx packager of the api node instance and before the writeto 
+			function of the PacketInterface instance.  Its purpose is to 
+			- adorn the interface buffer token strings with serialization specific delimeters and terminator, and
+			- collapse packet for transmission by removing 0x00's between tokens, and
+			- calculate serialized packet length.
+			
+			It will then indicate success or failure which in-turn will permit, or not permit, the
+			interface instance writeto function.
+		*/
 		static bool SerializePacket_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface)
 		{
 			// called single-shot
-			// return true or false
+			int lastCharIndexWritten = 0;	// initialized to start of id string
+			int SerializedTokenCount = HDR_Packet::NumSPDs;	// initialized to minimum token of HDR packet
+			int j;
+			int k;
+
+			// iterate through token buffer by token index
+			for (int i = 0; i < PACKETBUFFER_TOKENCOUNT; i++)
+			{
+				// calculate inner loop bounds
+				if (i == 0)
+				{
+					j = 0;
+					k = STRINGBUFFER_IDTOKENRATIO;
+				}
+				else
+				{
+					j = STRINGBUFFER_IDTOKENRATIO + (i-1) * STRINGBUFFER_TOKENRATIO;
+					k = STRINGBUFFER_IDTOKENRATIO + i     * STRINGBUFFER_TOKENRATIO;
+				}
+
+				// iterate through token by char index
+				for (j; j<k; j++)
+				{
+					if (i == Index_PackID)	// working the ID string
+					{
+						// adorn each token at first occurance of 0x00, replace with delimiter
+						if (PcktInterface->TokenBuffer.chars[j] == 0x00)
+						{
+							PcktInterface->TokenBuffer.chars[j] = ASCII_colon;
+							lastCharIndexWritten = j;	// latch index of last char "written"
+							break; // break from inner loop, token by char, loop
+						}
+					}					
+					else // working all inner tokens (not first or last)
+					{
+						// adorn each token at first occurance of 0x00
+						if (PcktInterface->TokenBuffer.chars[j] == 0x00)
+						{
+							if (i == Index_PackLEN) // working the SPD Count String
+							{
+								SerializedTokenCount = atoi(&PcktInterface->TokenBuffer.chars[STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO]);
+
+								// an error has occurred with the token count string if parsed token count string less than hdr packet token count
+								if (SerializedTokenCount < HDR_Packet::NumSPDs)
+									return false;
+							}
+
+							// add delimiter/terminator to shifted location
+							if (i == (SerializedTokenCount - 1)) // working the final token string
+							{
+								PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = ASCII_semicolon;
+								PcktInterface->serializedPacketSize = lastCharIndexWritten + 1;
+								return true;
+							}
+							else
+							{
+								PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = ASCII_colon;
+								break; // break from inner loop, token by char, loop
+							}
+							
+							
+						}
+						else
+						{
+							// shift chars down to previous token delimiter
+							PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = PcktInterface->TokenBuffer.chars[j];
+						}
+					}
+				}				
+			}
 			return false;
 		}
+
+
 		bool SerializePacket()
 		{
 			return SerializePacket_ASCII(this);
 		}
+
+
 	public:
-		Packet* getPacketPtr() { return &BufferPacket; }
+		Packet*				getPacketPtr() { return &BufferPacket; }
 		int					getTokenSize() { return sizeof(TokenType); }
 		PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn = nullptr) :
 			PacketInterface(ifaceStreamPtrIn) {
@@ -469,6 +646,8 @@ namespace IMSPacketsAPICore
 		}
 
 	};
+	
+	
 	/*! \class API_NODE
 		\brief API Node for HDR_Packets
 	*/
@@ -478,15 +657,17 @@ namespace IMSPacketsAPICore
 		bool triggerVERSIONPackager = false;
 	protected:
 		void setVersionPackTrigger() { triggerVERSIONPackager = true; }
+
+
 		virtual PolymorphicPacketPort* getPacketPortat(int i) = 0;
-		virtual const int getNumPacketPorts() = 0;
+		virtual int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
 
 		virtual void VERSION_Handler(Packet_Version* inPack) = 0;
-		virtual void VERSION_Packager(Packet_Version* outPack) = 0;
+		virtual bool VERSION_Packager(Packet_Version* outPack) = 0;
 
-		virtual bool API_CustomShared_PrepareTx(HDR_Packet* TxPackOutPtr) = 0;
-		virtual void API_CustomShared_HandleRx(HDR_Packet* RxPackInPtr) = 0;
+		virtual bool API_CustomShared_PrepareTx(Packet* TxPackOutPtr) = 0;
+		virtual void API_CustomShared_HandleRx(Packet* RxPackInPtr) = 0;
 	public:
 		void Loop()
 		{
@@ -495,23 +676,17 @@ namespace IMSPacketsAPICore
 				(getPacketPortat(i))->ServicePort();
 		}
 		void HandleRxPacket(Packet* RxPackInPtr)
-		{
-			HDR_Packet tempPack;
-			tempPack.CopyTokenBufferPtrs(RxPackInPtr);
+		{ 
+			TEMPLATE_RX_HANDLER((*RxPackInPtr), Packet_Version, VERSION, VERSION_Handler)
 
-			TEMPLATE_RX_HANDLER(tempPack, Packet_Version, VERSION, VERSION_Handler)
-
-			API_CustomShared_HandleRx(&tempPack);
+			API_CustomShared_HandleRx(RxPackInPtr);
 		}
 
 		bool PrepareTxPacket(Packet* TxPackOutPtr)
 		{
-			HDR_Packet tempPack;
-			tempPack.CopyTokenBufferPtrs(TxPackOutPtr);
+			TEMPLATE_TX_PACKAGER(triggerVERSIONPackager, Packet_Version, VERSION_Packager)
 
-			TEMPLATE_TX_PACKAGER(triggerVERSIONPackager, Packet_Version, VERSION, VERSION_Packager)
-
-			return API_CustomShared_PrepareTx(&tempPack);
+			return API_CustomShared_PrepareTx(TxPackOutPtr);
 		}
 	};
 	/*! @}*/

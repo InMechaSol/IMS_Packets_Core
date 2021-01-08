@@ -83,6 +83,13 @@ namespace IMSPacketsAPICore
 		}
 	public:
 		virtual int					getTokenSize()		= 0;
+		/*! \fn getPacketPtr
+			\brief Abstract Accessor Function for Interface Packet Object Pointer
+			\sa Packet
+
+			Intended to be defined in derived classes, this function will return
+			a pointer to the Abstract Packet object of the Interface Instance.
+		*/
 		virtual Packet*				getPacketPtr()		= 0;
 		virtual bool				DeSerializePacket() = 0;
 		virtual bool				SerializePacket()	= 0;
@@ -165,12 +172,13 @@ namespace IMSPacketsAPICore
 	class PolymorphicPacketPort
 	{
 	private:
-		enum PacketPortPartnerType		PortType = SenderResponder_Responder;
-		PacketInterface* InputInterface = nullptr;
-		PacketInterface* OutputInterface = nullptr;
-		AbstractDataExecution* DataExecution = nullptr;
-		PacketPort_SRCommState			SRCommState = sr_Init;
-		PacketPort_FCCommState			FCCommState = fc_Init;
+		enum PacketPortPartnerType		PortType		= SenderResponder_Responder;
+		PacketInterface*				InputInterface	= nullptr;
+		PacketInterface*				OutputInterface = nullptr;
+		AbstractDataExecution*			DataExecution	= nullptr;
+		PacketPort_SRCommState			SRCommState		= sr_Init;
+		PacketPort_FCCommState			FCCommState		= fc_Init;
+
 	protected:
 		void ServicePort_SR_Sender()
 		{
@@ -246,7 +254,7 @@ namespace IMSPacketsAPICore
 			}
 		}
 	public:
-		//! Abstract ServicePort Function
+		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!
 			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
 			and calls the Handle/Package functions of the api node instance.
@@ -265,9 +273,9 @@ namespace IMSPacketsAPICore
 		}
 		PolymorphicPacketPort(PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn)
 		{
-			InputInterface = InputInterfaceIn;
+			InputInterface	= InputInterfaceIn;
 			OutputInterface = OutputInterfaceIn;
-			DataExecution = DataExecutionIn;
+			DataExecution	= DataExecutionIn;
 		}
 
 	};
