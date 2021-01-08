@@ -50,6 +50,7 @@
 	@{
 */
 
+#include "0_EcoSystemVersions.h"
 
 /*! \def PACKETBUFFER_TOKENCOUNT
 	\brief The number of tokens stored in an interface buffer

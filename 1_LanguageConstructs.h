@@ -80,6 +80,13 @@
 */
 #define Index_PackLEN (1)
 
+
+#define TEMPLATE_STATICPACKETINFO(packID, numTokens)\
+static const int ID_##packID = packID;\
+static const char IDString_##packID[] = #packID;\
+static const int TokenCount_##packID = numTokens;\
+
+
 // String-ize macros
 #define xstr(s) #s
 #define str(s) xstr(s)
@@ -97,6 +104,8 @@
 #define ASCII_colon             58
 #define ASCII_semicolon         59
 #define ASCII_tilda             126
+
+
 
 
 /*! \def TEMPLATE_SPDSET(tokenName, SPDindex)

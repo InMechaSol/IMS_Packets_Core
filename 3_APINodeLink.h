@@ -16,64 +16,34 @@
 	\brief Token ID value for default HDR Packet
 */
 #define HDRPACK (0)
-static const char IDString_HDRPACK[] = xstr(HDRPACK);
+TEMPLATE_STATICPACKETINFO(HDRPACK, 4)
 
-/*! \def Index_PackTYPE
-	\brief Token Index for Packet Type Token
-*/
-#define IndexHDR_PackTYPE (2)
-
-
-/*! \def Index_PackOPTION
-	\brief Token Index for Packet Option Token
-*/
-#define IndexHDR_PackOPTION (3)
-
-
-/*! \def VERSION_Offset
-	\brief Token Index Offset for Derived Packet Payload Data Tokens
-*/
-#define VERSION_Offset IndexHDR_PackOPTION
-
+enum TokenIndex_HDRPACK
+{
+	Index_PacketID			= Index_PackID,
+	Index_PacketLength		= Index_PackLEN,
+	Index_PacketType,
+	Index_PacketOption,
+	Index_HDRPACK_END
+};
 
 /*! \def VERSION
 	\brief Token ID value for VERSION Packet
 
 	VERSION is of the form major.minor.build with a -dev indication
 */
-#define VERSION (HDRPACK+1)
-static const char IDString_VERSION[] = xstr(VERSION);
+#define VERSION (1)
+TEMPLATE_STATICPACKETINFO(VERSION, 4)
 
-/*! \def Index_MajorVersion
-	\brief Token Index for Major Version Number Token
+enum TokenIndex_VERSION
+{
+	Index_Major	= Index_HDRPACK_END,
+	Index_Minor,
+	Index_Build,
+	Index_Dev,
+	Index_VERSION_END
+};
 
-	VERSION is of the form major.minor.build with a -dev indication
-*/
-#define IndexVERSION_MajorVersion (VERSION_Offset+1)
-
-
-/*! \def Index_MinorVersion
-	\brief Token Index for Minor Version Number Token
-
-	VERSION is of the form major.minor.build with a -dev indication
-*/
-#define IndexVERSION_MinorVersion (VERSION_Offset+2)
-
-
-/*! \def Index_BuildNumber
-	\brief Token Index for Build Number Token
-
-	VERSION is of the form major.minor.build with a -dev indication
-*/
-#define IndexVERSION_BuildNumber (VERSION_Offset+3)
-
-
-/*! \def Index_DevFlag
-	\brief Token Index for -def indication Token
-
-	VERSION is of the form major.minor.build with a -dev indication
-*/
-#define IndexVERSION_DevFlag (VERSION_Offset+4)
 
 /*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
 	\brief Code Template for Application Node API EndPoint (Rx) Functions
@@ -145,13 +115,11 @@ namespace IMSPacketsAPICore
 	{	
 	public:		
 		char*				getPacketIDString()		{ return (char*)&IDString_HDRPACK[0]; }
-		static const int	PacketID				= HDRPACK;
-		int					getPacketID()			{ return HDR_Packet::PacketID; }
-		static const int	NumSPDs					= 4;
-		int					getNumSPDs()			{ return HDR_Packet::NumSPDs; }
+		int					getPacketID()			{ return ID_HDRPACK; }
+		int					getNumSPDs()			{ return TokenCount_HDRPACK; }
 		
-		TEMPLATE_SPDACCESSORS(PacketType, IndexHDR_PackTYPE, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(PacketOption, IndexHDR_PackOPTION, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(PacketType, Index_PacketType, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(PacketOption, Index_PacketOption, typeINT, "%d")
 	};
 
 
@@ -162,15 +130,13 @@ namespace IMSPacketsAPICore
 	{
 	public:
 		char*				getPacketIDString()		{ return (char*)&IDString_VERSION[0]; }
-		static const int	PacketID				= VERSION;
-		int					getPacketID()			{ return Packet_Version::PacketID; }
-		static const int	NumSPDs					= HDR_Packet::NumSPDs+4;
-		int					getNumSPDs()			{ return Packet_Version::NumSPDs; }
+		int					getPacketID()			{ return ID_VERSION; }
+		int					getNumSPDs()			{ return TokenCount_VERSION; }
 
-		TEMPLATE_SPDACCESSORS(MajorVersion, IndexVERSION_MajorVersion, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(MinorVersion, IndexVERSION_MinorVersion, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(BuildNumber, IndexVERSION_BuildNumber, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(DevFlag, IndexVERSION_DevFlag, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(MajorVersion, Index_Major, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(MinorVersion, Index_Minor, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(BuildNumber, Index_Build, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS(DevFlag, Index_Dev, typeINT, "%d")
 
 	};
 
@@ -498,7 +464,7 @@ namespace IMSPacketsAPICore
 					if (Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex]))
 					{
 						PcktInterface->ResetdeSerialize();
-						if(PcktInterface->deSerializedTokenIndex >= HDR_Packet::NumSPDs)
+						if(PcktInterface->deSerializedTokenIndex >= TokenCount_HDRPACK)
 							return true;
 					}
 
@@ -550,7 +516,7 @@ namespace IMSPacketsAPICore
 		{
 			// called single-shot
 			int lastCharIndexWritten = 0;	// initialized to start of id string
-			int SerializedTokenCount = HDR_Packet::NumSPDs;	// initialized to minimum token of HDR packet
+			int SerializedTokenCount = TokenCount_HDRPACK;	// initialized to minimum token of HDR packet
 			int j;
 			int k;
 
@@ -592,7 +558,7 @@ namespace IMSPacketsAPICore
 								SerializedTokenCount = atoi(&PcktInterface->TokenBuffer.chars[STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO]);
 
 								// an error has occurred with the token count string if parsed token count string less than hdr packet token count
-								if (SerializedTokenCount < HDR_Packet::NumSPDs)
+								if (SerializedTokenCount < TokenCount_HDRPACK)
 									return false;
 							}
 
@@ -669,12 +635,23 @@ namespace IMSPacketsAPICore
 		virtual bool API_CustomShared_PrepareTx(Packet* TxPackOutPtr) = 0;
 		virtual void API_CustomShared_HandleRx(Packet* RxPackInPtr) = 0;
 	public:
+		static const int ECOSYSTEM_MajorVersion = ECOSYSTEM_MAJORVERSION;
+		static const int ECOSYSTEM_MinorVersion = ECOSYSTEM_MINORVERSION;
+		static const int ECOSYSTEM_BuildNumber = ECOSYSTEM_BUILDNUMBER;
+#ifdef ECOSYSTEM_RELEASEBUILD
+		static const bool   ECOSYSTEM_isReleaseBuild = true;
+#endif
+#ifndef ECOSYSTEM_RELEASEBUILD
+		static const bool   ECOSYSTEM_isReleaseBuild = false;
+#endif
 		void Loop()
 		{
 			CustomLoop();
 			for (int i = 0; i < getNumPacketPorts(); i++)
 				(getPacketPortat(i))->ServicePort();
 		}
+
+
 		void HandleRxPacket(Packet* RxPackInPtr)
 		{ 
 			TEMPLATE_RX_HANDLER((*RxPackInPtr), Packet_Version, VERSION, VERSION_Handler)
@@ -688,6 +665,46 @@ namespace IMSPacketsAPICore
 
 			return API_CustomShared_PrepareTx(TxPackOutPtr);
 		}
+
+
+
+		template<class TokenType>
+		static void VERSION_Handler_template(Packet_Version* inPack, API_NODE* nodePtr)
+		{
+			TokenType x_SPD;
+			if (inPack->isASCIIPacket())
+				inPack->getfromStringPacketType(&x_SPD);
+			else
+				inPack->getPacketType(&x_SPD);
+
+			if (x_SPD.intVal == ReadComplete)
+				nodePtr->setVersionPackTrigger();
+		}
+
+		template<class TokenType>
+		static bool VERSION_Packager_template(Packet_Version* outPack, API_NODE* nodePtr, int Major, int Minor, int Build, int DevFlag)
+		{
+			TokenType x_SPD;
+			bool tempBool = true;
+			outPack->isASCIIPacket() ? outPack->writebuff_PackIDString() : outPack->writebuff_PackID(&x_SPD);
+			outPack->isASCIIPacket() ? outPack->writebuff_TokenCountString() : outPack->writebuff_PackLength(&x_SPD);
+			x_SPD.intVal = ResponseComplete;
+			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketType(&x_SPD);	else outPack->setPacketType(&x_SPD);
+			x_SPD.intVal = 0;
+			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketOption(&x_SPD);	else outPack->setPacketOption(&x_SPD);
+			x_SPD.intVal = Major;
+			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMajorVersion(&x_SPD);	else outPack->setMajorVersion(&x_SPD);
+			x_SPD.intVal = Minor;
+			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMinorVersion(&x_SPD);	else outPack->setMinorVersion(&x_SPD);
+			x_SPD.intVal = Build;
+			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringBuildNumber(&x_SPD);	else outPack->setBuildNumber(&x_SPD);
+			x_SPD.intVal = DevFlag;
+			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringDevFlag(&x_SPD);		else outPack->setDevFlag(&x_SPD);
+
+
+			return tempBool;
+		}
+
 	};
 	/*! @}*/
 }
