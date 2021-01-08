@@ -87,9 +87,17 @@ if(tVar){\
 	return packFunc(&tempPack); }\
 }
 
+#define TEMPLATE_PACKNODE_MEMBERS(packIDmacro)\
+private:	bool			packtrigger##packIDmacro = false;\
+protected:	void			setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
+protected:	virtual void	Handler_##packIDmacro(Packet_##packIDmacro* inPack) = 0;\
+protected:	virtual bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack) = 0;\
+
+#define pCLASS(packIDmacro) Packet_##packIDmacro
+
+
 /*! @}*/
 #pragma endregion
-
 
 namespace IMSPacketsAPICore
 {
@@ -111,7 +119,7 @@ namespace IMSPacketsAPICore
 	/*! \class HDR_Packet
 		\brief A Packet with Header Information
 	*/
-	class HDR_Packet :public Packet
+	class pCLASS(HDRPACK) :public Packet
 	{	
 	public:		
 		char*				getPacketIDString()		{ return (char*)&IDString_HDRPACK[0]; }
@@ -126,7 +134,7 @@ namespace IMSPacketsAPICore
 	/*! \class Packet_Version
 		\brief A Version Packet for Application Nodes
 	*/
-	class Packet_Version :public HDR_Packet
+	class pCLASS(VERSION) :public Packet_HDRPACK
 	{
 	public:
 		char*				getPacketIDString()		{ return (char*)&IDString_VERSION[0]; }
@@ -149,7 +157,7 @@ namespace IMSPacketsAPICore
 	{
 	protected:
 		int								ByteIndexLast = 0;
-		HDR_Packet						BufferPacket;
+		Packet_HDRPACK						BufferPacket;
 
 		int								ByteIndex = 0;
 		SPDInterfaceBuffer<TokenType>	TokenBuffer;
@@ -366,7 +374,7 @@ namespace IMSPacketsAPICore
 		int									CharIndex = 0;
 		int									CharIndexLast = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
-		HDR_Packet							BufferPacket;
+		Packet_HDRPACK						BufferPacket;
 
 		static void WriteToStream_ASCII(PacketInterface_ASCII<TokenType>* PcktInterface, std::ostream* PcktInterfaceStream)
 		{
@@ -619,22 +627,20 @@ namespace IMSPacketsAPICore
 	*/
 	class API_NODE :public AbstractDataExecution
 	{
-	private:
-		bool triggerVERSIONPackager = false;
-	protected:
-		void setVersionPackTrigger() { triggerVERSIONPackager = true; }
+	TEMPLATE_PACKNODE_MEMBERS(VERSION)
 
+	protected:
 
 		virtual PolymorphicPacketPort* getPacketPortat(int i) = 0;
 		virtual int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
 
-		virtual void VERSION_Handler(Packet_Version* inPack) = 0;
-		virtual bool VERSION_Packager(Packet_Version* outPack) = 0;
-
 		virtual bool API_CustomShared_PrepareTx(Packet* TxPackOutPtr) = 0;
 		virtual void API_CustomShared_HandleRx(Packet* RxPackInPtr) = 0;
+
+
 	public:
+
 		static const int ECOSYSTEM_MajorVersion = ECOSYSTEM_MAJORVERSION;
 		static const int ECOSYSTEM_MinorVersion = ECOSYSTEM_MINORVERSION;
 		static const int ECOSYSTEM_BuildNumber = ECOSYSTEM_BUILDNUMBER;
@@ -644,6 +650,8 @@ namespace IMSPacketsAPICore
 #ifndef ECOSYSTEM_RELEASEBUILD
 		static const bool   ECOSYSTEM_isReleaseBuild = false;
 #endif
+
+
 		void Loop()
 		{
 			CustomLoop();
@@ -654,14 +662,14 @@ namespace IMSPacketsAPICore
 
 		void HandleRxPacket(Packet* RxPackInPtr)
 		{ 
-			TEMPLATE_RX_HANDLER((*RxPackInPtr), Packet_Version, VERSION, VERSION_Handler)
+			TEMPLATE_RX_HANDLER((*RxPackInPtr), Packet_VERSION, ID_VERSION, Handler_VERSION)
 
 			API_CustomShared_HandleRx(RxPackInPtr);
 		}
 
 		bool PrepareTxPacket(Packet* TxPackOutPtr)
 		{
-			TEMPLATE_TX_PACKAGER(triggerVERSIONPackager, Packet_Version, VERSION_Packager)
+			TEMPLATE_TX_PACKAGER(packtriggerVERSION, Packet_VERSION, Packager_VERSION)
 
 			return API_CustomShared_PrepareTx(TxPackOutPtr);
 		}
@@ -669,7 +677,7 @@ namespace IMSPacketsAPICore
 
 
 		template<class TokenType>
-		static void VERSION_Handler_template(Packet_Version* inPack, API_NODE* nodePtr)
+		static void VERSION_Handler_template(Packet_VERSION* inPack, API_NODE* nodePtr)
 		{
 			TokenType x_SPD;
 			if (inPack->isASCIIPacket())
@@ -678,11 +686,11 @@ namespace IMSPacketsAPICore
 				inPack->getPacketType(&x_SPD);
 
 			if (x_SPD.intVal == ReadComplete)
-				nodePtr->setVersionPackTrigger();
+				nodePtr->setPackTriggerVERSION();
 		}
 
 		template<class TokenType>
-		static bool VERSION_Packager_template(Packet_Version* outPack, API_NODE* nodePtr, int Major, int Minor, int Build, int DevFlag)
+		static bool VERSION_Packager_template(Packet_VERSION* outPack, API_NODE* nodePtr, int Major, int Minor, int Build, int DevFlag)
 		{
 			TokenType x_SPD;
 			bool tempBool = true;
