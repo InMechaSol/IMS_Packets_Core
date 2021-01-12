@@ -178,7 +178,7 @@ namespace IMSPacketsAPICore
 		AbstractDataExecution*			DataExecution	= nullptr;
 		PacketPort_SRCommState			SRCommState		= sr_Init;
 		PacketPort_FCCommState			FCCommState		= fc_Init;
-
+		bool							ServiceAsync	= false;
 	protected:
 		void ServicePort_SR_Sender()
 		{
@@ -254,6 +254,7 @@ namespace IMSPacketsAPICore
 			}
 		}
 	public:
+		bool getAsyncService() { return ServiceAsync; }
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!
 			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
@@ -271,11 +272,12 @@ namespace IMSPacketsAPICore
 				}
 			}
 		}
-		PolymorphicPacketPort(PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn)
+		PolymorphicPacketPort(PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false)
 		{
 			InputInterface	= InputInterfaceIn;
 			OutputInterface = OutputInterfaceIn;
 			DataExecution	= DataExecutionIn;
+			ServiceAsync = isAsync;
 		}
 
 	};

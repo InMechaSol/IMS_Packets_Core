@@ -104,7 +104,9 @@ static const int TokenCount_##packID = numTokens;\
 #define ASCII_colon             58
 #define ASCII_semicolon         59
 #define ASCII_tilda             126
-
+#define ASCII_lf				10
+#define ASCII_cr				13
+#define ASCII_tab				9
 
 
 
@@ -366,7 +368,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i-1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atoi(TokenStringPtr); return true;
@@ -379,7 +381,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atoi(TokenStringPtr); return true;
@@ -393,7 +395,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atol(TokenStringPtr); return true;
@@ -407,7 +409,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atol(TokenStringPtr); return true;
@@ -423,7 +425,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
@@ -436,7 +438,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
@@ -450,11 +452,14 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
-				case typeINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->intVal) < 1)		return false; return true;
+				case typeINT:
+					if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->intVal) < 1)		
+						return false; 
+					return true;
 				case typeFLT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->fpVal) < 1)		return false; return true;
 				}
 			}
@@ -464,7 +469,7 @@ namespace IMSPacketsAPICore
 		{
 			if (i > 0 && i < getNumSPDs())
 			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + i * STRINGBUFFER_TOKENRATIO);
+				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
 				switch (dType)
 				{
 				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
@@ -550,7 +555,7 @@ namespace IMSPacketsAPICore
 		bool					isASCIIPacket() { return(charsBufferPtr != nullptr); }
 
 
-		static bool				isASCIIchar(char inChar)					{ return ((inChar >= ASCII_space && inChar <= ASCII_tilda)); }
+		static bool				isASCIIchar(char inChar)					{ return ((inChar >= ASCII_space && inChar <= ASCII_tilda)||inChar==ASCII_lf||inChar==ASCII_cr||inChar==ASCII_tab||inChar==0x00); }
 		static bool				isLetterchar(char inChar)					{ return ((inChar >= ASCII_A && inChar <= ASCII_Z) || (inChar >= ASCII_a && inChar <= ASCII_z)); }
 		static bool				isNumberchar(char inChar)					{ return ((inChar >= ASCII_0 && inChar <= ASCII_9) || inChar == ASCII_plus || inChar == ASCII_minus || inChar == ASCII_dot); }
 		static bool				isIntegerchar(char inChar)					{ return ((inChar >= ASCII_0 && inChar <= ASCII_9) || inChar == ASCII_plus || inChar == ASCII_minus); }
