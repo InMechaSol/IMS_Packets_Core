@@ -86,6 +86,15 @@ static const int ID_##packID = packID;\
 static const char IDString_##packID[] = #packID;\
 static const int TokenCount_##packID = numTokens;\
 
+#define TEMPLATE_STATICPACKETINFOHEADER(packID, numTokens)\
+static const int ID_##packID;\
+static const char IDString_##packID[];\
+static const int TokenCount_##packID;\
+
+#define TEMPLATE_STATICPACKETINFOSOURCE(packID, numTokens)\
+static const int ID_##packID = packID;\
+static const char IDString_##packID[] = #packID;\
+static const int TokenCount_##packID = numTokens;\
 
 // String-ize macros
 #define xstr(s) #s

@@ -4,7 +4,7 @@
 */
 #ifndef __APINODELINK__
 #define __APINODELINK__
-#include "2_PacketPortLink.h"
+#include "3_Packet_VERSION.h"
 
 #pragma region HDR Packets Utilize Constant and Code Template Macros 
 /*! \defgroup APINodeLink
@@ -12,39 +12,6 @@
 
 	@{
 */
-/*! \def HDRPACK
-	\brief Token ID value for default HDR Packet
-*/
-#define HDRPACK (0)
-enum TokenIndex_HDRPACK
-{
-	iHDRPACK_PacketID = Index_PackID,
-	iHDRPACK_PacketLength = Index_PackLEN,
-	iHDRPACK_PacketType,
-	iHDRPACK_PacketOption,
-	iHDRPACK_END
-};
-TEMPLATE_STATICPACKETINFO(HDRPACK, iHDRPACK_END)
-
-
-
-/*! \def VERSION
-	\brief Token ID value for VERSION Packet
-
-	VERSION is of the form major.minor.build with a -dev indication
-*/
-#define VERSION (1)
-enum TokenIndex_VERSION
-{
-	iVERSION_Major = iHDRPACK_END,
-	iVERSION_Minor,
-	iVERSION_Build,
-	iVERSION_Dev,
-	iVERSION_END
-};
-TEMPLATE_STATICPACKETINFO(VERSION, iVERSION_END)
-
-
 
 
 /*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
@@ -58,17 +25,17 @@ TEMPLATE_STATICPACKETINFO(VERSION, iVERSION_END)
 	is passed to a polymorphic api endpoint specific to packet type and ID.
 
 */
-#define TEMPLATE_RX_HANDLER(tempHDRPack, Packet_Type, Packet_ID, HandlerFunc){\
-if(tempHDRPack.isASCIIPacket()){\
-	if(tempHDRPack.StringBuffer_IDString_Equals(#Packet_ID)){\
-		Packet_Type my##Packet_Type;\
-		my##Packet_Type.CopyTokenBufferPtrs(RxPackInPtr);\
-		HandlerFunc(&my##Packet_Type);return;}}\
+#define TEMPLATE_RX_HANDLER(RxPackInPtr, packIDmacro){\
+if(RxPackInPtr->isASCIIPacket()){\
+	if(RxPackInPtr->StringBuffer_IDString_Equals(#packIDmacro)){\
+		Packet_##packIDmacro myPacket_##packIDmacro;\
+		myPacket_##packIDmacro.CopyTokenBufferPtrs(RxPackInPtr);\
+		Handler_##packIDmacro(&myPacket_##packIDmacro);return;}}\
 else{\
-	if(tempHDRPack.ByteBuffer_ID_Equals(Packet_ID)){\
-		Packet_Type my##Packet_Type;\
-		my##Packet_Type.CopyTokenBufferPtrs(RxPackInPtr);\
-		HandlerFunc(&my##Packet_Type);return;}}\
+	if(RxPackInPtr->ByteBuffer_ID_Equals(packIDmacro)){\
+		Packet_##packIDmacro myPacket_##packIDmacro;\
+		myPacket_##packIDmacro.CopyTokenBufferPtrs(RxPackInPtr);\
+		Handler_##packIDmacro(&myPacket_##packIDmacro);return;}}\
 }
 
 /*! \def TEMPLATE_TX_PACKAGER(tVar, pType, packFunc)
@@ -81,21 +48,22 @@ else{\
 	returning true which will indicate to the port object that a packet is ready for transmission.
 
 */
-#define TEMPLATE_TX_PACKAGER(tVar, pType, packFunc){\
-if(tVar){\
-	tVar=false;\
-	pType tempPack;\
-	tempPack.CopyTokenBufferPtrs(TxPackOutPtr);\
-	return packFunc(&tempPack); }\
+#define TEMPLATE_TX_PACKAGER(TxPackOutPtr, packIDmacro){\
+if(packtrigger##packIDmacro){\
+	packtrigger##packIDmacro=false;\
+	Packet_##packIDmacro myPacket_##packIDmacro;\
+	myPacket_##packIDmacro.CopyTokenBufferPtrs(TxPackOutPtr);\
+	return Packager_##packIDmacro(&myPacket_##packIDmacro); }\
 }
 
 #define TEMPLATE_PACKNODE_MEMBERS(packIDmacro)\
-private:	bool			packtrigger##packIDmacro = false;\
-protected:	void			setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
-protected:	virtual void	Handler_##packIDmacro(Packet_##packIDmacro* inPack) = 0;\
-protected:	virtual bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack) = 0;\
+protected:	bool			packtrigger##packIDmacro = false;\
+			void			setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
+			virtual void	Handler_##packIDmacro(Packet_##packIDmacro* inPack) = 0;\
+			virtual bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack) = 0;\
 
-#define pCLASS(packIDmacro) Packet_##packIDmacro
+
+
 
 
 /*! @}*/
@@ -118,39 +86,7 @@ namespace IMSPacketsAPICore
 	/*! \addtogroup APINodeLink
 		@{
 	*/
-	/*! \class HDR_Packet
-		\brief A Packet with Header Information
-	*/
-	class pCLASS(HDRPACK) :public Packet
-	{	
-	public:		
-		char*				getPacketIDString()		{ return (char*)&IDString_HDRPACK[0]; }
-		int					getPacketID()			{ return ID_HDRPACK; }
-		int					getNumSPDs()			{ return TokenCount_HDRPACK; }
-		
-		TEMPLATE_SPDACCESSORS(PacketType, iHDRPACK_PacketType, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(PacketOption, iHDRPACK_PacketOption, typeINT, "%d")
-	};
-
-
-	/*! \class Packet_Version
-		\brief A Version Packet for Application Nodes
-	*/
-	class pCLASS(VERSION) :public Packet_HDRPACK
-	{
-	public:
-		char*				getPacketIDString()		{ return (char*)&IDString_VERSION[0]; }
-		int					getPacketID()			{ return ID_VERSION; }
-		int					getNumSPDs()			{ return TokenCount_VERSION; }
-
-		TEMPLATE_SPDACCESSORS(MajorVersion, iVERSION_Major, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(MinorVersion, iVERSION_Minor, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(BuildNumber, iVERSION_Build, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(DevFlag, iVERSION_Dev, typeINT, "%d")
-
-	};
-
-
+	
 	/*! \class PacketInterface_Binary
 		\brief API Node Binary Interface for HDR_Packets
 	*/
@@ -159,7 +95,7 @@ namespace IMSPacketsAPICore
 	{
 	protected:
 		int								ByteIndexLast = 0;
-		Packet_HDRPACK						BufferPacket;
+		Packet_HDRPACK					BufferPacket;
 
 		int								ByteIndex = 0;
 		SPDInterfaceBuffer<TokenType>	TokenBuffer;
@@ -223,17 +159,24 @@ namespace IMSPacketsAPICore
 					PcktInterface->deSerializeReset = false;// TODO:
 
 					// if its the length token index
-					if (++PcktInterface->deSerializedTokenIndex == Index_PackLEN)
+					if (PcktInterface->deSerializedTokenIndex == Index_PackLEN)
 						PcktInterface->BufferPacket.readbuff_PackLength(&PcktInterface->deSerializedTokenLength);
+					else if (PcktInterface->deSerializedTokenIndex == iHDRPACK_PacketOption) {
+						TokenType x_SPD;
+						x_SPD.intVal = PcktInterface->getPortID();
+						PcktInterface->BufferPacket.setPacketOption(&x_SPD);
+					}
+
 
 					// decide if complete packet
 					// return true or false
 					// true will trigger the rx packet handler of the data execution instance
-					if (PcktInterface->ByteIndex == (PcktInterface->deSerializedTokenLength.uintVal - 1))
+					if (PcktInterface->ByteIndex == PcktInterface->deSerializedTokenLength.uintVal)
 					{
 						PcktInterface->ResetdeSerialize();
 						return true;
 					}
+					PcktInterface->deSerializedTokenIndex++;
 				}
 			}
 
@@ -286,42 +229,6 @@ namespace IMSPacketsAPICore
 		bool DeSerializePacket()
 		{
 			return DeSerializePacket_Binary(this);
-
-			//// called cyclically
-			//// monitor ByteIndex for change
-			//if (ByteIndex != ByteIndexLast)
-			//{
-			//	// monitor byte array for token boundary
-			//	if ((ByteIndex % getTokenSize()) == 0)
-			//	{
-			//		// optionally and conditionally swap byte order of tokens here
-			//		;
-
-			//		// if its the length token
-			//		if (++deSerializedTokenIndex == Index_PackLEN)
-			//			BufferPacket.getPacketLength(&deSerializedTokenLength);
-			//	}
-
-			//	// decide if error, then reset
-			//	deSerializeReset = false;
-			//	if (deSerializeReset)							// TODO:
-			//	{
-			//		ResetdeSerialize();
-			//	}
-			//}
-
-			//// Capture history for change detect
-			//ByteIndexLast = ByteIndex;
-
-			//// decide if complete packet
-			//// return true or false
-			//// true will trigger the rx packet handler of the data execution instance
-			//if (ByteIndexLast == (deSerializedTokenLength.uintVal - 1))
-			//{
-			//	ResetdeSerialize();
-			//	return true;
-			//}
-			//return false;
 		}
 		 
 		/*! \fn SerializePacket
@@ -350,16 +257,16 @@ namespace IMSPacketsAPICore
 		int					getTokenSize() { return sizeof(TokenType); }
 
 
-		PacketInterface_Binary(std::iostream* ifaceStreamPtrIn = nullptr) :
-			PacketInterface(ifaceStreamPtrIn) {
+		PacketInterface_Binary(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr) :
+			PacketInterface(PortIDin, ifaceStreamPtrIn) {
 			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 		}
-		PacketInterface_Binary(std::istream* ifaceInStreamPtrIn) :
-			PacketInterface(ifaceInStreamPtrIn) {
+		PacketInterface_Binary(int PortIDin, std::istream* ifaceInStreamPtrIn) :
+			PacketInterface(PortIDin, ifaceInStreamPtrIn) {
 			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 		}
-		PacketInterface_Binary(std::ostream* ifaceOutStreamPtrIn) :
-			PacketInterface(ifaceOutStreamPtrIn) {
+		PacketInterface_Binary(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
+			PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
 			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 		}
 	};
@@ -450,6 +357,7 @@ namespace IMSPacketsAPICore
 			if (PcktInterface->CharIndexLast != PcktInterface->CharIndex)
 			{
 				int lastIndex = PcktInterface->CharIndex - 1;
+				
 				// decide if error, trigger reset
 				if (!Packet::isASCIIchar(PcktInterface->TokenBuffer.chars[lastIndex]) || PcktInterface->TokenBuffer.chars[lastIndex]==ASCII_lf || PcktInterface->TokenBuffer.chars[lastIndex] == ASCII_cr)
 				{
@@ -457,21 +365,30 @@ namespace IMSPacketsAPICore
 				}
 				// look for delimeter/terminator ?
 				else if (Packet::isDelimiterchar(PcktInterface->TokenBuffer.chars[lastIndex]) || Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[lastIndex]))
-				{
-					// increment token index
-					PcktInterface->deSerializedTokenIndex++;
-										
+				{				
+					int NextTokenStart = (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
+
+					// if its the packet option token, mark Rx packet with portID
+					if (iHDRPACK_PacketOption == PcktInterface->deSerializedTokenIndex)
+					{
+						char lastChar = PcktInterface->TokenBuffer.chars[lastIndex];
+						int LastTokenStart = NextTokenStart - STRINGBUFFER_TOKENRATIO;
+						int charsWritten = snprintf(&(PcktInterface->TokenBuffer.chars[LastTokenStart]), STRINGBUFFER_TOKENRATIO, "%d%c", PcktInterface->getPortID(),lastChar);
+						lastIndex = LastTokenStart + charsWritten-1;
+					}
+
 					// decide if complete packet
 					// return true or false
 					// true will trigger the rx packet handler of the data execution instance
 					if (Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[lastIndex]))
 					{
-						// "strip" delimiter/terminator
-						// 0x00 to all chars from delimiter to next token start
-						for (int i = lastIndex; i < (PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO); i++)
+						// "strip" terminator
+						// 0x00 to all chars from terminator to next token start
+						for (int i = lastIndex; i < NextTokenStart; i++)
 							PcktInterface->TokenBuffer.chars[i] = 0x00;
 
-						
+						// increment token index
+						PcktInterface->deSerializedTokenIndex++;
 						if (PcktInterface->deSerializedTokenIndex >= TokenCount_HDRPACK) {
 							PcktInterface->ResetdeSerialize();
 							return true;
@@ -479,13 +396,17 @@ namespace IMSPacketsAPICore
 					}
 					else
 					{
-						// "strip" delimiter/terminator
+						
+						// "strip" delimiter
 						// 0x00 to all chars from delimiter to next token start
-						for (int i = lastIndex; i < (PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO); i++)
+						for (int i = lastIndex; i < (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO); i++)
 							PcktInterface->TokenBuffer.chars[i] = 0x00;
-
+							
+						
 						// advance index to next token start
-						PcktInterface->CharIndex = (PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
+						PcktInterface->CharIndex = (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
+						// increment token index
+						PcktInterface->deSerializedTokenIndex++;
 					}
 				}
 			}
@@ -614,18 +535,19 @@ namespace IMSPacketsAPICore
 
 
 	public:
+		
 		Packet*				getPacketPtr() { return &BufferPacket; }
 		int					getTokenSize() { return STRINGBUFFER_TOKENRATIO; }
-		PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn = nullptr) :
-			PacketInterface(ifaceStreamPtrIn) {
+		PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr) :
+			PacketInterface(PortIDin, ifaceStreamPtrIn) {
 			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 		}
-		PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn) :
-			PacketInterface(ifaceInStreamPtrIn) {
+		PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn) :
+			PacketInterface(PortIDin, ifaceInStreamPtrIn) {
 			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 		}
-		PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn) :
-			PacketInterface(ifaceOutStreamPtrIn) {
+		PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
+			PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
 			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 		}
 
@@ -637,10 +559,8 @@ namespace IMSPacketsAPICore
 	*/
 	class API_NODE :public AbstractDataExecution
 	{
-	TEMPLATE_PACKNODE_MEMBERS(VERSION)
-
 	protected:
-
+		int		currentPortIndex = 0;
 		virtual PolymorphicPacketPort* getPacketPortat(int i) = 0;
 		virtual int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
@@ -678,23 +598,29 @@ namespace IMSPacketsAPICore
 
 
 		void HandleRxPacket(Packet* RxPackInPtr)
-		{ 
-			TEMPLATE_RX_HANDLER((*RxPackInPtr), Packet_VERSION, VERSION, Handler_VERSION)
+		{
+			// Mark Rx packet with port index
+
+			TEMPLATE_RX_HANDLER(RxPackInPtr, VERSION)
 
 			API_CustomShared_HandleRx(RxPackInPtr);
 		}
 
 		bool PrepareTxPacket(Packet* TxPackOutPtr)
 		{
-			TEMPLATE_TX_PACKAGER(packtriggerVERSION, Packet_VERSION, Packager_VERSION)
+			TEMPLATE_TX_PACKAGER(TxPackOutPtr, VERSION)
 
 			return API_CustomShared_PrepareTx(TxPackOutPtr);
 		}
 
 
 
+#pragma region Packet_VERSION Members
+
+		TEMPLATE_PACKNODE_MEMBERS(VERSION)		
+
 		template<class TokenType>
-		static void VERSION_Handler_template(Packet_VERSION* inPack, API_NODE* nodePtr)
+		static void staticHandler_VERSION(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct = nullptr)
 		{
 			TokenType x_SPD;
 			if (inPack->isASCIIPacket())
@@ -704,10 +630,22 @@ namespace IMSPacketsAPICore
 
 			if (x_SPD.intVal == ReadComplete)
 				nodePtr->setPackTriggerVERSION();
+			else if (x_SPD.intVal == ResponseComplete && dstStruct!=nullptr)
+			{
+				if (inPack->isASCIIPacket()) inPack->getfromStringMajorVersion(&x_SPD); else inPack->getMajorVersion(&x_SPD);
+				dstStruct->Major = x_SPD.intVal;
+				if (inPack->isASCIIPacket()) inPack->getfromStringMinorVersion(&x_SPD); else inPack->getMinorVersion(&x_SPD);
+				dstStruct->Minor = x_SPD.intVal;
+				if (inPack->isASCIIPacket()) inPack->getfromStringBuildNumber(&x_SPD); else inPack->getBuildNumber(&x_SPD);
+				dstStruct->Build = x_SPD.intVal;
+				if (inPack->isASCIIPacket()) inPack->getfromStringDevFlag(&x_SPD); else inPack->getDevFlag(&x_SPD);
+				dstStruct->DevFlag = x_SPD.intVal;
+			}
+
 		}
 
 		template<class TokenType>
-		static bool VERSION_Packager_template(Packet_VERSION* outPack, API_NODE* nodePtr, int Major, int Minor, int Build, int DevFlag)
+		static bool staticPackager_VERSION(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct)
 		{
 			TokenType x_SPD;
 			bool tempBool = true;
@@ -717,18 +655,20 @@ namespace IMSPacketsAPICore
 			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketType(&x_SPD);	else outPack->setPacketType(&x_SPD);
 			x_SPD.intVal = 0;
 			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketOption(&x_SPD);	else outPack->setPacketOption(&x_SPD);
-			x_SPD.intVal = Major;
+			x_SPD.intVal = srcStruct->Major;
 			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMajorVersion(&x_SPD);	else outPack->setMajorVersion(&x_SPD);
-			x_SPD.intVal = Minor;
+			x_SPD.intVal = srcStruct->Minor;
 			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMinorVersion(&x_SPD);	else outPack->setMinorVersion(&x_SPD);
-			x_SPD.intVal = Build;
+			x_SPD.intVal = srcStruct->Build;
 			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringBuildNumber(&x_SPD);	else outPack->setBuildNumber(&x_SPD);
-			x_SPD.intVal = DevFlag;
+			x_SPD.intVal = srcStruct->DevFlag;
 			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringDevFlag(&x_SPD);		else outPack->setDevFlag(&x_SPD);
-
 
 			return tempBool;
 		}
+
+#pragma endregion
+
 
 	};
 	/*! @}*/

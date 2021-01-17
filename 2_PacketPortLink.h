@@ -6,6 +6,11 @@
 #ifndef __PACKETPORTLINK__
 #define __PACKETPORTLINK__
 #include "1_LanguageConstructs.h"
+
+#define pCLASS(packIDmacro) Packet_##packIDmacro
+#define pSTRUCT(packIDmacro) Struct_##packIDmacro
+#define pENUM(packIDmacro) TokenIndex_##packIDmacro
+
 namespace IMSPacketsAPICore
 {	
 	/*! \defgroup PacketPortLink
@@ -57,6 +62,8 @@ namespace IMSPacketsAPICore
 	*/
 	class PacketInterface
 	{
+	private:
+		int					PortID					= 0;
 	protected:
 		std::iostream*		ifaceStreamPtr;
 		std::istream*		ifaceInStreamPtr		= nullptr;
@@ -69,19 +76,23 @@ namespace IMSPacketsAPICore
 		virtual void		WriteToStream()			= 0;
 		virtual void		ReadFromStream()		= 0;
 
-		PacketInterface(std::iostream* ifaceStreamPtrIn)
+		PacketInterface(int PortIDin, std::iostream* ifaceStreamPtrIn)
 		{
 			ifaceStreamPtr = ifaceStreamPtrIn;
+			PortID = PortIDin;
 		}
-		PacketInterface(std::istream* ifaceInStreamPtrIn)
+		PacketInterface(int PortIDin, std::istream* ifaceInStreamPtrIn)
 		{
 			ifaceInStreamPtr = ifaceInStreamPtrIn;
+			PortID = PortIDin;
 		}
-		PacketInterface(std::ostream* ifaceOutStreamPtrIn)
+		PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn)
 		{
 			ifaceOutStreamPtr = ifaceOutStreamPtrIn;
+			PortID = PortIDin;
 		}
 	public:
+		int getPortID()					{ return PortID; }
 		virtual int					getTokenSize()		= 0;
 		/*! \fn getPacketPtr
 			\brief Abstract Accessor Function for Interface Packet Object Pointer
@@ -172,6 +183,7 @@ namespace IMSPacketsAPICore
 	class PolymorphicPacketPort
 	{
 	private:
+		int								PortID			= 0;
 		enum PacketPortPartnerType		PortType		= SenderResponder_Responder;
 		PacketInterface*				InputInterface	= nullptr;
 		PacketInterface*				OutputInterface = nullptr;
@@ -254,7 +266,8 @@ namespace IMSPacketsAPICore
 			}
 		}
 	public:
-		bool getAsyncService() { return ServiceAsync; }
+		int getPortID()			{ return PortID; }
+		bool getAsyncService()	{ return ServiceAsync; }
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!
 			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
@@ -272,12 +285,13 @@ namespace IMSPacketsAPICore
 				}
 			}
 		}
-		PolymorphicPacketPort(PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false)
+		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false)
 		{
 			InputInterface	= InputInterfaceIn;
 			OutputInterface = OutputInterfaceIn;
 			DataExecution	= DataExecutionIn;
 			ServiceAsync = isAsync;
+			PortID = PortIDin;
 		}
 
 	};
