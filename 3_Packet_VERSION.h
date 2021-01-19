@@ -26,7 +26,7 @@ namespace IMSPacketsAPICore
 		int Build = 0;
 		int DevFlag = 0;
 	};
-	TEMPLATE_STATICPACKETINFO_H(VERSION, iVERSION_END)
+	
 
 
 	/*! \class Packet_Version
@@ -35,9 +35,7 @@ namespace IMSPacketsAPICore
 	class pCLASS(VERSION) :public Packet_HDRPACK
 	{
 	public:
-		char*		getPacketIDString() { return (char*)&IDString_VERSION[0]; }
-		int			getPacketID() { return ID_VERSION; }
-		int			getNumSPDs() { return TokenCount_VERSION; }
+		TEMPLATE_STATICPACKETINFO_H(VERSION, iVERSION_END)
 
 		TEMPLATE_SPDACCESSORS_H(MajorVersion)
 		TEMPLATE_SPDACCESSORS_H(MinorVersion)

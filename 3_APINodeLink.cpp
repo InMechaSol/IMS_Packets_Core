@@ -229,7 +229,7 @@ bool PacketInterface_ASCII::DeSerializePacket_ASCII(PacketInterface_ASCII* PcktI
 
 				// increment token index
 				PcktInterface->deSerializedTokenIndex++;
-				if (PcktInterface->deSerializedTokenIndex >= TokenCount_HDRPACK) {
+				if (PcktInterface->deSerializedTokenIndex >= Packet_HDRPACK::TokenCount) {
 					PcktInterface->ResetdeSerialize();
 					return true;
 				}
@@ -271,7 +271,7 @@ bool PacketInterface_ASCII::SerializePacket_ASCII(PacketInterface_ASCII* PcktInt
 {
 	// called single-shot
 	int lastCharIndexWritten = 0;	// initialized to start of id string
-	int SerializedTokenCount = TokenCount_HDRPACK;	// initialized to minimum token of HDR packet
+	int SerializedTokenCount = Packet_HDRPACK::TokenCount;	// initialized to minimum token of HDR packet
 	int j;
 	int k;
 
@@ -313,7 +313,7 @@ bool PacketInterface_ASCII::SerializePacket_ASCII(PacketInterface_ASCII* PcktInt
 						SerializedTokenCount = atoi(&PcktInterface->TokenBuffer.chars[STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO]);
 
 						// an error has occurred with the token count string if parsed token count string less than hdr packet token count
-						if (SerializedTokenCount < TokenCount_HDRPACK)
+						if (SerializedTokenCount < Packet_HDRPACK::TokenCount)
 							return false;
 					}
 
@@ -362,6 +362,10 @@ PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOu
 	PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
+
+
+
+
 
 
 void API_NODE::ServiceSynchronousPorts(API_NODE* nodePtr)

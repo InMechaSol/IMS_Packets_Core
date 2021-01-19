@@ -27,12 +27,12 @@
 */
 #define TEMPLATE_RX_HANDLER(RxPackInPtr, packIDmacro){\
 if(RxPackInPtr->isASCIIPacket()){\
-	if(RxPackInPtr->StringBuffer_IDString_Equals(#packIDmacro)){\
+	if(RxPackInPtr->StringBuffer_IDString_Equals(Packet_##packIDmacro::IDString)){\
 		Packet_##packIDmacro myPacket_##packIDmacro;\
 		myPacket_##packIDmacro.CopyTokenBufferPtrs(RxPackInPtr);\
 		Handler_##packIDmacro(&myPacket_##packIDmacro);return;}}\
 else{\
-	if(RxPackInPtr->ByteBuffer_ID_Equals(packIDmacro)){\
+	if(RxPackInPtr->ByteBuffer_ID_Equals(Packet_##packIDmacro::ID)){\
 		Packet_##packIDmacro myPacket_##packIDmacro;\
 		myPacket_##packIDmacro.CopyTokenBufferPtrs(RxPackInPtr);\
 		Handler_##packIDmacro(&myPacket_##packIDmacro);return;}}\
@@ -56,16 +56,22 @@ if(packtrigger##packIDmacro){\
 	return Packager_##packIDmacro(&myPacket_##packIDmacro); }\
 }
 
-#define TEMPLATE_PACKNODE_MEMBERS_H(packIDmacro)\
+#define TEMPLATE_PACKNODE_MEMBERS_H(packIDmacro, nodeType)\
+public:	template<class TokenType>\
+		static void			staticHandler_##packIDmacro(Packet_##packIDmacro* inPack, nodeType* nodePtr, Struct_##packIDmacro* dstStruct = nullptr );\
+		template<class TokenType>\
+		static bool			staticPackager_##packIDmacro(Packet_##packIDmacro* outPack, nodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
 protected:	bool			packtrigger##packIDmacro = false;\
 			void			setPackTrigger##packIDmacro();\
 			virtual void	Handler_##packIDmacro(Packet_##packIDmacro* inPack) = 0;\
 			virtual bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack) = 0;\
 
-#define TEMPLATE_PACKNODE_MEMBERS_CPP(PacketType, packIDmacro)\
-void PacketType::setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
+#define TEMPLATE_PACKNODE_MEMBERS_CPP(NodeType, packIDmacro)\
+void NodeType::setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
 
-
+#define TEMPLATE_PACKNODE_OVERRIDE_H(packIDmacro)\
+protected:	void	Handler_##packIDmacro(Packet_##packIDmacro* inPack);\
+			bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack);\
 
 
 /*! @}*/
@@ -297,19 +303,7 @@ namespace IMSPacketsAPICore
 
 		bool PrepareTxPacket(Packet* TxPackOutPtr);
 
-		TEMPLATE_PACKNODE_MEMBERS_H(VERSION)
-
-
-
-	public:
-		
-
-		template<class TokenType>
-		static bool staticPackager_VERSION(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct);
-
-
-		template<class TokenType>
-		static void staticHandler_VERSION(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct = nullptr);
+		TEMPLATE_PACKNODE_MEMBERS_H(VERSION, API_NODE)
 
 
 	};

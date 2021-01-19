@@ -105,9 +105,19 @@
 
 
 #define TEMPLATE_STATICPACKETINFO_H(packID, numTokens)\
-static const int ID_##packID = packID;\
-static const char IDString_##packID[] = #packID;\
-static const int TokenCount_##packID = numTokens;\
+static const int ID = packID;\
+static const char IDString[];\
+static const int TokenCount = numTokens;\
+int getNumSPDs();\
+int getPacketID();\
+char* getPacketIDString();\
+
+
+#define TEMPLATE_STATICPACKETINFO_CPP(packID)\
+const char Packet_##packID::IDString[] = #packID;\
+int Packet_##packID::getNumSPDs(){return TokenCount;}\
+int Packet_##packID::getPacketID(){return ID;}\
+char* Packet_##packID::getPacketIDString(){return (char*)&IDString[0];}\
 
 
 #define pCLASS(packIDmacro) Packet_##packIDmacro

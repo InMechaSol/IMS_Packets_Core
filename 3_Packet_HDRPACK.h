@@ -25,7 +25,7 @@ namespace IMSPacketsAPICore
 		int PackType = 0;
 		int PackOpt = 0;
 	};
-	TEMPLATE_STATICPACKETINFO_H(HDRPACK, iHDRPACK_END)
+	
 
 
 
@@ -35,9 +35,7 @@ namespace IMSPacketsAPICore
 	class pCLASS(HDRPACK) :public Packet
 	{
 	public:
-		char*		getPacketIDString() { return (char*)&IDString_HDRPACK[0]; }
-		int			getPacketID() { return ID_HDRPACK; }
-		int			getNumSPDs() { return TokenCount_HDRPACK; }
+		TEMPLATE_STATICPACKETINFO_H(HDRPACK, iHDRPACK_END)
 
 		TEMPLATE_SPDACCESSORS_H(PacketType)
 		TEMPLATE_SPDACCESSORS_H(PacketOption)
