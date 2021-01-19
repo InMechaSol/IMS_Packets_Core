@@ -7,9 +7,7 @@
 #define __PACKETPORTLINK__
 #include "1_LanguageConstructs.h"
 
-#define pCLASS(packIDmacro) Packet_##packIDmacro
-#define pSTRUCT(packIDmacro) Struct_##packIDmacro
-#define pENUM(packIDmacro) TokenIndex_##packIDmacro
+
 
 namespace IMSPacketsAPICore
 {	
@@ -65,7 +63,7 @@ namespace IMSPacketsAPICore
 	private:
 		int					PortID					= 0;
 	protected:
-		std::iostream*		ifaceStreamPtr;
+		std::iostream*		ifaceStreamPtr			= nullptr;
 		std::istream*		ifaceInStreamPtr		= nullptr;
 		std::ostream*		ifaceOutStreamPtr		= nullptr;
 
@@ -76,24 +74,15 @@ namespace IMSPacketsAPICore
 		virtual void		WriteToStream()			= 0;
 		virtual void		ReadFromStream()		= 0;
 
-		PacketInterface(int PortIDin, std::iostream* ifaceStreamPtrIn)
-		{
-			ifaceStreamPtr = ifaceStreamPtrIn;
-			PortID = PortIDin;
-		}
-		PacketInterface(int PortIDin, std::istream* ifaceInStreamPtrIn)
-		{
-			ifaceInStreamPtr = ifaceInStreamPtrIn;
-			PortID = PortIDin;
-		}
-		PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn)
-		{
-			ifaceOutStreamPtr = ifaceOutStreamPtrIn;
-			PortID = PortIDin;
-		}
+		// Constructors
+		PacketInterface(int PortIDin, std::iostream* ifaceStreamPtrIn);
+		PacketInterface(int PortIDin, std::istream* ifaceInStreamPtrIn);
+		PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
+		
 	public:
-		int getPortID()					{ return PortID; }
-		virtual int					getTokenSize()		= 0;
+		int					getPortID();
+		virtual int			getTokenSize()		= 0;
+
 		/*! \fn getPacketPtr
 			\brief Abstract Accessor Function for Interface Packet Object Pointer
 			\sa Packet
@@ -109,29 +98,16 @@ namespace IMSPacketsAPICore
 			Converts Packet to bytes (or chars) then writes them
 			to their stream instance
 		*/
-		void				WriteTo()
-		{
-			if (ifaceStreamPtr == nullptr && ifaceOutStreamPtr == nullptr)
-				CustomWriteTo();
-			else
-			{
-				WriteToStream();
-			}
-		}
+		void				WriteTo();
+		
+
 		//! Abstract De-Serialize Function
 		/*!
 			Reads bytes (or chars) from their stream instance then convert to
 			Packets in a packet buffer
 		*/
-		void				ReadFrom()
-		{
-			if (ifaceStreamPtr == nullptr && ifaceInStreamPtr == nullptr)
-				CustomReadFrom();
-			else
-			{
-				ReadFromStream();
-			}
-		}
+		void				ReadFrom();
+		
 	};
 	/*! \class AbstractDataExecution
 		\brief An Abstraction of the Distributed Data and Execution System
@@ -191,108 +167,26 @@ namespace IMSPacketsAPICore
 		PacketPort_SRCommState			SRCommState		= sr_Init;
 		PacketPort_FCCommState			FCCommState		= fc_Init;
 		bool							ServiceAsync	= false;
-	protected:
-		void ServicePort_SR_Sender()
-		{
-			switch (SRCommState)
-			{
-			case sr_Init: SRCommState = sr_Handling; break;
-			case sr_Reading:
-				InputInterface->ReadFrom();
-				if (InputInterface->DeSerializePacket()) {
-					DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
-					SRCommState = sr_Handling;
-				}
-				else
-					break;
-			case sr_Handling:
-				if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
-					SRCommState = sr_Sending;
-				else
-					break;
-			case sr_Sending:
-				if (OutputInterface->SerializePacket()) {
-					OutputInterface->WriteTo();
-					SRCommState = sr_Sent;
-				}
-				else
-					SRCommState = sr_Init;
-				break;
-			case sr_Sent:SRCommState = sr_Reading; break;
-			}
-		}
-		void ServicePort_SR_Responder()
-		{
-			switch (SRCommState)
-			{
-			case sr_Init: SRCommState = sr_Reading; break;
-			case sr_Reading:
-				InputInterface->ReadFrom();
-				if (InputInterface->DeSerializePacket())
-				{
-					DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
-					SRCommState = sr_Handling;
-				}
-				else
-					break;
-			case sr_Handling:
-				if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
-					SRCommState = sr_Sending;
-				else
-					break;
-			case sr_Sending:
-				if (OutputInterface->SerializePacket()) {
-					OutputInterface->WriteTo();
-					SRCommState = sr_Sent;
-				}
-				else
-					SRCommState = sr_Init;
-				break;
-			case sr_Sent:SRCommState = sr_Reading; break;
-			}
-		}
-		void ServicePort_FCP_Partner()
-		{
-			InputInterface->ReadFrom();
-			if (InputInterface->DeSerializePacket())
-			{
-				DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
-			}
 
-			if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
-			{
-				if (OutputInterface->SerializePacket())
-					OutputInterface->WriteTo();
-			}
-		}
+	protected:
+		void	ServicePort_SR_Sender();
+		void	ServicePort_SR_Responder();
+		void	ServicePort_FCP_Partner();
+
 	public:
-		int getPortID()			{ return PortID; }
-		bool getAsyncService()	{ return ServiceAsync; }
+		int		getPortID();
+		bool	getAsyncService();
+
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!
 			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
 			and calls the Handle/Package functions of the api node instance.
 		*/
-		void				ServicePort()
-		{
-			if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
-			{
-				switch (PortType)
-				{
-				case SenderResponder_Responder:		ServicePort_SR_Responder();		break;
-				case SenderResponder_Sender:		ServicePort_SR_Sender();		break;
-				case FullCylic_Partner:				ServicePort_FCP_Partner();		break;
-				}
-			}
-		}
-		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false)
-		{
-			InputInterface	= InputInterfaceIn;
-			OutputInterface = OutputInterfaceIn;
-			DataExecution	= DataExecutionIn;
-			ServiceAsync = isAsync;
-			PortID = PortIDin;
-		}
+		void	ServicePort();
+
+
+		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
+		
 
 	};
 	/*! @}*/

@@ -25,7 +25,7 @@ namespace IMSPacketsAPICore
 		int PackType = 0;
 		int PackOpt = 0;
 	};
-	TEMPLATE_STATICPACKETINFO(HDRPACK, iHDRPACK_END)
+	TEMPLATE_STATICPACKETINFO_H(HDRPACK, iHDRPACK_END)
 
 
 
@@ -39,8 +39,8 @@ namespace IMSPacketsAPICore
 		int			getPacketID() { return ID_HDRPACK; }
 		int			getNumSPDs() { return TokenCount_HDRPACK; }
 
-		TEMPLATE_SPDACCESSORS(PacketType, iHDRPACK_PacketType, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(PacketOption, iHDRPACK_PacketOption, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS_H(PacketType)
+		TEMPLATE_SPDACCESSORS_H(PacketOption)
 	};
 }
 

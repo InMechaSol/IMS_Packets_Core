@@ -1,0 +1,7 @@
+#include "3_Packet_VERSION.h"
+using namespace IMSPacketsAPICore;
+
+TEMPLATE_SPDACCESSORS_CPP(pCLASS(VERSION), MajorVersion, iVERSION_Major, typeINT, "%d")
+TEMPLATE_SPDACCESSORS_CPP(pCLASS(VERSION), MinorVersion, iVERSION_Minor, typeINT, "%d")
+TEMPLATE_SPDACCESSORS_CPP(pCLASS(VERSION), BuildNumber, iVERSION_Build, typeINT, "%d")
+TEMPLATE_SPDACCESSORS_CPP(pCLASS(VERSION), DevFlag, iVERSION_Dev, typeINT, "%d")

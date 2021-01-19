@@ -26,7 +26,7 @@ namespace IMSPacketsAPICore
 		int Build = 0;
 		int DevFlag = 0;
 	};
-	TEMPLATE_STATICPACKETINFO(VERSION, iVERSION_END)
+	TEMPLATE_STATICPACKETINFO_H(VERSION, iVERSION_END)
 
 
 	/*! \class Packet_Version
@@ -39,10 +39,10 @@ namespace IMSPacketsAPICore
 		int			getPacketID() { return ID_VERSION; }
 		int			getNumSPDs() { return TokenCount_VERSION; }
 
-		TEMPLATE_SPDACCESSORS(MajorVersion, iVERSION_Major, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(MinorVersion, iVERSION_Minor, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(BuildNumber, iVERSION_Build, typeINT, "%d")
-		TEMPLATE_SPDACCESSORS(DevFlag, iVERSION_Dev, typeINT, "%d")
+		TEMPLATE_SPDACCESSORS_H(MajorVersion)
+		TEMPLATE_SPDACCESSORS_H(MinorVersion)
+		TEMPLATE_SPDACCESSORS_H(BuildNumber)
+		TEMPLATE_SPDACCESSORS_H(DevFlag)
 
 	};
 }

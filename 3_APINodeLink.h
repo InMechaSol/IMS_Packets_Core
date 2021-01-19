@@ -56,12 +56,14 @@ if(packtrigger##packIDmacro){\
 	return Packager_##packIDmacro(&myPacket_##packIDmacro); }\
 }
 
-#define TEMPLATE_PACKNODE_MEMBERS(packIDmacro)\
+#define TEMPLATE_PACKNODE_MEMBERS_H(packIDmacro)\
 protected:	bool			packtrigger##packIDmacro = false;\
-			void			setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
+			void			setPackTrigger##packIDmacro();\
 			virtual void	Handler_##packIDmacro(Packet_##packIDmacro* inPack) = 0;\
 			virtual bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack) = 0;\
 
+#define TEMPLATE_PACKNODE_MEMBERS_CPP(PacketType, packIDmacro)\
+void PacketType::setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
 
 
 
@@ -100,41 +102,17 @@ namespace IMSPacketsAPICore
 		int								ByteIndex = 0;
 		SPDInterfaceBuffer<TokenType>	TokenBuffer;
 
-		void WriteToStream()
-		{
-			if (ifaceStreamPtr != nullptr)
-				ifaceStreamPtr->write(&(TokenBuffer.bytes[0]), serializedPacketSize);
-			else if (ifaceOutStreamPtr != nullptr)
-				ifaceOutStreamPtr->write(&(TokenBuffer.bytes[0]), serializedPacketSize);
-		}
+		void WriteToStream();
+		void ReadFromStream();
 		
-		void ReadFromStream()
-		{
-			if (ifaceStreamPtr != nullptr)
-			{
-				if (ifaceStreamPtr->peek() != EOF)
-					ifaceStreamPtr->read(&(TokenBuffer.bytes[ByteIndex++]), 1);
-			}
-			else if (ifaceInStreamPtr != nullptr)
-			{
-				if (ifaceInStreamPtr->peek() != EOF)
-					ifaceInStreamPtr->read(&(TokenBuffer.bytes[ByteIndex++]), 1);
-			}
-		}
-
 		int deSerializedPacketSize = 0;
 		int deSerializedTokenIndex = 0;
 		TokenType deSerializedTokenLength;
 		bool deSerializeReset = false;
-		void ResetdeSerialize()
-		{
-			ByteIndex = 0;
-			ByteIndexLast = 0;
-			deSerializedPacketSize = 0;
-			deSerializedTokenIndex = 0;
-			deSerializedTokenLength.uintVal = 0;
-			deSerializeReset = false;
-		}
+
+		void ResetdeSerialize();
+
+		
 		
 		/*! \fn DeSerializePacket_Binary
 			\brief Cyclic Non-Blocking Conditional Assembly
@@ -143,56 +121,8 @@ namespace IMSPacketsAPICore
 			Static workhorse function to facilitate testing of customization framework
 			with single validated function, the one used by default.
 		*/
-		static bool DeSerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
-		{
-			// called cyclically
-			// monitor ByteIndex for change
-			if (PcktInterface->ByteIndex != PcktInterface->ByteIndexLast)
-			{
-				// monitor byte array for token boundary
-				if ((PcktInterface->ByteIndex % PcktInterface->getTokenSize()) == 0)
-				{
-					// optionally and conditionally swap byte order of tokens here
-					;
-
-					// decide if error, trigger reset
-					PcktInterface->deSerializeReset = false;// TODO:
-
-					// if its the length token index
-					if (PcktInterface->deSerializedTokenIndex == Index_PackLEN)
-						PcktInterface->BufferPacket.readbuff_PackLength(&PcktInterface->deSerializedTokenLength);
-					else if (PcktInterface->deSerializedTokenIndex == iHDRPACK_PacketOption) {
-						TokenType x_SPD;
-						x_SPD.intVal = PcktInterface->getPortID();
-						PcktInterface->BufferPacket.setPacketOption(&x_SPD);
-					}
-
-
-					// decide if complete packet
-					// return true or false
-					// true will trigger the rx packet handler of the data execution instance
-					if (PcktInterface->ByteIndex == PcktInterface->deSerializedTokenLength.uintVal)
-					{
-						PcktInterface->ResetdeSerialize();
-						return true;
-					}
-					PcktInterface->deSerializedTokenIndex++;
-				}
-			}
-
-			
-
-			// Reset if triggerred
-			if (PcktInterface->deSerializeReset)							
-			{
-				PcktInterface->ResetdeSerialize();
-			}
-
-			// Capture history for change detect
-			PcktInterface->ByteIndexLast = PcktInterface->ByteIndex;			
-			return false;
-		}
-
+		static bool DeSerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface);
+		
 
 		/*! \fn SerializePacket_Binary
 			\brief Single Shot Non-Blocking Conditional Assembly
@@ -201,16 +131,7 @@ namespace IMSPacketsAPICore
 			Static workhorse function to facilitate testing of customization framework
 			with single validated function, the one used by default.
 		*/
-		static bool SerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface)
-		{
-			// called single-shot after tx packet handler of the data execution instance
-				// optionally swap bytes order before sending
-			;
-
-			// return true or false as error indication, true means all is well
-			// true will permit sending by the output packet interface instance
-			return true;
-		}
+		static bool SerializePacket_Binary(PacketInterface_Binary<TokenType>* PcktInterface);
 
 
 		/*! \fn DeSerializePacket
@@ -226,10 +147,8 @@ namespace IMSPacketsAPICore
 
 			\return if a complete packet has been deserialized and is ready for handling
 		*/
-		bool DeSerializePacket()
-		{
-			return DeSerializePacket_Binary(this);
-		}
+		bool DeSerializePacket();
+
 		 
 		/*! \fn SerializePacket
 			\brief Single Shot Non-Blocking Conditional Assembly
@@ -239,10 +158,7 @@ namespace IMSPacketsAPICore
 
 			\return Serialization Status (true - success, false - otherwise)
 		*/
-		bool SerializePacket()
-		{
-			return SerializePacket_Binary();
-		}
+		bool SerializePacket();
 
 
 	public:
@@ -253,22 +169,12 @@ namespace IMSPacketsAPICore
 			\sa BufferPacket
 
 		*/
-		Packet*				getPacketPtr() { return &BufferPacket; }
-		int					getTokenSize() { return sizeof(TokenType); }
+		Packet* getPacketPtr();
+		int		getTokenSize();
 
-
-		PacketInterface_Binary(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr) :
-			PacketInterface(PortIDin, ifaceStreamPtrIn) {
-			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
-		}
-		PacketInterface_Binary(int PortIDin, std::istream* ifaceInStreamPtrIn) :
-			PacketInterface(PortIDin, ifaceInStreamPtrIn) {
-			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
-		}
-		PacketInterface_Binary(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
-			PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
-			BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
-		}
+		PacketInterface_Binary(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr);
+		PacketInterface_Binary(int PortIDin, std::istream* ifaceInStreamPtrIn);
+		PacketInterface_Binary(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
 	};
 	
 	
@@ -283,59 +189,21 @@ namespace IMSPacketsAPICore
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		Packet_HDRPACK						BufferPacket;
 
-		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::ostream* PcktInterfaceStream)
-		{
-			PcktInterfaceStream->write(&(PcktInterface->TokenBuffer.chars[0]), PcktInterface->serializedPacketSize);
-		}
-		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream)
-		{
-			PcktInterfaceStream->write(&(PcktInterface->TokenBuffer.chars[0]), PcktInterface->serializedPacketSize);
-		}
-		void WriteToStream()
-		{
-			if (ifaceStreamPtr != nullptr)
-				WriteToStream_ASCII(this, ifaceStreamPtr);
-			else if (ifaceOutStreamPtr != nullptr)
-				WriteToStream_ASCII(this, ifaceOutStreamPtr);
-		}
+		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::ostream* PcktInterfaceStream);
+		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream);
+		void WriteToStream();
 		
 		
-		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::istream* PcktInterfaceStream)
-		{
-			if (PcktInterfaceStream->peek() != EOF)
-				PcktInterfaceStream->read(&(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex++]), 1);
-			
-		}
-		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream)
-		{
-			if (PcktInterfaceStream->peek() != EOF)
-				PcktInterfaceStream->read(&(PcktInterface->TokenBuffer.chars[PcktInterface->CharIndex++]), 1);
-
-		}
-		void ReadFromStream()
-		{
-			if (ifaceStreamPtr != nullptr)
-			{
-				ReadFromStream_ASCII(this, ifaceStreamPtr);
-			}
-			else if (ifaceInStreamPtr != nullptr)
-			{
-				ReadFromStream_ASCII(this, ifaceInStreamPtr);
-			}
-		}
+		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::istream* PcktInterfaceStream);
+		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream);
+		void ReadFromStream();
 		
 		int deSerializedTokenIndex = 0;
 		bool deSerializeReset = false;
 
 
 
-		void ResetdeSerialize()
-		{
-			CharIndex = 0;
-			CharIndexLast = 0;
-			deSerializedTokenIndex = 0;
-			deSerializeReset = false;
-		}
+		void ResetdeSerialize();
 
 
 		/*! \fn DeSerializePacket_ASCII
@@ -350,78 +218,7 @@ namespace IMSPacketsAPICore
 			token boundaries or errors.  If an error occurs, a reset is triggered.  Once the terminator
 			character is received, return true to trigger data execution instance handling.
 		*/
-		static bool DeSerializePacket_ASCII(PacketInterface_ASCII* PcktInterface)
-		{
-			// called cyclically
-			// monitor CharIndex for change
-			if (PcktInterface->CharIndexLast != PcktInterface->CharIndex)
-			{
-				int lastIndex = PcktInterface->CharIndex - 1;
-				
-				// decide if error, trigger reset
-				if (!Packet::isASCIIchar(PcktInterface->TokenBuffer.chars[lastIndex]) || PcktInterface->TokenBuffer.chars[lastIndex]==ASCII_lf || PcktInterface->TokenBuffer.chars[lastIndex] == ASCII_cr)
-				{
-					PcktInterface->deSerializeReset = true; // TODO:  ??
-				}
-				// look for delimeter/terminator ?
-				else if (Packet::isDelimiterchar(PcktInterface->TokenBuffer.chars[lastIndex]) || Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[lastIndex]))
-				{				
-					int NextTokenStart = (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
-
-					// if its the packet option token, mark Rx packet with portID
-					if (iHDRPACK_PacketOption == PcktInterface->deSerializedTokenIndex)
-					{
-						char lastChar = PcktInterface->TokenBuffer.chars[lastIndex];
-						int LastTokenStart = NextTokenStart - STRINGBUFFER_TOKENRATIO;
-						int charsWritten = snprintf(&(PcktInterface->TokenBuffer.chars[LastTokenStart]), STRINGBUFFER_TOKENRATIO, "%d%c", PcktInterface->getPortID(),lastChar);
-						lastIndex = LastTokenStart + charsWritten-1;
-					}
-
-					// decide if complete packet
-					// return true or false
-					// true will trigger the rx packet handler of the data execution instance
-					if (Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[lastIndex]))
-					{
-						// "strip" terminator
-						// 0x00 to all chars from terminator to next token start
-						for (int i = lastIndex; i < NextTokenStart; i++)
-							PcktInterface->TokenBuffer.chars[i] = 0x00;
-
-						// increment token index
-						PcktInterface->deSerializedTokenIndex++;
-						if (PcktInterface->deSerializedTokenIndex >= TokenCount_HDRPACK) {
-							PcktInterface->ResetdeSerialize();
-							return true;
-						}
-					}
-					else
-					{
-						
-						// "strip" delimiter
-						// 0x00 to all chars from delimiter to next token start
-						for (int i = lastIndex; i < (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO); i++)
-							PcktInterface->TokenBuffer.chars[i] = 0x00;
-							
-						
-						// advance index to next token start
-						PcktInterface->CharIndex = (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
-						// increment token index
-						PcktInterface->deSerializedTokenIndex++;
-					}
-				}
-			}
-			
-			// reset if triggered
-			if (PcktInterface->deSerializeReset)
-			{
-				PcktInterface->ResetdeSerialize();
-			}
-
-			// Capture history for change detect
-			PcktInterface->CharIndexLast = PcktInterface->CharIndex;			
-			return false;
-		}
-
+		static bool DeSerializePacket_ASCII(PacketInterface_ASCII* PcktInterface);
 
 		/*! \fn DeSerializePacket
 			\brief Default ASCII Deserialization
@@ -430,10 +227,7 @@ namespace IMSPacketsAPICore
 
 			Thin wrapper around static class function.
 		*/
-		bool DeSerializePacket()
-		{
-			return DeSerializePacket_ASCII(this);
-		}
+		bool DeSerializePacket();
 
 
 		/*! \fn SerializePacket_ASCII
@@ -450,106 +244,20 @@ namespace IMSPacketsAPICore
 			It will then indicate success or failure which in-turn will permit, or not permit, the
 			interface instance writeto function.
 		*/
-		static bool SerializePacket_ASCII(PacketInterface_ASCII* PcktInterface)
-		{
-			// called single-shot
-			int lastCharIndexWritten = 0;	// initialized to start of id string
-			int SerializedTokenCount = TokenCount_HDRPACK;	// initialized to minimum token of HDR packet
-			int j;
-			int k;
-
-			// iterate through token buffer by token index
-			for (int i = 0; i < PACKETBUFFER_TOKENCOUNT; i++)
-			{
-				// calculate inner loop bounds
-				if (i == 0)
-				{
-					j = 0;
-					k = STRINGBUFFER_IDTOKENRATIO;
-				}
-				else
-				{
-					j = STRINGBUFFER_IDTOKENRATIO + (i-1) * STRINGBUFFER_TOKENRATIO;
-					k = STRINGBUFFER_IDTOKENRATIO + i     * STRINGBUFFER_TOKENRATIO;
-				}
-
-				// iterate through token by char index
-				for (j; j<k; j++)
-				{
-					if (i == Index_PackID)	// working the ID string
-					{
-						// adorn each token at first occurance of 0x00, replace with delimiter
-						if (PcktInterface->TokenBuffer.chars[j] == 0x00)
-						{
-							PcktInterface->TokenBuffer.chars[j] = ASCII_colon;
-							lastCharIndexWritten = j;	// latch index of last char "written"
-							break; // break from inner loop, token by char, loop
-						}
-					}					
-					else // working all inner tokens (not first or last)
-					{
-						// adorn each token at first occurance of 0x00
-						if (PcktInterface->TokenBuffer.chars[j] == 0x00)
-						{
-							if (i == Index_PackLEN) // working the SPD Count String
-							{
-								SerializedTokenCount = atoi(&PcktInterface->TokenBuffer.chars[STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO]);
-
-								// an error has occurred with the token count string if parsed token count string less than hdr packet token count
-								if (SerializedTokenCount < TokenCount_HDRPACK)
-									return false;
-							}
-
-							// add delimiter/terminator to shifted location
-							if (i == (SerializedTokenCount - 1)) // working the final token string
-							{
-								PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = ASCII_semicolon;
-								PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = ASCII_lf;
-								PcktInterface->serializedPacketSize = lastCharIndexWritten + 1;
-								return true;
-							}
-							else
-							{
-								PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = ASCII_colon;								
-								break; // break from inner loop, token by char, loop
-							}
-							
-							
-						}
-						else
-						{
-							// shift chars down to previous token delimiter
-							PcktInterface->TokenBuffer.chars[++lastCharIndexWritten] = PcktInterface->TokenBuffer.chars[j];
-						}
-					}
-				}				
-			}
-			return false;
-		}
+		static bool SerializePacket_ASCII(PacketInterface_ASCII* PcktInterface);
 
 
-		bool SerializePacket()
-		{
-			return SerializePacket_ASCII(this);
-		}
+		bool SerializePacket();
+		
 
 
 	public:
 		
-		Packet*				getPacketPtr() { return &BufferPacket; }
-		int					getTokenSize() { return STRINGBUFFER_TOKENRATIO; }
-		PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr) :
-			PacketInterface(PortIDin, ifaceStreamPtrIn) {
-			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
-		}
-		PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn) :
-			PacketInterface(PortIDin, ifaceInStreamPtrIn) {
-			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
-		}
-		PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
-			PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
-			BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
-		}
+		Packet* getPacketPtr();
+		int		getTokenSize(); 
+		PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr);
+		PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn);
+		PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
 
 	};
 	
@@ -581,93 +289,27 @@ namespace IMSPacketsAPICore
 		static const bool   ECOSYSTEM_isReleaseBuild = false;
 #endif
 
-		static void ServiceSynchronousPorts(API_NODE* nodePtr)
-		{
-			for (int i = 0; i < nodePtr->getNumPacketPorts(); i++)
-			{
-				if(!(nodePtr->getPacketPortat(i))->getAsyncService())
-					(nodePtr->getPacketPortat(i))->ServicePort();
-			}
-				
-		}
-		void Loop()
-		{
-			CustomLoop();
-			ServiceSynchronousPorts(this);
-		}
+		static void ServiceSynchronousPorts(API_NODE* nodePtr);
+		void Loop();
 
 
-		void HandleRxPacket(Packet* RxPackInPtr)
-		{
-			// Mark Rx packet with port index
+		void HandleRxPacket(Packet* RxPackInPtr);
 
-			TEMPLATE_RX_HANDLER(RxPackInPtr, VERSION)
+		bool PrepareTxPacket(Packet* TxPackOutPtr);
 
-			API_CustomShared_HandleRx(RxPackInPtr);
-		}
-
-		bool PrepareTxPacket(Packet* TxPackOutPtr)
-		{
-			TEMPLATE_TX_PACKAGER(TxPackOutPtr, VERSION)
-
-			return API_CustomShared_PrepareTx(TxPackOutPtr);
-		}
+		TEMPLATE_PACKNODE_MEMBERS_H(VERSION)
 
 
 
-#pragma region Packet_VERSION Members
-
-		TEMPLATE_PACKNODE_MEMBERS(VERSION)		
+	public:
+		
 
 		template<class TokenType>
-		static void staticHandler_VERSION(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct = nullptr)
-		{
-			TokenType x_SPD;
-			if (inPack->isASCIIPacket())
-				inPack->getfromStringPacketType(&x_SPD);
-			else
-				inPack->getPacketType(&x_SPD);
+		static bool staticPackager_VERSION(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct);
 
-			if (x_SPD.intVal == ReadComplete)
-				nodePtr->setPackTriggerVERSION();
-			else if (x_SPD.intVal == ResponseComplete && dstStruct!=nullptr)
-			{
-				if (inPack->isASCIIPacket()) inPack->getfromStringMajorVersion(&x_SPD); else inPack->getMajorVersion(&x_SPD);
-				dstStruct->Major = x_SPD.intVal;
-				if (inPack->isASCIIPacket()) inPack->getfromStringMinorVersion(&x_SPD); else inPack->getMinorVersion(&x_SPD);
-				dstStruct->Minor = x_SPD.intVal;
-				if (inPack->isASCIIPacket()) inPack->getfromStringBuildNumber(&x_SPD); else inPack->getBuildNumber(&x_SPD);
-				dstStruct->Build = x_SPD.intVal;
-				if (inPack->isASCIIPacket()) inPack->getfromStringDevFlag(&x_SPD); else inPack->getDevFlag(&x_SPD);
-				dstStruct->DevFlag = x_SPD.intVal;
-			}
-
-		}
 
 		template<class TokenType>
-		static bool staticPackager_VERSION(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct)
-		{
-			TokenType x_SPD;
-			bool tempBool = true;
-			outPack->isASCIIPacket() ? outPack->writebuff_PackIDString() : outPack->writebuff_PackID(&x_SPD);
-			outPack->isASCIIPacket() ? outPack->writebuff_TokenCountString() : outPack->writebuff_PackLength(&x_SPD);
-			x_SPD.intVal = ResponseComplete;
-			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketType(&x_SPD);	else outPack->setPacketType(&x_SPD);
-			x_SPD.intVal = 0;
-			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketOption(&x_SPD);	else outPack->setPacketOption(&x_SPD);
-			x_SPD.intVal = srcStruct->Major;
-			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMajorVersion(&x_SPD);	else outPack->setMajorVersion(&x_SPD);
-			x_SPD.intVal = srcStruct->Minor;
-			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMinorVersion(&x_SPD);	else outPack->setMinorVersion(&x_SPD);
-			x_SPD.intVal = srcStruct->Build;
-			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringBuildNumber(&x_SPD);	else outPack->setBuildNumber(&x_SPD);
-			x_SPD.intVal = srcStruct->DevFlag;
-			if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringDevFlag(&x_SPD);		else outPack->setDevFlag(&x_SPD);
-
-			return tempBool;
-		}
-
-#pragma endregion
+		static void staticHandler_VERSION(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct = nullptr);
 
 
 	};

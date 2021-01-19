@@ -81,21 +81,6 @@
 #define Index_PackLEN (1)
 
 
-#define TEMPLATE_STATICPACKETINFO(packID, numTokens)\
-static const int ID_##packID = packID;\
-static const char IDString_##packID[] = #packID;\
-static const int TokenCount_##packID = numTokens;\
-
-#define TEMPLATE_STATICPACKETINFOHEADER(packID, numTokens)\
-static const int ID_##packID;\
-static const char IDString_##packID[];\
-static const int TokenCount_##packID;\
-
-#define TEMPLATE_STATICPACKETINFOSOURCE(packID, numTokens)\
-static const int ID_##packID = packID;\
-static const char IDString_##packID[] = #packID;\
-static const int TokenCount_##packID = numTokens;\
-
 // String-ize macros
 #define xstr(s) #s
 #define str(s) xstr(s)
@@ -119,6 +104,17 @@ static const int TokenCount_##packID = numTokens;\
 
 
 
+#define TEMPLATE_STATICPACKETINFO_H(packID, numTokens)\
+static const int ID_##packID = packID;\
+static const char IDString_##packID[] = #packID;\
+static const int TokenCount_##packID = numTokens;\
+
+
+#define pCLASS(packIDmacro) Packet_##packIDmacro
+#define pSTRUCT(packIDmacro) Struct_##packIDmacro
+#define pENUM(packIDmacro) TokenIndex_##packIDmacro
+
+
 /*! \def TEMPLATE_SPDSET(tokenName, SPDindex)
 	\brief Code Template for Packet Accessor (SET) Functions
 
@@ -130,11 +126,19 @@ static const int TokenCount_##packID = numTokens;\
 	-SPD8
 
 */
-#define TEMPLATE_SPDSET(tokenName, SPDindex)\
-void set##tokenName(SPD1* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
-void set##tokenName(SPD2* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
-void set##tokenName(SPD4* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
-void set##tokenName(SPD8* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
+#define TEMPLATE_SPDSET_H(tokenName)\
+void set##tokenName(SPD1* my##tokenName);\
+void set##tokenName(SPD2* my##tokenName);\
+void set##tokenName(SPD4* my##tokenName);\
+void set##tokenName(SPD8* my##tokenName);\
+
+
+#define TEMPLATE_SPDSET_CPP(PacketType, tokenName, SPDindex)\
+void PacketType::set##tokenName(SPD1* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
+void PacketType::set##tokenName(SPD2* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
+void PacketType::set##tokenName(SPD4* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
+void PacketType::set##tokenName(SPD8* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
+
 
 /*! \def TEMPLATE_SPDSETSTRING(tokenName, SPDindex, dTypeEnum, formatString)
 	\brief Code Template for Packet Accessor (SET) Functions
@@ -147,11 +151,18 @@ void set##tokenName(SPD8* my##tokenName){setSPDat(SPDindex,my##tokenName);}\
 	-SPD8
 
 */
-#define TEMPLATE_SPDSETSTRING(tokenName, SPDindex, dTypeEnum, formatString)\
-bool set2String##tokenName(SPD1* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
-bool set2String##tokenName(SPD2* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
-bool set2String##tokenName(SPD4* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
-bool set2String##tokenName(SPD8* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
+#define TEMPLATE_SPDSETSTRING_H(tokenName)\
+bool set2String##tokenName(SPD1* my##tokenName);\
+bool set2String##tokenName(SPD2* my##tokenName);\
+bool set2String##tokenName(SPD4* my##tokenName);\
+bool set2String##tokenName(SPD8* my##tokenName);\
+
+
+#define TEMPLATE_SPDSETSTRING_CPP(PacketType, tokenName, SPDindex, dTypeEnum, formatString)\
+bool PacketType::set2String##tokenName(SPD1* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
+bool PacketType::set2String##tokenName(SPD2* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
+bool PacketType::set2String##tokenName(SPD4* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
+bool PacketType::set2String##tokenName(SPD8* my##tokenName){return setCharsfromSPDat(SPDindex,my##tokenName,dTypeEnum,formatString);}\
 
 /*! \def TEMPLATE_SPDGET(tokenName, SPDindex)
 	\brief Code Template for Packet Accessor (GET) Functions
@@ -164,27 +175,44 @@ bool set2String##tokenName(SPD8* my##tokenName){return setCharsfromSPDat(SPDinde
 	-SPD8
 
 */
-#define TEMPLATE_SPDGET(tokenName, SPDindex)\
-void get##tokenName(SPD1* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
-void get##tokenName(SPD2* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
-void get##tokenName(SPD4* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
-void get##tokenName(SPD8* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
+#define TEMPLATE_SPDGET_H(tokenName)\
+void get##tokenName(SPD1* my##tokenName);\
+void get##tokenName(SPD2* my##tokenName);\
+void get##tokenName(SPD4* my##tokenName);\
+void get##tokenName(SPD8* my##tokenName);\
+
+#define TEMPLATE_SPDGET_CPP(PacketType, tokenName, SPDindex)\
+void PacketType::get##tokenName(SPD1* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
+void PacketType::get##tokenName(SPD2* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
+void PacketType::get##tokenName(SPD4* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
+void PacketType::get##tokenName(SPD8* my##tokenName){getSPDat(SPDindex,my##tokenName);}\
 
 
+#define TEMPLATE_SPDGETSTRING_H(tokenName)\
+bool getfromString##tokenName(SPD1* my##tokenName);\
+bool getfromString##tokenName(SPD2* my##tokenName);\
+bool getfromString##tokenName(SPD4* my##tokenName);\
+bool getfromString##tokenName(SPD8* my##tokenName);\
 
-#define TEMPLATE_SPDGETSTRING(tokenName, SPDindex, dTypeEnum)\
-bool getfromString##tokenName(SPD1* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
-bool getfromString##tokenName(SPD2* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
-bool getfromString##tokenName(SPD4* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
-bool getfromString##tokenName(SPD8* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
+#define TEMPLATE_SPDGETSTRING_CPP(PacketType, tokenName, SPDindex, dTypeEnum)\
+bool PacketType::getfromString##tokenName(SPD1* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
+bool PacketType::getfromString##tokenName(SPD2* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
+bool PacketType::getfromString##tokenName(SPD4* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
+bool PacketType::getfromString##tokenName(SPD8* my##tokenName){return getSPDfromcharsAt(SPDindex,my##tokenName,dTypeEnum);}\
 
 
+#define TEMPLATE_SPDACCESSORS_H(tokenName)\
+TEMPLATE_SPDSET_H(tokenName)\
+TEMPLATE_SPDGET_H(tokenName)\
+TEMPLATE_SPDSETSTRING_H(tokenName)\
+TEMPLATE_SPDGETSTRING_H(tokenName)\
 
-#define TEMPLATE_SPDACCESSORS(tokenName, SPDindex, dTypeEnum, formatString)\
-TEMPLATE_SPDSET(tokenName, SPDindex)\
-TEMPLATE_SPDGET(tokenName, SPDindex)\
-TEMPLATE_SPDSETSTRING(tokenName, SPDindex, dTypeEnum, formatString)\
-TEMPLATE_SPDGETSTRING(tokenName, SPDindex, dTypeEnum)\
+
+#define TEMPLATE_SPDACCESSORS_CPP(PacketType, tokenName, SPDindex, dTypeEnum, formatString)\
+TEMPLATE_SPDSET_CPP(PacketType, tokenName, SPDindex)\
+TEMPLATE_SPDGET_CPP(PacketType, tokenName, SPDindex)\
+TEMPLATE_SPDSETSTRING_CPP(PacketType, tokenName, SPDindex, dTypeEnum, formatString)\
+TEMPLATE_SPDGETSTRING_CPP(PacketType, tokenName, SPDindex, dTypeEnum)\
 
 
 /*! @} */
@@ -296,286 +324,86 @@ namespace IMSPacketsAPICore
 		char*		charsBufferPtr = nullptr;
 	protected:
 		// byte by byte binary exchange of data
-		void		getSPDat(int i, SPD1* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-				SPDPtr->uintVal = (bytesBufferPtr + i)[0];
-		}
-		void		getSPDat(int i, SPD2* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-			{
-				for (int j = 0; j < sizeof(SPD2); j++)
-				{
-					SPDPtr->bytes[j] = (bytesBufferPtr + (i * sizeof(SPD2)))[j];
-				}
-			}
-		}
-		void		getSPDat(int i, SPD4* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-			{
-				for (int j = 0; j < sizeof(SPD4); j++)
-				{
-					SPDPtr->bytes[j] = (bytesBufferPtr + (i * sizeof(SPD4)))[j];
-				}
-			}
-		}
-		void		getSPDat(int i, SPD8* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-			{
-				for (int j = 0; j < sizeof(SPD8); j++)
-				{
-					SPDPtr->bytes[j] = (bytesBufferPtr + (i * sizeof(SPD8)))[j];
-				}
-			}
-		}
+		void		getSPDat(int i, SPD1* SPDPtr);
+		void		getSPDat(int i, SPD2* SPDPtr);
+		void		getSPDat(int i, SPD4* SPDPtr);
+		void		getSPDat(int i, SPD8* SPDPtr);
 
 		// byte by byte binary exchange of data
-		void		setSPDat(int i, SPD1* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-				(bytesBufferPtr + i)[0] = SPDPtr->uintVal;
-		}
-		void		setSPDat(int i, SPD2* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-			{
-				for (int j = 0; j < sizeof(SPD2); j++)
-				{
-					(bytesBufferPtr + i * sizeof(SPD2))[j] = SPDPtr->bytes[j];
-				}
-			}
+		void		setSPDat(int i, SPD1* SPDPtr);
+		void		setSPDat(int i, SPD2* SPDPtr);
+		void		setSPDat(int i, SPD4* SPDPtr);
+		void		setSPDat(int i, SPD8* SPDPtr);
 
-		}
-		void		setSPDat(int i, SPD4* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-			{
-				for (int j = 0; j < sizeof(SPD4); j++)
-				{
-					(bytesBufferPtr + i * sizeof(SPD4))[j] = SPDPtr->bytes[j];
-				}
-			}
-
-		}
-		void		setSPDat(int i, SPD8* SPDPtr)
-		{
-			if (i > -1 && i < getNumSPDs())
-			{
-				for (int j = 0; j < sizeof(SPD8); j++)
-				{
-					(bytesBufferPtr + i * sizeof(SPD8))[j] = SPDPtr->bytes[j];
-				}
-			}
-
-		}
 
 		// atoi, atof, etc called on char buffer to xfer spd
-		bool		getSPDfromcharsAt(int i, SPD1* SPDPtr, enum SPDValTypeEnum dType)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i-1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atoi(TokenStringPtr); return true;
-				case typeINT:	if (!isIntegerString(TokenStringPtr))			return false; SPDPtr->uintVal = atoi(TokenStringPtr); return true;
-				}
-			}
-			return false;
-		}
-		bool		getSPDfromcharsAt(int i, SPD2* SPDPtr, enum SPDValTypeEnum dType)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atoi(TokenStringPtr); return true;
-				case typeINT:	if (!isIntegerString(TokenStringPtr))			return false; SPDPtr->uintVal = atoi(TokenStringPtr); return true;
-				case typeFLT:	if (!isNumberString(TokenStringPtr))			return false; SPDPtr->fpVal = atof(TokenStringPtr); return true;
-				}
-			}
-			return false;
-		}
-		bool		getSPDfromcharsAt(int i, SPD4* SPDPtr, enum SPDValTypeEnum dType)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atol(TokenStringPtr); return true;
-				case typeINT:	if (!isIntegerString(TokenStringPtr))			return false; SPDPtr->uintVal = atol(TokenStringPtr); return true;
-				case typeFLT:	if (!isNumberString(TokenStringPtr))			return false; SPDPtr->fpVal = atof(TokenStringPtr); return true;
-				}
-			}
-			return false;
-		}
-		bool		getSPDfromcharsAt(int i, SPD8* SPDPtr, enum SPDValTypeEnum dType)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (!isUnsignedIntegerString(TokenStringPtr))	return false; SPDPtr->uintVal = atol(TokenStringPtr); return true;
-				case typeINT:	if (!isIntegerString(TokenStringPtr))			return false; SPDPtr->uintVal = atol(TokenStringPtr); return true;
-				case typeFLT:	if (!isNumberString(TokenStringPtr))			return false; SPDPtr->fpVal = atof(TokenStringPtr); return true;
-				}
-			}
-			return false;
-		}
-
+		bool		getSPDfromcharsAt(int i, SPD1* SPDPtr, enum SPDValTypeEnum dType);
+		bool		getSPDfromcharsAt(int i, SPD2* SPDPtr, enum SPDValTypeEnum dType);
+		bool		getSPDfromcharsAt(int i, SPD4* SPDPtr, enum SPDValTypeEnum dType);
+		bool		getSPDfromcharsAt(int i, SPD8* SPDPtr, enum SPDValTypeEnum dType);
+		
 		// snprintf called on SPDPtr->value according to dType
-		bool		setCharsfromSPDat(int i, SPD1* SPDPtr, enum SPDValTypeEnum dType, const char* fString)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
-				case typeINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->intVal) < 1) return false; return true;
-				}
-			}
-			return false;
-		}
-		bool		setCharsfromSPDat(int i, SPD2* SPDPtr, enum SPDValTypeEnum dType, const char* fString)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
-				case typeINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->intVal) < 1)		return false; return true;
-				case typeFLT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->fpVal) < 1)		return false; return true;
-				}
-			}
-			return false;
-		}
-		bool		setCharsfromSPDat(int i, SPD4* SPDPtr, enum SPDValTypeEnum dType, const char* fString)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
-				case typeINT:
-					if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->intVal) < 1)		
-						return false; 
-					return true;
-				case typeFLT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->fpVal) < 1)		return false; return true;
-				}
-			}
-			return false;
-		}
-		bool		setCharsfromSPDat(int i, SPD8* SPDPtr, enum SPDValTypeEnum dType, const char* fString)
-		{
-			if (i > 0 && i < getNumSPDs())
-			{
-				char* TokenStringPtr = (charsBufferPtr + STRINGBUFFER_IDTOKENRATIO + (i - 1) * STRINGBUFFER_TOKENRATIO);
-				switch (dType)
-				{
-				case typeUINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->uintVal) < 1)	return false; return true;
-				case typeINT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->intVal) < 1)		return false; return true;
-				case typeFLT:	if (snprintf(TokenStringPtr, STRINGBUFFER_TOKENRATIO, fString, SPDPtr->fpVal) < 1)		return false; return true;
-				}
-			}
-			return false;
-		}
+		bool		setCharsfromSPDat(int i, SPD1* SPDPtr, enum SPDValTypeEnum dType, const char* fString);
+		bool		setCharsfromSPDat(int i, SPD2* SPDPtr, enum SPDValTypeEnum dType, const char* fString);
+		bool		setCharsfromSPDat(int i, SPD4* SPDPtr, enum SPDValTypeEnum dType, const char* fString);
+		bool		setCharsfromSPDat(int i, SPD8* SPDPtr, enum SPDValTypeEnum dType, const char* fString);
+
+		
 
 
 	public:
-		uint8_t*				getBytesBuffer() { return bytesBufferPtr; }
-		void					setBytesBuffer(uint8_t* bytesBufferPtrIn)
-		{
-			bytesBufferPtr = bytesBufferPtrIn;
-		}
-		char*					getCharsBuffer() { return charsBufferPtr; }
-		void					setCharsBuffer(char* charsBufferPtrIn)
-		{
-			charsBufferPtr = charsBufferPtrIn;
-		}
-
-		void					CopyTokenBufferPtrs(Packet* copyPacketPtrs)
-		{
-			bytesBufferPtr = copyPacketPtrs->bytesBufferPtr;
-			charsBufferPtr = copyPacketPtrs->charsBufferPtr;
-		}
-		
-		
+		uint8_t*	getBytesBuffer();
+		void		setBytesBuffer(uint8_t* bytesBufferPtrIn);
+		char*		getCharsBuffer();
+		void		setCharsBuffer(char* charsBufferPtrIn);
+		void		CopyTokenBufferPtrs(Packet* copyPacketPtrs);
+				
 		virtual int				getPacketID() = 0;
 		virtual char*			getPacketIDString() = 0;
 		virtual int				getNumSPDs() = 0;
 
-		bool					ByteBuffer_ID_Equals(const int compareValue)
-		{
-			return (getNumSPDs() == compareValue);
-		}
-		bool					StringBuffer_IDString_Equals(const char* compareStringPtr)
-		{
-			for (int i = 0; i < STRINGBUFFER_IDTOKENRATIO; i++)
-			{
-				if (compareStringPtr[i] != charsBufferPtr[i])
-					return false;
-				if (charsBufferPtr[i] == 0x00)
-					break;
-			}
-			return true;
-		}
+		bool					ByteBuffer_ID_Equals(const int compareValue);
+		bool					StringBuffer_IDString_Equals(const char* compareStringPtr);
 
+		// PackID Accessors
+		void					writebuff_PackID(SPD1* SPDPtr);
+		void					writebuff_PackID(SPD2* SPDPtr);
+		void					writebuff_PackID(SPD4* SPDPtr);
+		void					writebuff_PackID(SPD8* SPDPtr);
+		void					writebuff_PackIDString();
+		void					readbuff_PackID(SPD1* SPDPtr);
+		void					readbuff_PackID(SPD2* SPDPtr);
+		void					readbuff_PackID(SPD4* SPDPtr);
+		void					readbuff_PackID(SPD8* SPDPtr);
 
-		void					writebuff_PackID(SPD1* SPDPtr)	{ SPDPtr->intVal = getPacketID(); setSPDat(Index_PackID, SPDPtr); }
-		void					writebuff_PackID(SPD2* SPDPtr)	{ SPDPtr->intVal = getPacketID(); setSPDat(Index_PackID, SPDPtr); }
-		void					writebuff_PackID(SPD4* SPDPtr)	{ SPDPtr->intVal = getPacketID(); setSPDat(Index_PackID, SPDPtr); }
-		void					writebuff_PackID(SPD8* SPDPtr)	{ SPDPtr->intVal = getPacketID(); setSPDat(Index_PackID, SPDPtr); }
-		void					writebuff_PackIDString()
-		{
-			for (int i = 0; i < STRINGBUFFER_IDTOKENRATIO; i++)
-			{
-				charsBufferPtr[i] = getPacketIDString()[i];
-				if (charsBufferPtr[i] == 0x00)
-					break;
-			}
-		}
-		void					readbuff_PackID(SPD1* SPDPtr)	{ getSPDat(Index_PackID, SPDPtr); }
-		void					readbuff_PackID(SPD2* SPDPtr)	{ getSPDat(Index_PackID, SPDPtr); }
-		void					readbuff_PackID(SPD4* SPDPtr)	{ getSPDat(Index_PackID, SPDPtr); }
-		void					readbuff_PackID(SPD8* SPDPtr)	{ getSPDat(Index_PackID, SPDPtr); }
+		// PackLen Accessors
+		void					writebuff_PackLength(SPD1* SPDPtr);
+		void					writebuff_PackLength(SPD2* SPDPtr);
+		void					writebuff_PackLength(SPD4* SPDPtr);
+		void					writebuff_PackLength(SPD8* SPDPtr);
+		void					writebuff_TokenCountString();
+		void					readbuff_PackLength(SPD1* SPDPtr);
+		void					readbuff_PackLength(SPD2* SPDPtr);
+		void					readbuff_PackLength(SPD4* SPDPtr);
+		void					readbuff_PackLength(SPD8* SPDPtr);
 		
-
 		
-		void					writebuff_PackLength(SPD1* SPDPtr)	{ SPDPtr->intVal = sizeof(SPD1) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
-		void					writebuff_PackLength(SPD2* SPDPtr)	{ SPDPtr->intVal = sizeof(SPD2) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
-		void					writebuff_PackLength(SPD4* SPDPtr)	{ SPDPtr->intVal = sizeof(SPD4) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
-		void					writebuff_PackLength(SPD8* SPDPtr)	{ SPDPtr->intVal = sizeof(SPD8) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
-		void					writebuff_TokenCountString()		{ snprintf(charsBufferPtr + STRINGBUFFER_IDTOKENRATIO, STRINGBUFFER_TOKENRATIO, "%d", getNumSPDs()); }
-		void					readbuff_PackLength(SPD1* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
-		void					readbuff_PackLength(SPD2* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
-		void					readbuff_PackLength(SPD4* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
-		void					readbuff_PackLength(SPD8* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
+		// String/Char Comparison Functions
+		bool					isASCIIPacket();
 
+		static bool				isASCIIchar(char inChar);
+		static bool				isLetterchar(char inChar);
+		static bool				isNumberchar(char inChar);
+		static bool				isIntegerchar(char inChar);
+		static bool				isUnsignedIntegerchar(char inChar);
+		static bool				isDelimiterchar(char inChar);
+		static bool				isTerminatorchar(char inChar);
+		static bool				isASCIIString(char* inStringPtr);
+		static bool				isLetterString(char* inStringPtr);
+		static bool				isNumberString(char* inStringPtr);
+		static bool				isIntegerString(char* inStringPtr);
+		static bool				isUnsignedIntegerString(char* inStringPtr);
 
-		bool					isASCIIPacket() { return(charsBufferPtr != nullptr); }
-
-
-		static bool				isASCIIchar(char inChar)					{ return ((inChar >= ASCII_space && inChar <= ASCII_tilda)||inChar==ASCII_lf||inChar==ASCII_cr||inChar==ASCII_tab||inChar==0x00); }
-		static bool				isLetterchar(char inChar)					{ return ((inChar >= ASCII_A && inChar <= ASCII_Z) || (inChar >= ASCII_a && inChar <= ASCII_z)); }
-		static bool				isNumberchar(char inChar)					{ return ((inChar >= ASCII_0 && inChar <= ASCII_9) || inChar == ASCII_plus || inChar == ASCII_minus || inChar == ASCII_dot); }
-		static bool				isIntegerchar(char inChar)					{ return ((inChar >= ASCII_0 && inChar <= ASCII_9) || inChar == ASCII_plus || inChar == ASCII_minus); }
-		static bool				isUnsignedIntegerchar(char inChar)			{ return ((inChar >= ASCII_0 && inChar <= ASCII_9)); }
-		static bool				isDelimiterchar(char inChar)				{ return (inChar == ASCII_colon); }
-		static bool				isTerminatorchar(char inChar)				{ return (inChar == ASCII_semicolon); }
-		static bool				isASCIIString(char* inStringPtr)			{ int index = 0;  while (inStringPtr[index] != 0x00) if (!isASCIIchar(inStringPtr[index++])) return false; return true; }
-		static bool				isLetterString(char* inStringPtr)			{ int index = 0;  while (inStringPtr[index] != 0x00) if (!isLetterchar(inStringPtr[index++])) return false; return true; }
-		static bool				isNumberString(char* inStringPtr)			{ int index = 0;  while (inStringPtr[index] != 0x00) if (!isNumberchar(inStringPtr[index++])) return false; return true; }
-		static bool				isIntegerString(char* inStringPtr)			{ int index = 0;  while (inStringPtr[index] != 0x00) if (!isIntegerchar(inStringPtr[index++])) return false; return true; }
-		static bool				isUnsignedIntegerString(char* inStringPtr)	{ int index = 0;  while (inStringPtr[index] != 0x00) if (!isUnsignedIntegerchar(inStringPtr[index++])) return false; return true; }
 	};
 
 }
