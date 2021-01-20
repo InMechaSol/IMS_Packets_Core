@@ -69,8 +69,8 @@ namespace IMSPacketsAPICore
 
 		int					serializedPacketSize	= 0;
 		int					tokenIndex				= 0;
-		virtual void		CustomWriteTo()			{ ; }
-		virtual void		CustomReadFrom()		{ ; }
+		virtual void		CustomWriteTo() { ; }
+		virtual void		CustomReadFrom() { ; }
 		virtual void		WriteToStream()			= 0;
 		virtual void		ReadFromStream()		= 0;
 

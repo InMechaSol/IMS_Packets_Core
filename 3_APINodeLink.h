@@ -111,15 +111,15 @@ namespace IMSPacketsAPICore
 		void WriteToStream();
 		void ReadFromStream();
 		
-		int deSerializedPacketSize = 0;
-		int deSerializedTokenIndex = 0;
 		TokenType deSerializedTokenLength;
-		bool deSerializeReset = false;
+		int deSerializedPacketSize = 0;
 
+		int deSerializedTokenIndex = 0;		
+		bool deSerializeReset = false;
 		void ResetdeSerialize();
 
 		
-		
+	public:	
 		/*! \fn DeSerializePacket_Binary
 			\brief Cyclic Non-Blocking Conditional Assembly
 			\sa DeSerializePacket
@@ -166,8 +166,6 @@ namespace IMSPacketsAPICore
 		*/
 		bool SerializePacket();
 
-
-	public:
 		/*! \fn getPacketPtr
 			\brief Interface Definition of Abstract Packet Accessor
 			\return Pointer to the Packet Buffer of the Interface Instance
@@ -187,31 +185,31 @@ namespace IMSPacketsAPICore
 	
 	/*! \class PacketInterface_ASCII
 		\brief API Node ASCII Interface for HDR_Packets
-	*/class PacketInterface_ASCII : public PacketInterface
+	*/
+	class PacketInterface_ASCII : public PacketInterface
 	{
 	protected:
 		int									CharIndex = 0;
 		int									CharIndexLast = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		Packet_HDRPACK						BufferPacket;
+				
 
-		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::ostream* PcktInterfaceStream);
-		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream);
 		void WriteToStream();
-		
-		
-		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::istream* PcktInterfaceStream);
-		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream);
 		void ReadFromStream();
 		
 		int deSerializedTokenIndex = 0;
 		bool deSerializeReset = false;
-
-
-
 		void ResetdeSerialize();
 
 
+	public:
+		
+		Packet* getPacketPtr();
+		int		getTokenSize(); 
+		PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr);
+		PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn);
+		PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
 		/*! \fn DeSerializePacket_ASCII
 			\brief Default ASCII Deserialization
 			\sa Packet
@@ -225,7 +223,25 @@ namespace IMSPacketsAPICore
 			character is received, return true to trigger data execution instance handling.
 		*/
 		static bool DeSerializePacket_ASCII(PacketInterface_ASCII* PcktInterface);
+		/*! \fn SerializePacket_ASCII
+			\brief Default ASCII Serialization
+			\sa SerializePacket
+			\return True if no error, clear to send.  False otherwise.
 
+			Is called after the tx packager of the api node instance and before the writeto
+			function of the PacketInterface instance.  Its purpose is to
+			- adorn the interface buffer token strings with serialization specific delimeters and terminator, and
+			- collapse packet for transmission by removing 0x00's between tokens, and
+			- calculate serialized packet length.
+
+			It will then indicate success or failure which in-turn will permit, or not permit, the
+			interface instance writeto function.
+		*/
+		static bool SerializePacket_ASCII(PacketInterface_ASCII* PcktInterface);
+		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::ostream* PcktInterfaceStream);
+		static void WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream);
+		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::istream* PcktInterfaceStream);
+		static void ReadFromStream_ASCII(PacketInterface_ASCII* PcktInterface, std::iostream* PcktInterfaceStream);
 		/*! \fn DeSerializePacket
 			\brief Default ASCII Deserialization
 			\sa DeSerializePacket_ASCII
@@ -234,37 +250,7 @@ namespace IMSPacketsAPICore
 			Thin wrapper around static class function.
 		*/
 		bool DeSerializePacket();
-
-
-		/*! \fn SerializePacket_ASCII
-			\brief Default ASCII Serialization
-			\sa SerializePacket
-			\return True if no error, clear to send.  False otherwise.
-
-			Is called after the tx packager of the api node instance and before the writeto 
-			function of the PacketInterface instance.  Its purpose is to 
-			- adorn the interface buffer token strings with serialization specific delimeters and terminator, and
-			- collapse packet for transmission by removing 0x00's between tokens, and
-			- calculate serialized packet length.
-			
-			It will then indicate success or failure which in-turn will permit, or not permit, the
-			interface instance writeto function.
-		*/
-		static bool SerializePacket_ASCII(PacketInterface_ASCII* PcktInterface);
-
-
 		bool SerializePacket();
-		
-
-
-	public:
-		
-		Packet* getPacketPtr();
-		int		getTokenSize(); 
-		PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr);
-		PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn);
-		PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
-
 	};
 	
 	
@@ -297,6 +283,7 @@ namespace IMSPacketsAPICore
 
 		static void ServiceSynchronousPorts(API_NODE* nodePtr);
 		void Loop();
+
 
 
 		void HandleRxPacket(Packet* RxPackInPtr);

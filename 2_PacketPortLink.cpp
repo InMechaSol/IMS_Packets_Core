@@ -29,10 +29,15 @@ void	PacketInterface::WriteTo()
 		WriteToStream();
 	}
 }
+
+
 void	PacketInterface::ReadFrom()
 {
+
 	if (ifaceStreamPtr == nullptr && ifaceInStreamPtr == nullptr)
+	{
 		CustomReadFrom();
+	}
 	else
 	{
 		ReadFromStream();
@@ -71,8 +76,13 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 	case sr_Sent:SRCommState = sr_Reading; break;
 	}
 }
+
+
+
 void PolymorphicPacketPort::ServicePort_SR_Responder()
 {
+
+
 	switch (SRCommState)
 	{
 	case sr_Init: SRCommState = sr_Reading; break;
@@ -119,10 +129,12 @@ void PolymorphicPacketPort::ServicePort_FCP_Partner()
 int PolymorphicPacketPort::getPortID() { return PortID; }
 bool PolymorphicPacketPort::getAsyncService() { return ServiceAsync; }
 
+
 void PolymorphicPacketPort::ServicePort()
 {
 	if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
 	{
+
 		switch (PortType)
 		{
 		case SenderResponder_Responder:		ServicePort_SR_Responder();		break;

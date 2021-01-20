@@ -6,6 +6,7 @@ template class PacketInterface_Binary<SPD2>;
 template class PacketInterface_Binary<SPD4>;
 template class PacketInterface_Binary<SPD8>;
 
+
 template<class TokenType>
 void PacketInterface_Binary<TokenType>::WriteToStream()
 {
@@ -137,7 +138,6 @@ PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::ost
 	PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
-
 
 
 
@@ -364,16 +364,15 @@ PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOu
 }
 
 
-
-
-
-
 void API_NODE::ServiceSynchronousPorts(API_NODE* nodePtr)
 {
+
 	for (int i = 0; i < nodePtr->getNumPacketPorts(); i++)
 	{
 		if (!(nodePtr->getPacketPortat(i))->getAsyncService())
+		{
 			(nodePtr->getPacketPortat(i))->ServicePort();
+		}
 	}
 
 }
