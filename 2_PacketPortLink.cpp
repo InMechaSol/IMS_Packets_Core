@@ -55,13 +55,13 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 	case sr_Reading:
 		InputInterface->ReadFrom();
 		if (InputInterface->DeSerializePacket()) {
-			DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
+			DataExecution->HandleRxPacket(InputInterface);
 			SRCommState = sr_Handling;
 		}
 		else
 			break;
 	case sr_Handling:
-		if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
+		if (DataExecution->PrepareTxPacket(OutputInterface))
 			SRCommState = sr_Sending;
 		else
 			break;
@@ -81,8 +81,6 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 
 void PolymorphicPacketPort::ServicePort_SR_Responder()
 {
-
-
 	switch (SRCommState)
 	{
 	case sr_Init: SRCommState = sr_Reading; break;
@@ -90,13 +88,13 @@ void PolymorphicPacketPort::ServicePort_SR_Responder()
 		InputInterface->ReadFrom();
 		if (InputInterface->DeSerializePacket())
 		{
-			DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
+			DataExecution->HandleRxPacket(InputInterface);
 			SRCommState = sr_Handling;
 		}
 		else
 			break;
 	case sr_Handling:
-		if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
+		if (DataExecution->PrepareTxPacket(OutputInterface))
 			SRCommState = sr_Sending;
 		else
 			break;
@@ -116,10 +114,10 @@ void PolymorphicPacketPort::ServicePort_FCP_Partner()
 	InputInterface->ReadFrom();
 	if (InputInterface->DeSerializePacket())
 	{
-		DataExecution->HandleRxPacket(InputInterface->getPacketPtr());
+		DataExecution->HandleRxPacket(InputInterface);
 	}
 
-	if (DataExecution->PrepareTxPacket(OutputInterface->getPacketPtr()))
+	if (DataExecution->PrepareTxPacket(OutputInterface))
 	{
 		if (OutputInterface->SerializePacket())
 			OutputInterface->WriteTo();

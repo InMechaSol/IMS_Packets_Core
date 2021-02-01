@@ -1,6 +1,7 @@
 #include "3_APINodeLink.h"
 using namespace IMSPacketsAPICore;
 
+#pragma region PacketInterface_Binary<TokenType>  Implementation
 template class PacketInterface_Binary<SPD1>;
 template class PacketInterface_Binary<SPD2>;
 template class PacketInterface_Binary<SPD4>;
@@ -61,13 +62,7 @@ bool PacketInterface_Binary<TokenType>::DeSerializePacket_Binary(PacketInterface
 			// if its the length token index
 			if (PcktInterface->deSerializedTokenIndex == Index_PackLEN)
 				PcktInterface->BufferPacket.readbuff_PackLength(&PcktInterface->deSerializedTokenLength);
-			else if (PcktInterface->deSerializedTokenIndex == iHDRPACK_PacketOption) {
-				TokenType x_SPD;
-				x_SPD.intVal = PcktInterface->getPortID();
-				PcktInterface->BufferPacket.setPacketOption(&x_SPD);
-			}
-
-
+			
 			// decide if complete packet
 			// return true or false
 			// true will trigger the rx packet handler of the data execution instance
@@ -139,6 +134,9 @@ PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::ost
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 
+#pragma endregion
+
+#pragma region PacketInterface_ASCII Implementation
 
 
 void PacketInterface_ASCII::WriteToStream_ASCII(PacketInterface_ASCII* PcktInterface, std::ostream* PcktInterfaceStream)
@@ -207,15 +205,6 @@ bool PacketInterface_ASCII::DeSerializePacket_ASCII(PacketInterface_ASCII* PcktI
 		else if (Packet::isDelimiterchar(PcktInterface->TokenBuffer.chars[lastIndex]) || Packet::isTerminatorchar(PcktInterface->TokenBuffer.chars[lastIndex]))
 		{
 			int NextTokenStart = (STRINGBUFFER_IDTOKENRATIO + PcktInterface->deSerializedTokenIndex * STRINGBUFFER_TOKENRATIO);
-
-			// if its the packet option token, mark Rx packet with portID
-			if (iHDRPACK_PacketOption == PcktInterface->deSerializedTokenIndex)
-			{
-				char lastChar = PcktInterface->TokenBuffer.chars[lastIndex];
-				int LastTokenStart = NextTokenStart - STRINGBUFFER_TOKENRATIO;
-				int charsWritten = snprintf(&(PcktInterface->TokenBuffer.chars[LastTokenStart]), STRINGBUFFER_TOKENRATIO, "%d%c", PcktInterface->getPortID(), lastChar);
-				lastIndex = LastTokenStart + charsWritten - 1;
-			}
 
 			// decide if complete packet
 			// return true or false
@@ -364,6 +353,11 @@ PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOu
 }
 
 
+#pragma endregion
+
+
+#pragma region API_NODE Implementation
+
 void API_NODE::ServiceSynchronousPorts(API_NODE* nodePtr)
 {
 
@@ -382,81 +376,79 @@ void API_NODE::Loop()
 	ServiceSynchronousPorts(this);
 }
 
-void API_NODE::HandleRxPacket(Packet* RxPackInPtr)
+void API_NODE::HandleRxPacket(PacketInterface* RxInterfacePtr)
 {
-	// Mark Rx packet with port index
+	TEMPLATE_RX_HANDLER(RxInterfacePtr, VERSION)
 
-	TEMPLATE_RX_HANDLER(RxPackInPtr, VERSION)
-
-	API_CustomShared_HandleRx(RxPackInPtr);
+	API_CustomShared_HandleRx(RxInterfacePtr);
 }
 
-bool API_NODE::PrepareTxPacket(Packet* TxPackOutPtr)
+bool API_NODE::PrepareTxPacket(PacketInterface* TxInterfacePtr)
 {
-	TEMPLATE_TX_PACKAGER(TxPackOutPtr, VERSION)
+	TEMPLATE_TX_PACKAGER(TxInterfacePtr, VERSION)
 
-	return API_CustomShared_PrepareTx(TxPackOutPtr);
+	return API_CustomShared_PrepareTx(TxInterfacePtr);
 }
 
 #pragma region Packet_VERSION Members
 
-TEMPLATE_PACKNODE_MEMBERS_CPP(API_NODE,VERSION)
+TEMPLATE_PACKNODE_MEMBERS_CPP(API_NODE, VERSION)
 
 template<class TokenType>
-void API_NODE::staticHandler_VERSION(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct)
+void API_NODE::staticHandler_VERSION(PacketInterface* RxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* dstStruct)
 {
 	TokenType x_SPD;
-	if (inPack->isASCIIPacket())
-		inPack->getfromStringPacketType(&x_SPD);
+	Packet_VERSION inPack;// = ((pCLASS(VERSION)*)(RxInterfacePtr->getPacketPtr()));
+	inPack.CopyTokenBufferPtrs(RxInterfacePtr->getPacketPtr());
+	if (inPack.isASCIIPacket())
+		inPack.getfromStringPacketType(&x_SPD);
 	else
-		inPack->getPacketType(&x_SPD);
+		inPack.getPacketType(&x_SPD);
 
 	if (x_SPD.intVal == ReadComplete)
-		nodePtr->setPackTriggerVERSION();
+		nodePtr->setPackTriggerVERSION(RxInterfacePtr->getPortID());
 	else if (x_SPD.intVal == ResponseComplete && dstStruct != nullptr)
 	{
-		if (inPack->isASCIIPacket()) inPack->getfromStringMajorVersion(&x_SPD); else inPack->getMajorVersion(&x_SPD);
+		if (inPack.isASCIIPacket()) inPack.getfromStringMajorVersion(&x_SPD); else inPack.getMajorVersion(&x_SPD);
 		dstStruct->Major = x_SPD.intVal;
-		if (inPack->isASCIIPacket()) inPack->getfromStringMinorVersion(&x_SPD); else inPack->getMinorVersion(&x_SPD);
+		if (inPack.isASCIIPacket()) inPack.getfromStringMinorVersion(&x_SPD); else inPack.getMinorVersion(&x_SPD);
 		dstStruct->Minor = x_SPD.intVal;
-		if (inPack->isASCIIPacket()) inPack->getfromStringBuildNumber(&x_SPD); else inPack->getBuildNumber(&x_SPD);
+		if (inPack.isASCIIPacket()) inPack.getfromStringBuildNumber(&x_SPD); else inPack.getBuildNumber(&x_SPD);
 		dstStruct->Build = x_SPD.intVal;
-		if (inPack->isASCIIPacket()) inPack->getfromStringDevFlag(&x_SPD); else inPack->getDevFlag(&x_SPD);
+		if (inPack.isASCIIPacket()) inPack.getfromStringDevFlag(&x_SPD); else inPack.getDevFlag(&x_SPD);
 		dstStruct->DevFlag = x_SPD.intVal;
 	}
 
 }
 
 template<class TokenType>
-bool API_NODE::staticPackager_VERSION(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct)
+bool API_NODE::staticPackager_VERSION(PacketInterface* TxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* srcStruct)
 {
 	TokenType x_SPD;
+	Packet_VERSION outPack;// = ((pCLASS(VERSION)*)(TxInterfacePtr->getPacketPtr()));
+	outPack.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());
 	bool tempBool = true;
-	outPack->isASCIIPacket() ? outPack->writebuff_PackIDString() : outPack->writebuff_PackID(&x_SPD);
-	outPack->isASCIIPacket() ? outPack->writebuff_TokenCountString() : outPack->writebuff_PackLength(&x_SPD);
+	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
+	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
 	x_SPD.intVal = ResponseComplete;
-	if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketType(&x_SPD);	else outPack->setPacketType(&x_SPD);
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketType(&x_SPD);	else outPack.setPacketType(&x_SPD);
 	x_SPD.intVal = 0;
-	if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringPacketOption(&x_SPD);	else outPack->setPacketOption(&x_SPD);
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
 	x_SPD.intVal = srcStruct->Major;
-	if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMajorVersion(&x_SPD);	else outPack->setMajorVersion(&x_SPD);
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMajorVersion(&x_SPD);	else outPack.setMajorVersion(&x_SPD);
 	x_SPD.intVal = srcStruct->Minor;
-	if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringMinorVersion(&x_SPD);	else outPack->setMinorVersion(&x_SPD);
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMinorVersion(&x_SPD);	else outPack.setMinorVersion(&x_SPD);
 	x_SPD.intVal = srcStruct->Build;
-	if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringBuildNumber(&x_SPD);	else outPack->setBuildNumber(&x_SPD);
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringBuildNumber(&x_SPD);	else outPack.setBuildNumber(&x_SPD);
 	x_SPD.intVal = srcStruct->DevFlag;
-	if (outPack->isASCIIPacket()) tempBool &= outPack->set2StringDevFlag(&x_SPD);		else outPack->setDevFlag(&x_SPD);
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringDevFlag(&x_SPD);		else outPack.setDevFlag(&x_SPD);
 
 	return tempBool;
 }
 
-template void API_NODE::staticHandler_VERSION<SPD1>(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct);
-template void API_NODE::staticHandler_VERSION<SPD2>(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct);
-template void API_NODE::staticHandler_VERSION<SPD4>(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct);
-template void API_NODE::staticHandler_VERSION<SPD8>(Packet_VERSION* inPack, API_NODE* nodePtr, Struct_VERSION* dstStruct);
-
-template bool API_NODE::staticPackager_VERSION<SPD1>(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct);
-template bool API_NODE::staticPackager_VERSION<SPD2>(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct);
-template bool API_NODE::staticPackager_VERSION<SPD4>(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct);
-template bool API_NODE::staticPackager_VERSION<SPD8>(Packet_VERSION* outPack, API_NODE* nodePtr, Struct_VERSION* srcStruct);
 #pragma endregion
+
+#pragma endregion
+
+
+

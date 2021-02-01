@@ -25,17 +25,13 @@
 	is passed to a polymorphic api endpoint specific to packet type and ID.
 
 */
-#define TEMPLATE_RX_HANDLER(RxPackInPtr, packIDmacro){\
-if(RxPackInPtr->isASCIIPacket()){\
-	if(RxPackInPtr->StringBuffer_IDString_Equals(Packet_##packIDmacro::IDString)){\
-		Packet_##packIDmacro myPacket_##packIDmacro;\
-		myPacket_##packIDmacro.CopyTokenBufferPtrs(RxPackInPtr);\
-		Handler_##packIDmacro(&myPacket_##packIDmacro);return;}}\
+#define TEMPLATE_RX_HANDLER(RxInterfacePtr, packIDmacro){\
+if((RxInterfacePtr->getPacketPtr())->isASCIIPacket()){\
+	if((RxInterfacePtr->getPacketPtr())->StringBuffer_IDString_Equals(Packet_##packIDmacro::IDString)){\
+		Handler_##packIDmacro(RxInterfacePtr);return;}}\
 else{\
-	if(RxPackInPtr->ByteBuffer_ID_Equals(Packet_##packIDmacro::ID)){\
-		Packet_##packIDmacro myPacket_##packIDmacro;\
-		myPacket_##packIDmacro.CopyTokenBufferPtrs(RxPackInPtr);\
-		Handler_##packIDmacro(&myPacket_##packIDmacro);return;}}\
+	if((RxInterfacePtr->getPacketPtr())->ByteBuffer_ID_Equals(Packet_##packIDmacro::ID)){\
+		Handler_##packIDmacro(RxInterfacePtr);return;}}\
 }
 
 /*! \def TEMPLATE_TX_PACKAGER(tVar, pType, packFunc)
@@ -48,30 +44,34 @@ else{\
 	returning true which will indicate to the port object that a packet is ready for transmission.
 
 */
-#define TEMPLATE_TX_PACKAGER(TxPackOutPtr, packIDmacro){\
-if(packtrigger##packIDmacro){\
-	packtrigger##packIDmacro=false;\
-	Packet_##packIDmacro myPacket_##packIDmacro;\
-	myPacket_##packIDmacro.CopyTokenBufferPtrs(TxPackOutPtr);\
-	return Packager_##packIDmacro(&myPacket_##packIDmacro); }\
+#define TEMPLATE_TX_PACKAGER(TxInterfacePtr, packIDmacro){\
+if(packtrigger##packIDmacro==TxInterfacePtr->getPortID()){\
+	packtrigger##packIDmacro=-1;\
+	return Packager_##packIDmacro(TxInterfacePtr); }\
 }
 
 #define TEMPLATE_PACKNODE_MEMBERS_H(packIDmacro, nodeType)\
 public:	template<class TokenType>\
-		static void			staticHandler_##packIDmacro(Packet_##packIDmacro* inPack, nodeType* nodePtr, Struct_##packIDmacro* dstStruct = nullptr );\
+		static void			staticHandler_##packIDmacro(PacketInterface* RxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* dstStruct = nullptr );\
 		template<class TokenType>\
-		static bool			staticPackager_##packIDmacro(Packet_##packIDmacro* outPack, nodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
-protected:	bool			packtrigger##packIDmacro = false;\
-			void			setPackTrigger##packIDmacro();\
-			virtual void	Handler_##packIDmacro(Packet_##packIDmacro* inPack) = 0;\
-			virtual bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack) = 0;\
+		static bool			staticPackager_##packIDmacro(PacketInterface* TxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
+protected:	int				packtrigger##packIDmacro = -1;\
+			void			setPackTrigger##packIDmacro(int portID);\
+			virtual void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr) = 0;\
+			virtual bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr) = 0;\
 
 #define TEMPLATE_PACKNODE_MEMBERS_CPP(NodeType, packIDmacro)\
-void NodeType::setPackTrigger##packIDmacro() { packtrigger##packIDmacro = true; }\
+void NodeType::setPackTrigger##packIDmacro(int portID) { packtrigger##packIDmacro = portID; }\
+template void NodeType::staticHandler_##packIDmacro<SPD2>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
+template void NodeType::staticHandler_##packIDmacro<SPD4>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
+template void NodeType::staticHandler_##packIDmacro<SPD8>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
+template bool NodeType::staticPackager_##packIDmacro<SPD2>(PacketInterface* TxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
+template bool NodeType::staticPackager_##packIDmacro<SPD4>(PacketInterface* TxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
+template bool NodeType::staticPackager_##packIDmacro<SPD8>(PacketInterface* TxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
 
 #define TEMPLATE_PACKNODE_OVERRIDE_H(packIDmacro)\
-protected:	void	Handler_##packIDmacro(Packet_##packIDmacro* inPack);\
-			bool	Packager_##packIDmacro(Packet_##packIDmacro* outPack);\
+protected:	void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr);\
+			bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr);\
 
 
 /*! @}*/
@@ -265,9 +265,8 @@ namespace IMSPacketsAPICore
 		virtual int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
 
-		virtual bool API_CustomShared_PrepareTx(Packet* TxPackOutPtr) = 0;
-		virtual void API_CustomShared_HandleRx(Packet* RxPackInPtr) = 0;
-
+		virtual bool API_CustomShared_PrepareTx(PacketInterface* TxInterfacePtr) = 0;
+		virtual void API_CustomShared_HandleRx(PacketInterface* RxInterfacePtr) = 0;
 
 	public:
 
@@ -286,9 +285,9 @@ namespace IMSPacketsAPICore
 
 
 
-		void HandleRxPacket(Packet* RxPackInPtr);
+		void HandleRxPacket(PacketInterface* RxInterfacePtr);
 
-		bool PrepareTxPacket(Packet* TxPackOutPtr);
+		bool PrepareTxPacket(PacketInterface* TxInterfacePtr);
 
 		TEMPLATE_PACKNODE_MEMBERS_H(VERSION, API_NODE)
 

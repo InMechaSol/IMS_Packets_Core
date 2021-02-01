@@ -109,6 +109,12 @@ namespace IMSPacketsAPICore
 		void				ReadFrom();
 		
 	};
+
+
+
+
+
+
 	/*! \class AbstractDataExecution
 		\brief An Abstraction of the Distributed Data and Execution System
 
@@ -124,13 +130,13 @@ namespace IMSPacketsAPICore
 		/*!
 			Called by a PacketPort Instance to execute API Endpoints on packet receipt
 		*/
-		virtual void				HandleRxPacket(Packet* RxPackInPtr) = 0;
+		virtual void				HandleRxPacket(PacketInterface* RxInterfacePtr) = 0;
 		//! Abstract PrepareTxPacket Function
 		/*!
 			Called by a PacketPort Instance to deque packet objects and write them
 			to the PacketInterface buffer
 		*/
-		virtual bool				PrepareTxPacket(Packet* TxPackOutPtr) = 0;
+		virtual bool				PrepareTxPacket(PacketInterface* TxInterfacePtr) = 0;
 		//! Abstract Initialization Function
 		/*!
 			Called by the top level main function of an api node's running application
