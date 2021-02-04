@@ -74,6 +74,14 @@ protected:	void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr);\
 			bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr);\
 
 
+
+#define GETPACKETTYPE(PACKET, SPD)\
+	if (PACKET.isASCIIPacket()) PACKET.getfromStringPacketType(&SPD); else PACKET.getPacketType(&SPD);
+
+#define GETPACKETOPTION(PACKET, SPD)\
+	if (PACKET.isASCIIPacket()) PACKET.getfromStringPacketOption(&SPD); else	PACKET.getPacketOption(&SPD);
+
+
 /*! @}*/
 #pragma endregion
 

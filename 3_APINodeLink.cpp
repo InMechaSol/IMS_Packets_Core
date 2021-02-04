@@ -425,11 +425,14 @@ template<class TokenType>
 bool API_NODE::staticPackager_VERSION(PacketInterface* TxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* srcStruct)
 {
 	TokenType x_SPD;
-	Packet_VERSION outPack;// = ((pCLASS(VERSION)*)(TxInterfacePtr->getPacketPtr()));
+	Packet_VERSION outPack;
 	outPack.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());
 	bool tempBool = true;
 	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
+
 	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
+
+
 	x_SPD.intVal = ResponseComplete;
 	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketType(&x_SPD);	else outPack.setPacketType(&x_SPD);
 	x_SPD.intVal = 0;
