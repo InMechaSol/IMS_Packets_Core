@@ -191,7 +191,7 @@ namespace IMSPacketsAPICore
 		void	ServicePort();
 
 
-		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
+		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, PacketPortPartnerType PortTypeIn = SenderResponder_Responder, bool isAsync = false);
 		
 
 	};
