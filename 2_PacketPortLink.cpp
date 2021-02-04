@@ -142,11 +142,12 @@ void PolymorphicPacketPort::ServicePort()
 	}
 }
 
-PolymorphicPacketPort::PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync)
+PolymorphicPacketPort::PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, PacketPortPartnerType PortTypeIn, bool isAsync)
 {
 	InputInterface = InputInterfaceIn;
 	OutputInterface = OutputInterfaceIn;
 	DataExecution = DataExecutionIn;
 	ServiceAsync = isAsync;
+	PortType = PortTypeIn;
 	PortID = PortIDin;
 }
