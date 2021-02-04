@@ -182,6 +182,7 @@ namespace IMSPacketsAPICore
 	public:
 		int		getPortID();
 		bool	getAsyncService();
+		//PacketPort_SRCommState getSRCommState() { return SRCommState; }
 
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!

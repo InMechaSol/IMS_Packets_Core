@@ -280,7 +280,7 @@ bool	Packet::isDelimiterchar(char inChar) { return (inChar == ASCII_colon); }
 bool	Packet::isTerminatorchar(char inChar) { return (inChar == ASCII_semicolon); }
 bool	Packet::isASCIIString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isASCIIchar(inStringPtr[index++])) return false; return true; }
 bool	Packet::isLetterString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isLetterchar(inStringPtr[index++])) return false; return true; }
-bool	Packet::isNumberString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isNumberchar(inStringPtr[index++])) return false; return true; }
+bool	Packet::isNumberString(char* inStringPtr) { int index = 0; while (inStringPtr[index] == ' ') index++;  while (inStringPtr[index] != 0x00) if (!isNumberchar(inStringPtr[index++])) return false; return true; }
 bool	Packet::isIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isIntegerchar(inStringPtr[index++])) return false; return true; }
 bool	Packet::isUnsignedIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isUnsignedIntegerchar(inStringPtr[index++])) return false; return true; }
 

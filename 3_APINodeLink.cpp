@@ -430,19 +430,22 @@ bool API_NODE::staticPackager_VERSION(PacketInterface* TxInterfacePtr, API_NODE*
 	bool tempBool = true;
 	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
 	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
-	x_SPD.intVal = ResponseComplete;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketType(&x_SPD);	else outPack.setPacketType(&x_SPD);
-	x_SPD.intVal = 0;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
-	x_SPD.intVal = srcStruct->Major;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMajorVersion(&x_SPD);	else outPack.setMajorVersion(&x_SPD);
-	x_SPD.intVal = srcStruct->Minor;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMinorVersion(&x_SPD);	else outPack.setMinorVersion(&x_SPD);
-	x_SPD.intVal = srcStruct->Build;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringBuildNumber(&x_SPD);	else outPack.setBuildNumber(&x_SPD);
-	x_SPD.intVal = srcStruct->DevFlag;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringDevFlag(&x_SPD);		else outPack.setDevFlag(&x_SPD);
 
+	if (outPack.isASCIIPacket()) outPack.getfromStringPacketType(&x_SPD);	else outPack.getPacketType(&x_SPD);
+
+	if (x_SPD.intVal == ResponseComplete)
+	{
+		x_SPD.intVal = 0;
+		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
+		x_SPD.intVal = srcStruct->Major;
+		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMajorVersion(&x_SPD);	else outPack.setMajorVersion(&x_SPD);
+		x_SPD.intVal = srcStruct->Minor;
+		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMinorVersion(&x_SPD);	else outPack.setMinorVersion(&x_SPD);
+		x_SPD.intVal = srcStruct->Build;
+		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringBuildNumber(&x_SPD);	else outPack.setBuildNumber(&x_SPD);
+		x_SPD.intVal = srcStruct->DevFlag;
+		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringDevFlag(&x_SPD);		else outPack.setDevFlag(&x_SPD);
+	}
 	return tempBool;
 }
 
