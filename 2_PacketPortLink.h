@@ -178,11 +178,14 @@ namespace IMSPacketsAPICore
 		void	ServicePort_SR_Sender();
 		void	ServicePort_SR_Responder();
 		void	ServicePort_FCP_Partner();
+		
 
 	public:
 		int		getPortID();
 		bool	getAsyncService();
-		//PacketPort_SRCommState getSRCommState() { return SRCommState; }
+		void	ResetPort();
+		PacketPort_SRCommState GetSRCommState();
+		PacketPort_FCCommState GetFCCommState();
 
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!

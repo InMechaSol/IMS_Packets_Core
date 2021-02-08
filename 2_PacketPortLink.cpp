@@ -124,8 +124,20 @@ void PolymorphicPacketPort::ServicePort_FCP_Partner()
 	}
 }
 
+void PolymorphicPacketPort::ResetPort()
+{
+	SRCommState = sr_Init;
+	FCCommState = fc_Init;
+}
+
 int PolymorphicPacketPort::getPortID() { return PortID; }
 bool PolymorphicPacketPort::getAsyncService() { return ServiceAsync; }
+PacketPort_SRCommState PolymorphicPacketPort::GetSRCommState() {
+	return SRCommState;
+}
+PacketPort_FCCommState PolymorphicPacketPort::GetFCCommState() {
+	return FCCommState;
+}
 
 
 void PolymorphicPacketPort::ServicePort()
