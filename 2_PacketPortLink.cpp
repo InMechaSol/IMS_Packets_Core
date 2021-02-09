@@ -22,7 +22,7 @@ PacketInterface::PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn
 int		PacketInterface::getPortID() { return PortID; }
 void	PacketInterface::WriteTo()
 {
-	if (ifaceStreamPtr == nullptr && ifaceOutStreamPtr == nullptr)
+	if (ifaceStreamPtr == nullptr && ifaceOutStreamPtr == nullptr) 		
 		CustomWriteTo();
 	else
 	{
@@ -144,7 +144,6 @@ void PolymorphicPacketPort::ServicePort()
 {
 	if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
 	{
-
 		switch (PortType)
 		{
 		case SenderResponder_Responder:		ServicePort_SR_Responder();		break;
