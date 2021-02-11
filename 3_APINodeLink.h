@@ -45,8 +45,8 @@ else{\
 
 */
 #define TEMPLATE_TX_PACKAGER(TxInterfacePtr, packIDmacro){\
-if(packtrigger##packIDmacro==TxInterfacePtr->getPortID()){\
-	packtrigger##packIDmacro=-1;\
+if(packtrigger##packIDmacro.GetFront()==TxInterfacePtr->getPortID()){\
+	packtrigger##packIDmacro.dequeue();\
 	return Packager_##packIDmacro(TxInterfacePtr); }\
 }
 
@@ -55,13 +55,13 @@ public:	template<class TokenType>\
 		static void			staticHandler_##packIDmacro(PacketInterface* RxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* dstStruct = nullptr );\
 		template<class TokenType>\
 		static bool			staticPackager_##packIDmacro(PacketInterface* TxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
-protected:	int				packtrigger##packIDmacro = -1;\
+protected:	Queue			packtrigger##packIDmacro = Queue();\
 			void			setPackTrigger##packIDmacro(int portID);\
 			virtual void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr) = 0;\
 			virtual bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr) = 0;\
 
 #define TEMPLATE_PACKNODE_MEMBERS_CPP(NodeType, packIDmacro)\
-void NodeType::setPackTrigger##packIDmacro(int portID) { packtrigger##packIDmacro = portID; }\
+void NodeType::setPackTrigger##packIDmacro(int portID) { packtrigger##packIDmacro.enqueueUnique(portID); }\
 template void NodeType::staticHandler_##packIDmacro<SPD2>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
 template void NodeType::staticHandler_##packIDmacro<SPD4>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
 template void NodeType::staticHandler_##packIDmacro<SPD8>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
@@ -97,6 +97,112 @@ namespace IMSPacketsAPICore
 		ResponseTokenAt,
 		ResponseHDROnly,
 		FullCyclicPartner		
+	};
+
+	/*! \struct QueueNode
+		\brief A basic node for use in a linked list queue
+	*/
+	struct QueueNode
+	{
+		struct QueueNode* previous;
+		struct QueueNode* next;
+
+		int data;
+
+		QueueNode(int dat, QueueNode* prev = nullptr, QueueNode* nex = nullptr)
+		{
+			previous = prev;
+			next = nex;
+			data = dat;
+		}
+	};
+
+	/*! \class Queue
+		\brief A basic queue implementation for adding multiple triggers for sending packets
+	*/
+	class Queue {
+	private:
+		QueueNode* _front;
+		QueueNode* _back;
+
+	public:
+		int size = 0;
+
+		Queue() 
+		{ 
+			_front = nullptr;
+			_back = nullptr;
+			size=0; 
+		}
+
+		bool isEmpty()
+		{
+			return _front == nullptr;
+		}
+
+		//returns the size of the queue after enquing or -1 if error
+		int enqueue(int item)
+		{
+			if (isEmpty()) {
+				_front = new QueueNode(item);
+				_back = _front;
+			}
+			else
+				_back->next = new QueueNode(item, _back);
+
+			size++;
+
+			return size;
+		}
+		int enqueueUnique(int item)
+		{
+			int i = 0;
+			QueueNode* qPtr = _front;
+			if (qPtr != nullptr) {
+				while (i < size)
+				{
+					if (qPtr->data == item) {
+						return -1;
+					}
+					i++;
+				}
+			}
+
+			return enqueue(item);
+		}
+
+		//returns the first member of the queue, or -1 if empty
+		int dequeue()
+		{
+			if (isEmpty())
+				return -1;
+
+			QueueNode* rtn = _front;
+
+			_front = _front->next;
+			
+			if (size == 1)
+				_back = _front;
+			
+
+			this->size -= 1;
+
+			return rtn->data;
+		}
+
+		int GetFront()
+		{
+			if (!isEmpty()) return (*_front).data;
+
+			return -1;
+		}
+
+		int GetBack()
+		{
+			if (_back != nullptr) return _back->data;
+
+			return -1;
+		}
 	};
 
 	/*! \addtogroup APINodeLink

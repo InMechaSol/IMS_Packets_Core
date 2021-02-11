@@ -22,7 +22,7 @@ PacketInterface::PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn
 int		PacketInterface::getPortID() { return PortID; }
 void	PacketInterface::WriteTo()
 {
-	if (ifaceStreamPtr == nullptr && ifaceOutStreamPtr == nullptr)
+	if (ifaceStreamPtr == nullptr && ifaceOutStreamPtr == nullptr) 		
 		CustomWriteTo();
 	else
 	{
@@ -57,8 +57,16 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 		if (InputInterface->DeSerializePacket()) {
 			DataExecution->HandleRxPacket(InputInterface);
 			SRCommState = sr_Handling;
+			CyclesWithNoResponse = 0;
 		}
-		else
+		else {
+			CyclesWithNoResponse++;
+			if (CyclesWithNoResponse >= CyclesWithNoResponseLimit)
+			{
+				SRCommState = sr_Init;
+				CyclesWithNoResponse = 0;
+			}
+		}
 			break;
 	case sr_Handling:
 		if (DataExecution->PrepareTxPacket(OutputInterface))
@@ -132,7 +140,6 @@ void PolymorphicPacketPort::ServicePort()
 {
 	if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
 	{
-
 		switch (PortType)
 		{
 		case SenderResponder_Responder:		ServicePort_SR_Responder();		break;

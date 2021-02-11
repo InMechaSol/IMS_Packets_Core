@@ -7,6 +7,8 @@
 #define __PACKETPORTLINK__
 #include "1_LanguageConstructs.h"
 
+#define CyclesWithNoResponseLimit 500000
+
 
 
 namespace IMSPacketsAPICore
@@ -165,19 +167,22 @@ namespace IMSPacketsAPICore
 	class PolymorphicPacketPort
 	{
 	private:
-		int								PortID			= 0;
-		enum PacketPortPartnerType		PortType		= SenderResponder_Responder;
-		PacketInterface*				InputInterface	= nullptr;
-		PacketInterface*				OutputInterface = nullptr;
-		AbstractDataExecution*			DataExecution	= nullptr;
-		PacketPort_SRCommState			SRCommState		= sr_Init;
-		PacketPort_FCCommState			FCCommState		= fc_Init;
-		bool							ServiceAsync	= false;
+		int								PortID			 = 0;
+		enum PacketPortPartnerType		PortType		 = SenderResponder_Responder;
+		PacketInterface*				InputInterface	 = nullptr;
+		PacketInterface*				OutputInterface  = nullptr;
+		AbstractDataExecution*			DataExecution	 = nullptr;
+		PacketPort_SRCommState			SRCommState		 = sr_Init;
+		PacketPort_FCCommState			FCCommState		 = fc_Init;
+		bool							ServiceAsync	 = false;
+
+		int								CyclesWithNoResponse			 = 0;
 
 	protected:
 		void	ServicePort_SR_Sender();
 		void	ServicePort_SR_Responder();
 		void	ServicePort_FCP_Partner();
+		
 
 	public:
 		int		getPortID();
