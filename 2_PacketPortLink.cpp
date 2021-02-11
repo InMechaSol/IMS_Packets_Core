@@ -57,8 +57,16 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 		if (InputInterface->DeSerializePacket()) {
 			DataExecution->HandleRxPacket(InputInterface);
 			SRCommState = sr_Handling;
+			CyclesWithNoResponse = 0;
 		}
-		else
+		else {
+			CyclesWithNoResponse++;
+			if (CyclesWithNoResponse >= CyclesWithNoResponseLimit)
+			{
+				SRCommState = sr_Init;
+				CyclesWithNoResponse = 0;
+			}
+		}
 			break;
 	case sr_Handling:
 		if (DataExecution->PrepareTxPacket(OutputInterface))
@@ -124,20 +132,8 @@ void PolymorphicPacketPort::ServicePort_FCP_Partner()
 	}
 }
 
-void PolymorphicPacketPort::ResetPort()
-{
-	SRCommState = sr_Init;
-	FCCommState = fc_Init;
-}
-
 int PolymorphicPacketPort::getPortID() { return PortID; }
 bool PolymorphicPacketPort::getAsyncService() { return ServiceAsync; }
-PacketPort_SRCommState PolymorphicPacketPort::GetSRCommState() {
-	return SRCommState;
-}
-PacketPort_FCCommState PolymorphicPacketPort::GetFCCommState() {
-	return FCCommState;
-}
 
 
 void PolymorphicPacketPort::ServicePort()
