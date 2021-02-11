@@ -391,7 +391,12 @@ namespace IMSPacketsAPICore
 		void					writebuff_PackLength(SPD2* SPDPtr);
 		void					writebuff_PackLength(SPD4* SPDPtr);
 		void					writebuff_PackLength(SPD8* SPDPtr);
+		void					writebuff_PackLength(SPD1* SPDPtr, int numTokens);
+		void					writebuff_PackLength(SPD2* SPDPtr, int numTokens);
+		void					writebuff_PackLength(SPD4* SPDPtr, int numTokens);
+		void					writebuff_PackLength(SPD8* SPDPtr, int numTokens);
 		void					writebuff_TokenCountString();
+		void					writebuff_TokenCountString(int numTokens);
 		void					readbuff_PackLength(SPD1* SPDPtr);
 		void					readbuff_PackLength(SPD2* SPDPtr);
 		void					readbuff_PackLength(SPD4* SPDPtr);

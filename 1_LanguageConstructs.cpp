@@ -263,7 +263,12 @@ void	Packet::writebuff_PackLength(SPD1* SPDPtr) { SPDPtr->intVal = sizeof(SPD1) 
 void	Packet::writebuff_PackLength(SPD2* SPDPtr) { SPDPtr->intVal = sizeof(SPD2) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
 void	Packet::writebuff_PackLength(SPD4* SPDPtr) { SPDPtr->intVal = sizeof(SPD4) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
 void	Packet::writebuff_PackLength(SPD8* SPDPtr) { SPDPtr->intVal = sizeof(SPD8) * getNumSPDs(); setSPDat(Index_PackLEN, SPDPtr); }
+void	Packet::writebuff_PackLength(SPD1* SPDPtr, int numTokens) { SPDPtr->intVal = sizeof(SPD1) * numTokens; setSPDat(Index_PackLEN, SPDPtr); }
+void	Packet::writebuff_PackLength(SPD2* SPDPtr, int numTokens) { SPDPtr->intVal = sizeof(SPD2) * numTokens; setSPDat(Index_PackLEN, SPDPtr); }
+void	Packet::writebuff_PackLength(SPD4* SPDPtr, int numTokens) { SPDPtr->intVal = sizeof(SPD4) * numTokens; setSPDat(Index_PackLEN, SPDPtr); }
+void	Packet::writebuff_PackLength(SPD8* SPDPtr, int numTokens) { SPDPtr->intVal = sizeof(SPD8) * numTokens; setSPDat(Index_PackLEN, SPDPtr); }
 void	Packet::writebuff_TokenCountString() { snprintf(charsBufferPtr + STRINGBUFFER_IDTOKENRATIO, STRINGBUFFER_TOKENRATIO, "%d", getNumSPDs()); }
+void	Packet::writebuff_TokenCountString(int numTokens) { snprintf(charsBufferPtr + STRINGBUFFER_IDTOKENRATIO, STRINGBUFFER_TOKENRATIO, "%d", numTokens); }
 void	Packet::readbuff_PackLength(SPD1* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
 void	Packet::readbuff_PackLength(SPD2* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
 void	Packet::readbuff_PackLength(SPD4* SPDPtr) { getSPDat(Index_PackLEN, SPDPtr); }
