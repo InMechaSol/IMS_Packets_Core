@@ -406,7 +406,7 @@ void API_NODE::staticHandler_VERSION(PacketInterface* RxInterfacePtr, API_NODE* 
 		inPack.getPacketType(&x_SPD);
 
 	if (x_SPD.intVal == ReadComplete)
-		nodePtr->setPackTriggerVERSION(RxInterfacePtr->getPortID());
+		nodePtr->setPackTriggerVERSION(RxInterfacePtr->getPortID(), ResponseComplete);
 	else if (x_SPD.intVal == ResponseComplete && dstStruct != nullptr)
 	{
 		if (inPack.isASCIIPacket()) inPack.getfromStringMajorVersion(&x_SPD); else inPack.getMajorVersion(&x_SPD);

@@ -46,7 +46,11 @@ else{\
 */
 #define TEMPLATE_TX_PACKAGER(TxInterfacePtr, packIDmacro){\
 if(packtrigger##packIDmacro.GetFront()==TxInterfacePtr->getPortID()){\
-	packtrigger##packIDmacro.dequeue();\
+	Packet_##packIDmacro tempPacket;\
+	tempPacket.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());\
+	SPD4 tempSPD;\
+	tempSPD.intVal = packtrigger##packIDmacro.dequeue();\
+	if (tempPacket.isASCIIPacket()) tempPacket.set2StringPacketType(&tempSPD);	else tempPacket.setPacketType(&tempSPD);\
 	return Packager_##packIDmacro(TxInterfacePtr); }\
 }
 
@@ -56,12 +60,12 @@ public:	template<class TokenType>\
 		template<class TokenType>\
 		static bool			staticPackager_##packIDmacro(PacketInterface* TxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
 protected:	Queue			packtrigger##packIDmacro = Queue();\
-			void			setPackTrigger##packIDmacro(int portID);\
+			void			setPackTrigger##packIDmacro(int portID, int PacketType);\
 			virtual void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr) = 0;\
 			virtual bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr) = 0;\
 
 #define TEMPLATE_PACKNODE_MEMBERS_CPP(NodeType, packIDmacro)\
-void NodeType::setPackTrigger##packIDmacro(int portID) { packtrigger##packIDmacro.enqueueUnique(portID); }\
+void NodeType::setPackTrigger##packIDmacro(int portID, int PacketType) { packtrigger##packIDmacro.enqueueUnique(portID, PacketType); }\
 template void NodeType::staticHandler_##packIDmacro<SPD2>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
 template void NodeType::staticHandler_##packIDmacro<SPD4>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
 template void NodeType::staticHandler_##packIDmacro<SPD8>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
@@ -107,13 +111,14 @@ namespace IMSPacketsAPICore
 		struct QueueNode* previous;
 		struct QueueNode* next;
 
-		int data;
+		int data, packetType;
 
-		QueueNode(int dat, QueueNode* prev = nullptr, QueueNode* nex = nullptr)
+		QueueNode(int dat, int packType, QueueNode* prev = nullptr, QueueNode* nex = nullptr)
 		{
 			previous = prev;
 			next = nex;
 			data = dat;
+			packetType = packType;
 		}
 	};
 
@@ -141,20 +146,20 @@ namespace IMSPacketsAPICore
 		}
 
 		//returns the size of the queue after enquing or -1 if error
-		int enqueue(int item)
+		int enqueue(int item, int packType)
 		{
 			if (isEmpty()) {
-				_front = new QueueNode(item);
+				_front = new QueueNode(item, packType);
 				_back = _front;
 			}
 			else
-				_back->next = new QueueNode(item, _back);
+				_back->next = new QueueNode(item, packType, _back);
 
 			size++;
 
 			return size;
 		}
-		int enqueueUnique(int item)
+		int enqueueUnique(int item, int packType)
 		{
 			int i = 0;
 			QueueNode* qPtr = _front;
@@ -168,7 +173,7 @@ namespace IMSPacketsAPICore
 				}
 			}
 
-			return enqueue(item);
+			return enqueue(item, packType);
 		}
 
 		//returns the first member of the queue, or -1 if empty
@@ -187,7 +192,7 @@ namespace IMSPacketsAPICore
 
 			this->size -= 1;
 
-			return rtn->data;
+			return rtn->packetType;
 		}
 
 		int GetFront()

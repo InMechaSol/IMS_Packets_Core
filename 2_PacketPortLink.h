@@ -188,6 +188,8 @@ namespace IMSPacketsAPICore
 		int		getPortID();
 		bool	getAsyncService();
 
+		SPD4 OptionSPD;
+
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!
 			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
