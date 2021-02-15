@@ -2,10 +2,10 @@
 using namespace IMSPacketsAPICore;
 
 #pragma region PacketInterface_Binary<TokenType>  Implementation
-template class PacketInterface_Binary<SPD1>;
-template class PacketInterface_Binary<SPD2>;
-template class PacketInterface_Binary<SPD4>;
-template class PacketInterface_Binary<SPD8>;
+//template class PacketInterface_Binary<SPD1>;
+//template class PacketInterface_Binary<SPD2>;
+//template class PacketInterface_Binary<SPD4>;
+//template class PacketInterface_Binary<SPD8>;
 
 
 template<class TokenType>
@@ -119,18 +119,18 @@ template<class TokenType>
 int		PacketInterface_Binary<TokenType>::getTokenSize() { return sizeof(TokenType); }
 
 template<class TokenType>
-PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::iostream* ifaceStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceStreamPtrIn) {
+PacketInterface_Binary<TokenType>::PacketInterface_Binary(std::iostream* ifaceStreamPtrIn) :
+	PacketInterface(ifaceStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 template<class TokenType>
-PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::istream* ifaceInStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceInStreamPtrIn) {
+PacketInterface_Binary<TokenType>::PacketInterface_Binary(std::istream* ifaceInStreamPtrIn) :
+	PacketInterface(ifaceInStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 template<class TokenType>
-PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
+PacketInterface_Binary<TokenType>::PacketInterface_Binary(std::ostream* ifaceOutStreamPtrIn) :
+	PacketInterface(ifaceOutStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 
@@ -218,10 +218,12 @@ bool PacketInterface_ASCII::DeSerializePacket_ASCII(PacketInterface_ASCII* PcktI
 
 				// increment token index
 				PcktInterface->deSerializedTokenIndex++;
-				if (PcktInterface->deSerializedTokenIndex >= Packet_HDRPACK::TokenCount) {
+				if (PcktInterface->deSerializedTokenIndex >= Packet_HDRPACK::TokenCount) 
+				{
 					PcktInterface->ResetdeSerialize();
 					return true;
 				}
+
 			}
 			else
 			{
@@ -238,6 +240,7 @@ bool PacketInterface_ASCII::DeSerializePacket_ASCII(PacketInterface_ASCII* PcktI
 				PcktInterface->deSerializedTokenIndex++;
 			}
 		}
+		return false;
 	}
 
 	// reset if triggered
@@ -339,16 +342,16 @@ bool PacketInterface_ASCII::SerializePacket()
 
 Packet* PacketInterface_ASCII::getPacketPtr() { return &BufferPacket; }
 int		PacketInterface_ASCII::getTokenSize() { return STRINGBUFFER_TOKENRATIO; }
-PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceStreamPtrIn) {
+PacketInterface_ASCII::PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn) :
+	PacketInterface(ifaceStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
-PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceInStreamPtrIn) {
+PacketInterface_ASCII::PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn) :
+	PacketInterface(ifaceInStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
-PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
+PacketInterface_ASCII::PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn) :
+	PacketInterface(ifaceOutStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
 
@@ -376,19 +379,52 @@ void API_NODE::Loop()
 	ServiceSynchronousPorts(this);
 }
 
-void API_NODE::HandleRxPacket(PacketInterface* RxInterfacePtr)
-{
-	TEMPLATE_RX_HANDLER(RxInterfacePtr, VERSION)
 
-	API_CustomShared_HandleRx(RxInterfacePtr);
+#pragma region Packet_HDRPACK Members (this is the error packet)
+
+void API_NODE::staticHandler_HDRPACK(PacketInterface* RxInterfacePtr, API_NODE* nodePtr, Struct_HDRPACK* dstStruct)
+{
+	TokenType x_SPD;
+	Packet_HDRPACK inPack;
+	inPack.CopyTokenBufferPtrs(RxInterfacePtr->getPacketPtr());
+
+	if (inPack.isASCIIPacket())
+		inPack.getfromStringPacketType(&x_SPD);
+	else
+		inPack.getPacketType(&x_SPD);
+
+	if (x_SPD.intVal == ResponseComplete && dstStruct != nullptr)
+	{
+		if (inPack.isASCIIPacket()) inPack..getfromStringPacketOption(&x_SPD); else inPack.getPacketOption(&x_SPD);
+		dstStruct->PackOpt = x_SPD.intVal;		
+	}
+
 }
 
-bool API_NODE::PrepareTxPacket(PacketInterface* TxInterfacePtr)
-{
-	TEMPLATE_TX_PACKAGER(TxInterfacePtr, VERSION)
 
-	return API_CustomShared_PrepareTx(TxInterfacePtr);
+bool API_NODE::staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* srcStruct)
+{
+	TokenType x_SPD;
+	Packet_HDRPACK outPack;
+	outPack.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());
+	bool tempBool = true;
+
+	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
+
+	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
+
+	x_SPD.intVal = ResponseComplete;
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketType(&x_SPD);	else outPack.setPacketType(&x_SPD);
+
+	x_SPD.intVal = srcStruct->PackOpt;
+	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
+
+	return tempBool;
 }
+
+#pragma endregion
+
+
 
 #pragma region Packet_VERSION Members
 
