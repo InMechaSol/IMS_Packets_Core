@@ -92,7 +92,6 @@ namespace IMSPacketsAPICore
 		PacketInterface(std::ostream* ifaceOutStreamPtrIn);
 		
 	public:
-		int					getPortID();
 		virtual int			getTokenSize()		= 0;
 
 		/*! \fn getPacketPtr
@@ -105,6 +104,8 @@ namespace IMSPacketsAPICore
 		virtual Packet*				getPacketPtr()		= 0;
 		virtual bool				DeSerializePacket() = 0;
 		virtual bool				SerializePacket()	= 0;
+		virtual int					getPacketOption()	= 0;
+		virtual enum PacketTypes	getPacketType()		= 0;
 		//! Abstract Serialize Function
 		/*!
 			Converts Packet to bytes (or chars) then writes them
@@ -126,7 +127,7 @@ namespace IMSPacketsAPICore
 
 
 
-
+	class PolymorphicPacketPort;
 	/*! \class AbstractDataExecution
 		\brief An Abstraction of the Distributed Data and Execution System
 
@@ -208,6 +209,8 @@ namespace IMSPacketsAPICore
 		int		getNextOutPackID();
 		enum	PacketTypes getNextOutPackType();
 		int		getNextOutPackOption();
+
+		virtual void	ResetStateMachine() = 0;
 		
 
 
@@ -233,6 +236,7 @@ namespace IMSPacketsAPICore
 		PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
 		void	ServicePort();
 		bool	isSupportedInPackType(enum PacketTypes packTYPE);
+		void	ResetStateMachine();
 	};
 
 	class PacketPort_SR_Responder : public PolymorphicPacketPort
@@ -243,6 +247,7 @@ namespace IMSPacketsAPICore
 		PacketPort_SR_Responder(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
 		void	ServicePort();
 		bool	isSupportedInPackType(enum PacketTypes packTYPE);
+		void	ResetStateMachine();
 	};
 	
 	/*! @}*/

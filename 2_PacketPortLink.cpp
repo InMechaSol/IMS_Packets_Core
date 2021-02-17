@@ -40,6 +40,14 @@ void	PacketInterface::ReadFrom()
 
 
 #pragma region PolymorphicPacketPort Implementation
+PacketInterface* PolymorphicPacketPort::getInputInterface()
+{
+	return InputInterface;
+}
+PacketInterface* PolymorphicPacketPort::getOutputInterface()
+{
+	return OutputInterface;
+}
 int PolymorphicPacketPort::getPortID() { return PortID; }
 bool PolymorphicPacketPort::getAsyncService() { return ServiceAsync; }
 void PolymorphicPacketPort::enQueueOutPacket(int packID, enum PacketTypes packTYPE, int packOPTION)
@@ -131,6 +139,10 @@ bool	PacketPort_SR_Sender::isSupportedInPackType(enum PacketTypes packTYPE)
 {
 	return (packTYPE == packType_ResponseComplete || packTYPE == packType_ResponseHDROnly);
 }
+void	PacketPort_SR_Sender::ResetStateMachine()
+{
+	SRCommState = sr_Init;
+}
 #pragma endregion
 
 #pragma region PacketPort_SR_Responder Implementation
@@ -172,6 +184,10 @@ void	PacketPort_SR_Responder::ServicePort()
 bool	PacketPort_SR_Responder::isSupportedInPackType(enum PacketTypes packTYPE)
 {
 	return (packTYPE == packType_WriteComplete || packTYPE == packType_ReadComplete);
+}
+void	PacketPort_SR_Responder::ResetStateMachine()
+{
+	SRCommState = sr_Init;
 }
 #pragma endregion
 

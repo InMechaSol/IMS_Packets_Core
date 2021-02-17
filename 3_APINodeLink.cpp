@@ -240,7 +240,6 @@ bool PacketInterface_ASCII::DeSerializePacket_ASCII(PacketInterface_ASCII* PcktI
 				PcktInterface->deSerializedTokenIndex++;
 			}
 		}
-		return false;
 	}
 
 	// reset if triggered
@@ -339,7 +338,26 @@ bool PacketInterface_ASCII::SerializePacket()
 {
 	return SerializePacket_ASCII(this);
 }
+int PacketInterface_ASCII::getPacketOption()
+{
+	SPD4 x_SPD;
+	Packet_HDRPACK hPack;
+	hPack.CopyTokenBufferPtrs(getPacketPtr());
 
+	hPack.getfromStringPacketOption(&x_SPD);
+
+	return x_SPD.intVal;
+}
+enum PacketTypes	PacketInterface_ASCII::getPacketType()
+{
+	SPD4 x_SPD;
+	Packet_HDRPACK hPack;
+	hPack.CopyTokenBufferPtrs(getPacketPtr());
+
+	hPack.getfromStringPacketType(&x_SPD);
+
+	return ((enum PacketTypes)(x_SPD.intVal));
+}
 Packet* PacketInterface_ASCII::getPacketPtr() { return &BufferPacket; }
 int		PacketInterface_ASCII::getTokenSize() { return STRINGBUFFER_TOKENRATIO; }
 PacketInterface_ASCII::PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn) :
@@ -382,42 +400,44 @@ void API_NODE::Loop()
 
 #pragma region Packet_HDRPACK Members (this is the error packet)
 
-void API_NODE::staticHandler_HDRPACK(PacketInterface* RxInterfacePtr, API_NODE* nodePtr, Struct_HDRPACK* dstStruct)
+void API_NODE::staticHandler_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* dstStruct)
 {
-	TokenType x_SPD;
+	SPD4 x_SPD;
 	Packet_HDRPACK inPack;
-	inPack.CopyTokenBufferPtrs(RxInterfacePtr->getPacketPtr());
+	inPack.CopyTokenBufferPtrs(PacketPtr);
 
 	if (inPack.isASCIIPacket())
 		inPack.getfromStringPacketType(&x_SPD);
 	else
 		inPack.getPacketType(&x_SPD);
 
-	if (x_SPD.intVal == ResponseComplete && dstStruct != nullptr)
+	if (x_SPD.intVal == packType_ResponseComplete && dstStruct != nullptr)
 	{
-		if (inPack.isASCIIPacket()) inPack..getfromStringPacketOption(&x_SPD); else inPack.getPacketOption(&x_SPD);
+		if (inPack.isASCIIPacket()) inPack.getfromStringPacketOption(&x_SPD); else inPack.getPacketOption(&x_SPD);
 		dstStruct->PackOpt = x_SPD.intVal;		
 	}
 
 }
 
 
-bool API_NODE::staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* srcStruct)
+bool API_NODE::staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, int PackOption)
 {
-	TokenType x_SPD;
 	Packet_HDRPACK outPack;
-	outPack.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());
+	outPack.CopyTokenBufferPtrs(PacketPtr);
+
+	SPD4 x_SPD;
+
 	bool tempBool = true;
 
-	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
+	outPack.writebuff_PackIDString();
 
-	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
+	outPack.writebuff_TokenCountString();
 
-	x_SPD.intVal = ResponseComplete;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketType(&x_SPD);	else outPack.setPacketType(&x_SPD);
+	x_SPD.intVal = PackType;
+	tempBool &= outPack.set2StringPacketType(&x_SPD);
 
-	x_SPD.intVal = srcStruct->PackOpt;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
+	x_SPD.intVal = PackOption;
+	tempBool &= outPack.set2StringPacketOption(&x_SPD);
 
 	return tempBool;
 }
@@ -426,66 +446,7 @@ bool API_NODE::staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackTy
 
 
 
-#pragma region Packet_VERSION Members
 
-TEMPLATE_PACKNODE_MEMBERS_CPP(API_NODE, VERSION)
-
-template<class TokenType>
-void API_NODE::staticHandler_VERSION(PacketInterface* RxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* dstStruct)
-{
-	TokenType x_SPD;
-	Packet_VERSION inPack;// = ((pCLASS(VERSION)*)(RxInterfacePtr->getPacketPtr()));
-	inPack.CopyTokenBufferPtrs(RxInterfacePtr->getPacketPtr());
-	if (inPack.isASCIIPacket())
-		inPack.getfromStringPacketType(&x_SPD);
-	else
-		inPack.getPacketType(&x_SPD);
-
-	if (x_SPD.intVal == ReadComplete)
-		nodePtr->setPackTriggerVERSION(RxInterfacePtr->getPortID());
-	else if (x_SPD.intVal == ResponseComplete && dstStruct != nullptr)
-	{
-		if (inPack.isASCIIPacket()) inPack.getfromStringMajorVersion(&x_SPD); else inPack.getMajorVersion(&x_SPD);
-		dstStruct->Major = x_SPD.intVal;
-		if (inPack.isASCIIPacket()) inPack.getfromStringMinorVersion(&x_SPD); else inPack.getMinorVersion(&x_SPD);
-		dstStruct->Minor = x_SPD.intVal;
-		if (inPack.isASCIIPacket()) inPack.getfromStringBuildNumber(&x_SPD); else inPack.getBuildNumber(&x_SPD);
-		dstStruct->Build = x_SPD.intVal;
-		if (inPack.isASCIIPacket()) inPack.getfromStringDevFlag(&x_SPD); else inPack.getDevFlag(&x_SPD);
-		dstStruct->DevFlag = x_SPD.intVal;
-	}
-
-}
-
-template<class TokenType>
-bool API_NODE::staticPackager_VERSION(PacketInterface* TxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* srcStruct)
-{
-	TokenType x_SPD;
-	Packet_VERSION outPack;
-	outPack.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());
-	bool tempBool = true;
-	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
-
-	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
-
-
-	x_SPD.intVal = ResponseComplete;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketType(&x_SPD);	else outPack.setPacketType(&x_SPD);
-	x_SPD.intVal = 0;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
-	x_SPD.intVal = srcStruct->Major;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMajorVersion(&x_SPD);	else outPack.setMajorVersion(&x_SPD);
-	x_SPD.intVal = srcStruct->Minor;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMinorVersion(&x_SPD);	else outPack.setMinorVersion(&x_SPD);
-	x_SPD.intVal = srcStruct->Build;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringBuildNumber(&x_SPD);	else outPack.setBuildNumber(&x_SPD);
-	x_SPD.intVal = srcStruct->DevFlag;
-	if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringDevFlag(&x_SPD);		else outPack.setDevFlag(&x_SPD);
-
-	return tempBool;
-}
-
-#pragma endregion
 
 #pragma endregion
 

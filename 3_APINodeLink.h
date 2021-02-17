@@ -135,6 +135,8 @@ namespace IMSPacketsAPICore
 		
 		Packet* getPacketPtr();
 		int		getTokenSize(); 
+		int		getPacketOption();
+		enum PacketTypes	getPacketType();
 		PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn = nullptr);
 		PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn);
 		PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn);
@@ -207,8 +209,10 @@ namespace IMSPacketsAPICore
 		static void ServiceSynchronousPorts(API_NODE* nodePtr);
 		void Loop();
 
+
 		static void staticHandler_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* dstStruct);
-		static bool staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* srcStruct);
+
+		static bool staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, int PackOption);
 		
 	};
 	
