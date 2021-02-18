@@ -86,6 +86,10 @@ int PolymorphicPacketPort::getNextOutPackOption()
 {
 	return OutPacketQueue[0].packOPTION;
 }
+int PolymorphicPacketPort::getOutPackQueueDepth()
+{
+	return OutPackQueueDepth;
+}
 
 PolymorphicPacketPort::PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync)
 {

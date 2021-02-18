@@ -209,6 +209,7 @@ namespace IMSPacketsAPICore
 		int		getNextOutPackID();
 		enum	PacketTypes getNextOutPackType();
 		int		getNextOutPackOption();
+		int		getOutPackQueueDepth();
 
 		virtual void	ResetStateMachine() = 0;
 		
