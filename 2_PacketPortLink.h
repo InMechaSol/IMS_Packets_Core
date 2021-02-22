@@ -233,8 +233,10 @@ namespace IMSPacketsAPICore
 	{
 	private:
 		enum PacketPort_SRCommState SRCommState = sr_Init;
+		int CyclestoReset = 0;
+		int CyclesSinceReset = 0;
 	public:
-		PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
+		PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, int CyclesResetIn, bool isAsync = false);
 		void	ServicePort();
 		bool	isSupportedInPackType(enum PacketTypes packTYPE);
 		void	ResetStateMachine();

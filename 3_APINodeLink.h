@@ -121,8 +121,7 @@ namespace IMSPacketsAPICore
 		int									CharIndexLast = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		Packet_HDRPACK						BufferPacket;
-				
-
+		
 		void WriteToStream();
 		void ReadFromStream();
 		
@@ -195,7 +194,6 @@ namespace IMSPacketsAPICore
 		virtual void CustomLoop() = 0;
 
 	public:
-
 		static const int ECOSYSTEM_MajorVersion = ECOSYSTEM_MAJORVERSION;
 		static const int ECOSYSTEM_MinorVersion = ECOSYSTEM_MINORVERSION;
 		static const int ECOSYSTEM_BuildNumber = ECOSYSTEM_BUILDNUMBER;

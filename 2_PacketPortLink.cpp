@@ -105,10 +105,11 @@ PolymorphicPacketPort::PolymorphicPacketPort(int PortIDin, PacketInterface* Inpu
 #pragma endregion
 
 #pragma region PacketPort_SR_Sender Implementation
-PacketPort_SR_Sender::PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync) :
+PacketPort_SR_Sender::PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, int CyclesResetIn, bool isAsync) :
 	PolymorphicPacketPort(PortIDin, InputInterfaceIn, OutputInterfaceIn, DataExecutionIn, isAsync)
 {
 	PortType = SenderResponder_Sender;
+	CyclestoReset = CyclesResetIn;
 }
 void	PacketPort_SR_Sender::ServicePort()
 {
@@ -120,9 +121,18 @@ void	PacketPort_SR_Sender::ServicePort()
 		if (InputInterface->DeSerializePacket()) {
 			DataExecution->HandleRxPacket(this);
 			SRCommState = sr_Handling;
+			CyclesSinceReset = 0;
 		}
 		else
+		{ 
+			if (++CyclesSinceReset > CyclestoReset)
+			{
+				CyclesSinceReset = 0;
+				ResetStateMachine();
+			}				
 			break;
+		}
+			
 	case sr_Handling:
 		if (DataExecution->PrepareTxPacket(this))
 			SRCommState = sr_Sending;

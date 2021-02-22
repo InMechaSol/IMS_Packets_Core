@@ -407,16 +407,25 @@ void API_NODE::staticHandler_HDRPACK(Packet* PacketPtr, enum PacketTypes PackTyp
 	inPack.CopyTokenBufferPtrs(PacketPtr);
 
 	if (inPack.isASCIIPacket())
-		inPack.getfromStringPacketType(&x_SPD);
-	else
-		inPack.getPacketType(&x_SPD);
-
-	if (x_SPD.intVal == packType_ResponseComplete && dstStruct != nullptr)
 	{
-		if (inPack.isASCIIPacket()) inPack.getfromStringPacketOption(&x_SPD); else inPack.getPacketOption(&x_SPD);
-		dstStruct->PackOpt = x_SPD.intVal;		
+		if (inPack.getfromStringPacketType(&x_SPD))
+		{
+			if (x_SPD.intVal == packType_ResponseComplete && dstStruct != nullptr)
+			{
+				if(inPack.getfromStringPacketOption(&x_SPD))
+					dstStruct->PackOpt = x_SPD.intVal;
+			}
+		}
 	}
-
+	else
+	{
+		inPack.getPacketType(&x_SPD);
+		if (x_SPD.intVal == packType_ResponseComplete && dstStruct != nullptr)
+		{
+			inPack.getPacketOption(&x_SPD);
+			dstStruct->PackOpt = x_SPD.intVal;
+		}
+	}
 }
 
 
