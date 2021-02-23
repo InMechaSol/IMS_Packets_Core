@@ -14,95 +14,11 @@
 */
 
 
-/*! \def TEMPLATE_RX_HANDLER(tempHDRPack,Packet_Type, TokenID, HandlerFunc)
-	\brief Code Template for Application Node API EndPoint (Rx) Functions
-
-	This template creates an on receipt api endpoint function.  The function
-	determines if the linked packet is binary or string based then determines
-	if a particular packet ID has been received.  If so, a packet interface
-	object of type corresponding to the ID received is instantiated on the stack.
-	Finally the stack packet object, which points to the packet interface buffer
-	is passed to a polymorphic api endpoint specific to packet type and ID.
-
-*/
-#define TEMPLATE_RX_HANDLER(RxInterfacePtr, packIDmacro){\
-if((RxInterfacePtr->getPacketPtr())->isASCIIPacket()){\
-	if((RxInterfacePtr->getPacketPtr())->StringBuffer_IDString_Equals(Packet_##packIDmacro::IDString)){\
-		Handler_##packIDmacro(RxInterfacePtr);return;}}\
-else{\
-	if((RxInterfacePtr->getPacketPtr())->ByteBuffer_ID_Equals(Packet_##packIDmacro::ID)){\
-		Handler_##packIDmacro(RxInterfacePtr);return;}}\
-}
-
-/*! \def TEMPLATE_TX_PACKAGER(tVar, pType, packFunc)
-	\brief Code Template for Application Node API EndPoint (Tx) Functions
-
-
-	This template creates before transmission api endpoint function.  The function
-	monitors a trigger variable and if triggerred, packages a particular packet type,
-	to the linked Packet Interface buffer, before resetting the trigger variable and
-	returning true which will indicate to the port object that a packet is ready for transmission.
-
-*/
-#define TEMPLATE_TX_PACKAGER(TxInterfacePtr, packIDmacro){\
-if(packtrigger##packIDmacro.GetFront()==TxInterfacePtr->getPortID()){\
-	Packet_##packIDmacro tempPacket;\
-	tempPacket.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());\
-	SPD4 tempSPD;\
-	tempSPD.intVal = packtrigger##packIDmacro.dequeue();\
-	if (tempPacket.isASCIIPacket()) tempPacket.set2StringPacketType(&tempSPD);	else tempPacket.setPacketType(&tempSPD);\
-	return Packager_##packIDmacro(TxInterfacePtr); }\
-}
-
-#define TEMPLATE_PACKNODE_MEMBERS_H(packIDmacro, nodeType)\
-public:	template<class TokenType>\
-		static void			staticHandler_##packIDmacro(PacketInterface* RxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* dstStruct = nullptr );\
-		template<class TokenType>\
-		static bool			staticPackager_##packIDmacro(PacketInterface* TxInterfacePtr, nodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
-protected:	Queue			packtrigger##packIDmacro = Queue();\
-			void			setPackTrigger##packIDmacro(int portID, int PacketType);\
-			virtual void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr) = 0;\
-			virtual bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr) = 0;\
-
-#define TEMPLATE_PACKNODE_MEMBERS_CPP(NodeType, packIDmacro)\
-void NodeType::setPackTrigger##packIDmacro(int portID, int PacketType) { packtrigger##packIDmacro.enqueueUnique(portID, PacketType); }\
-template void NodeType::staticHandler_##packIDmacro<SPD2>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
-template void NodeType::staticHandler_##packIDmacro<SPD4>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
-template void NodeType::staticHandler_##packIDmacro<SPD8>(PacketInterface* RxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* dstStruct);\
-template bool NodeType::staticPackager_##packIDmacro<SPD2>(PacketInterface* TxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
-template bool NodeType::staticPackager_##packIDmacro<SPD4>(PacketInterface* TxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
-template bool NodeType::staticPackager_##packIDmacro<SPD8>(PacketInterface* TxInterfacePtr, NodeType* nodePtr, Struct_##packIDmacro* srcStruct);\
-
-#define TEMPLATE_PACKNODE_OVERRIDE_H(packIDmacro)\
-protected:	void	Handler_##packIDmacro(PacketInterface* RxInterfacePtr);\
-			bool	Packager_##packIDmacro(PacketInterface* TxInterfacePtr);\
-
-
-
-#define GETPACKETTYPE(PACKET, SPD)\
-	if (PACKET.isASCIIPacket()) PACKET.getfromStringPacketType(&SPD); else PACKET.getPacketType(&SPD);
-
-#define GETPACKETOPTION(PACKET, SPD)\
-	if (PACKET.isASCIIPacket()) PACKET.getfromStringPacketOption(&SPD); else	PACKET.getPacketOption(&SPD);
-
-
 /*! @}*/
 #pragma endregion
 
 namespace IMSPacketsAPICore
 {
-	enum PacketTypes
-	{
-		ReadComplete,
-		ReadTokenAt,
-		WriteComplete,
-		WriteTokenAt,
-		ResponseComplete,
-		ResponseTokenAt,
-		ResponseHDROnly,
-		FullCyclicPartner		
-	};
-
 	/*! \struct QueueNode
 		\brief A basic node for use in a linked list queue
 	*/
@@ -295,9 +211,9 @@ namespace IMSPacketsAPICore
 		Packet* getPacketPtr();
 		int		getTokenSize();
 
-		PacketInterface_Binary(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr);
-		PacketInterface_Binary(int PortIDin, std::istream* ifaceInStreamPtrIn);
-		PacketInterface_Binary(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
+		PacketInterface_Binary(std::iostream* ifaceStreamPtrIn = nullptr);
+		PacketInterface_Binary(std::istream* ifaceInStreamPtrIn);
+		PacketInterface_Binary(std::ostream* ifaceOutStreamPtrIn);
 	};
 	
 	
@@ -312,8 +228,7 @@ namespace IMSPacketsAPICore
 		int									CharIndexLast = 0;
 		SPDASCIIInterfaceBuffer				TokenBuffer;
 		Packet_HDRPACK						BufferPacket;
-				
-
+		
 		void WriteToStream();
 		void ReadFromStream();
 		
@@ -326,9 +241,11 @@ namespace IMSPacketsAPICore
 		
 		Packet* getPacketPtr();
 		int		getTokenSize(); 
-		PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn = nullptr);
-		PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn);
-		PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
+		int		getPacketOption();
+		enum PacketTypes	getPacketType();
+		PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn = nullptr);
+		PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn);
+		PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn);
 		/*! \fn DeSerializePacket_ASCII
 			\brief Default ASCII Deserialization
 			\sa Packet
@@ -379,16 +296,11 @@ namespace IMSPacketsAPICore
 	class API_NODE :public AbstractDataExecution
 	{
 	protected:
-		int		currentPortIndex = 0;
 		virtual PolymorphicPacketPort* getPacketPortat(int i) = 0;
 		virtual int getNumPacketPorts() = 0;
 		virtual void CustomLoop() = 0;
 
-		virtual bool API_CustomShared_PrepareTx(PacketInterface* TxInterfacePtr) = 0;
-		virtual void API_CustomShared_HandleRx(PacketInterface* RxInterfacePtr) = 0;
-
 	public:
-
 		static const int ECOSYSTEM_MajorVersion = ECOSYSTEM_MAJORVERSION;
 		static const int ECOSYSTEM_MinorVersion = ECOSYSTEM_MINORVERSION;
 		static const int ECOSYSTEM_BuildNumber = ECOSYSTEM_BUILDNUMBER;
@@ -403,15 +315,13 @@ namespace IMSPacketsAPICore
 		void Loop();
 
 
+		static void staticHandler_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* dstStruct);
 
-		void HandleRxPacket(PacketInterface* RxInterfacePtr);
-
-		bool PrepareTxPacket(PacketInterface* TxInterfacePtr);
-
-		TEMPLATE_PACKNODE_MEMBERS_H(VERSION, API_NODE)
-
-
+		static bool staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, int PackOption);
+		
 	};
+	
+	
 	/*! @}*/
 }
 

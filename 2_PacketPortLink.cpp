@@ -2,24 +2,19 @@
 using namespace IMSPacketsAPICore;
 
 
-// Constructors
-PacketInterface::PacketInterface(int PortIDin, std::iostream* ifaceStreamPtrIn)
+#pragma region PacketInterface Implementation
+PacketInterface::PacketInterface(std::iostream* ifaceStreamPtrIn)
 {
 	ifaceStreamPtr = ifaceStreamPtrIn;
-	PortID = PortIDin;
 }
-PacketInterface::PacketInterface(int PortIDin, std::istream* ifaceInStreamPtrIn)
+PacketInterface::PacketInterface(std::istream* ifaceInStreamPtrIn)
 {
 	ifaceInStreamPtr = ifaceInStreamPtrIn;
-	PortID = PortIDin;
 }
-PacketInterface::PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn)
+PacketInterface::PacketInterface(std::ostream* ifaceOutStreamPtrIn)
 {
 	ifaceOutStreamPtr = ifaceOutStreamPtrIn;
-	PortID = PortIDin;
 }
-
-int		PacketInterface::getPortID() { return PortID; }
 void	PacketInterface::WriteTo()
 {
 	if (ifaceStreamPtr == nullptr && ifaceOutStreamPtr == nullptr) 		
@@ -29,11 +24,8 @@ void	PacketInterface::WriteTo()
 		WriteToStream();
 	}
 }
-
-
 void	PacketInterface::ReadFrom()
 {
-
 	if (ifaceStreamPtr == nullptr && ifaceInStreamPtr == nullptr)
 	{
 		CustomReadFrom();
@@ -44,10 +36,82 @@ void	PacketInterface::ReadFrom()
 	}
 }
 
+#pragma endregion
 
 
+#pragma region PolymorphicPacketPort Implementation
+PacketInterface* PolymorphicPacketPort::getInputInterface()
+{
+	return InputInterface;
+}
+PacketInterface* PolymorphicPacketPort::getOutputInterface()
+{
+	return OutputInterface;
+}
+int PolymorphicPacketPort::getPortID() { return PortID; }
+bool PolymorphicPacketPort::getAsyncService() { return ServiceAsync; }
+void PolymorphicPacketPort::enQueueOutPacket(int packID, enum PacketTypes packTYPE, int packOPTION)
+{
+	if (packID > -1 && OutPackQueueDepth < PORTOUTPACK_BUFFERLENGTH)
+	{
+		OutPacketQueue[OutPackQueueDepth].PackID = packID;
+		OutPacketQueue[OutPackQueueDepth].packTYPE = packTYPE;
+		OutPacketQueue[OutPackQueueDepth].packOPTION = packOPTION;
+		OutPackQueueDepth++;
+	}
+}
+void PolymorphicPacketPort::deQueueOutPacket()
+{
+	for (int i = 1; i <= OutPackQueueDepth; i++)
+	{
+		OutPacketQueue[i - 1].PackID = OutPacketQueue[i].PackID;
+		OutPacketQueue[i - 1].packTYPE = OutPacketQueue[i].packTYPE;
+		OutPacketQueue[i - 1].packOPTION = OutPacketQueue[i].packOPTION;
+	}
+	if (OutPackQueueDepth > 0)
+	{
+		OutPacketQueue[OutPackQueueDepth].PackID = -1;
+		OutPackQueueDepth--;
+	}
+}
+int PolymorphicPacketPort::getNextOutPackID()
+{
+	return OutPacketQueue[0].PackID;
+}
+enum PacketTypes PolymorphicPacketPort::getNextOutPackType()
+{
+	return OutPacketQueue[0].packTYPE;
+}
+int PolymorphicPacketPort::getNextOutPackOption()
+{
+	return OutPacketQueue[0].packOPTION;
+}
+int PolymorphicPacketPort::getOutPackQueueDepth()
+{
+	return OutPackQueueDepth;
+}
 
-void PolymorphicPacketPort::ServicePort_SR_Sender()
+PolymorphicPacketPort::PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync)
+{
+	InputInterface = InputInterfaceIn;
+	OutputInterface = OutputInterfaceIn;
+	DataExecution = DataExecutionIn;
+	ServiceAsync = isAsync;
+	PortID = PortIDin;
+	for (int i = 0; i < PORTOUTPACK_BUFFERLENGTH; i++)
+		OutPacketQueue[i].PackID = -1;
+}
+
+#pragma endregion
+
+#pragma region PacketPort_SR_Sender Implementation
+PacketPort_SR_Sender::PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, int CyclesResetIn, bool isAsync) :
+	PolymorphicPacketPort(PortIDin, InputInterfaceIn, OutputInterfaceIn, DataExecutionIn, isAsync)
+{
+	PortType = SenderResponder_Sender;
+	CyclestoReset = CyclesResetIn;
+}
+void	PacketPort_SR_Sender::ServicePort()
 {
 	switch (SRCommState)
 	{
@@ -55,9 +119,9 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 	case sr_Reading:
 		InputInterface->ReadFrom();
 		if (InputInterface->DeSerializePacket()) {
-			DataExecution->HandleRxPacket(InputInterface);
+			DataExecution->HandleRxPacket(this);
 			SRCommState = sr_Handling;
-			CyclesWithNoResponse = 0;
+			CyclesSinceReset = 0;
 		}
 		else {
 			CyclesWithNoResponse++;
@@ -67,9 +131,17 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 				CyclesWithNoResponse = 0;
 			}
 		}
+		{ 
+			if (++CyclesSinceReset > CyclestoReset)
+			{
+				CyclesSinceReset = 0;
+				ResetStateMachine();
+			}				
 			break;
+		}
+			
 	case sr_Handling:
-		if (DataExecution->PrepareTxPacket(OutputInterface))
+		if (DataExecution->PrepareTxPacket(this))
 			SRCommState = sr_Sending;
 		else
 			break;
@@ -84,10 +156,23 @@ void PolymorphicPacketPort::ServicePort_SR_Sender()
 	case sr_Sent:SRCommState = sr_Reading; break;
 	}
 }
+bool	PacketPort_SR_Sender::isSupportedInPackType(enum PacketTypes packTYPE)
+{
+	return (packTYPE == packType_ResponseComplete || packTYPE == packType_ResponseHDROnly);
+}
+void	PacketPort_SR_Sender::ResetStateMachine()
+{
+	SRCommState = sr_Init;
+}
+#pragma endregion
 
-
-
-void PolymorphicPacketPort::ServicePort_SR_Responder()
+#pragma region PacketPort_SR_Responder Implementation
+PacketPort_SR_Responder::PacketPort_SR_Responder(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync):
+	PolymorphicPacketPort(PortIDin, InputInterfaceIn, OutputInterfaceIn, DataExecutionIn, isAsync)
+{
+	PortType = SenderResponder_Responder;
+}
+void	PacketPort_SR_Responder::ServicePort()
 {
 	switch (SRCommState)
 	{
@@ -96,13 +181,13 @@ void PolymorphicPacketPort::ServicePort_SR_Responder()
 		InputInterface->ReadFrom();
 		if (InputInterface->DeSerializePacket())
 		{
-			DataExecution->HandleRxPacket(InputInterface);
+			DataExecution->HandleRxPacket(this);
 			SRCommState = sr_Handling;
 		}
 		else
 			break;
 	case sr_Handling:
-		if (DataExecution->PrepareTxPacket(OutputInterface))
+		if (DataExecution->PrepareTxPacket(this))
 			SRCommState = sr_Sending;
 		else
 			break;
@@ -117,44 +202,16 @@ void PolymorphicPacketPort::ServicePort_SR_Responder()
 	case sr_Sent:SRCommState = sr_Reading; break;
 	}
 }
-void PolymorphicPacketPort::ServicePort_FCP_Partner()
+bool	PacketPort_SR_Responder::isSupportedInPackType(enum PacketTypes packTYPE)
 {
-	InputInterface->ReadFrom();
-	if (InputInterface->DeSerializePacket())
-	{
-		DataExecution->HandleRxPacket(InputInterface);
-	}
-
-	if (DataExecution->PrepareTxPacket(OutputInterface))
-	{
-		if (OutputInterface->SerializePacket())
-			OutputInterface->WriteTo();
-	}
+	return (packTYPE == packType_WriteComplete || packTYPE == packType_ReadComplete);
 }
-
-int PolymorphicPacketPort::getPortID() { return PortID; }
-bool PolymorphicPacketPort::getAsyncService() { return ServiceAsync; }
-
-
-void PolymorphicPacketPort::ServicePort()
+void	PacketPort_SR_Responder::ResetStateMachine()
 {
-	if (InputInterface != nullptr && OutputInterface != nullptr && DataExecution != nullptr)
-	{
-		switch (PortType)
-		{
-		case SenderResponder_Responder:		ServicePort_SR_Responder();		break;
-		case SenderResponder_Sender:		ServicePort_SR_Sender();		break;
-		case FullCylic_Partner:				ServicePort_FCP_Partner();		break;
-		}
-	}
+	SRCommState = sr_Init;
 }
+#pragma endregion
 
-PolymorphicPacketPort::PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, PacketPortPartnerType PortTypeIn, bool isAsync)
-{
-	InputInterface = InputInterfaceIn;
-	OutputInterface = OutputInterfaceIn;
-	DataExecution = DataExecutionIn;
-	ServiceAsync = isAsync;
-	PortType = PortTypeIn;
-	PortID = PortIDin;
-}
+
+
+

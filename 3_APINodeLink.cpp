@@ -2,10 +2,10 @@
 using namespace IMSPacketsAPICore;
 
 #pragma region PacketInterface_Binary<TokenType>  Implementation
-template class PacketInterface_Binary<SPD1>;
-template class PacketInterface_Binary<SPD2>;
-template class PacketInterface_Binary<SPD4>;
-template class PacketInterface_Binary<SPD8>;
+//template class PacketInterface_Binary<SPD1>;
+//template class PacketInterface_Binary<SPD2>;
+//template class PacketInterface_Binary<SPD4>;
+//template class PacketInterface_Binary<SPD8>;
 
 
 template<class TokenType>
@@ -119,18 +119,18 @@ template<class TokenType>
 int		PacketInterface_Binary<TokenType>::getTokenSize() { return sizeof(TokenType); }
 
 template<class TokenType>
-PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::iostream* ifaceStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceStreamPtrIn) {
+PacketInterface_Binary<TokenType>::PacketInterface_Binary(std::iostream* ifaceStreamPtrIn) :
+	PacketInterface(ifaceStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 template<class TokenType>
-PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::istream* ifaceInStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceInStreamPtrIn) {
+PacketInterface_Binary<TokenType>::PacketInterface_Binary(std::istream* ifaceInStreamPtrIn) :
+	PacketInterface(ifaceInStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 template<class TokenType>
-PacketInterface_Binary<TokenType>::PacketInterface_Binary(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
+PacketInterface_Binary<TokenType>::PacketInterface_Binary(std::ostream* ifaceOutStreamPtrIn) :
+	PacketInterface(ifaceOutStreamPtrIn) {
 	BufferPacket.setBytesBuffer(&(TokenBuffer.bytes[0]));
 }
 
@@ -218,10 +218,12 @@ bool PacketInterface_ASCII::DeSerializePacket_ASCII(PacketInterface_ASCII* PcktI
 
 				// increment token index
 				PcktInterface->deSerializedTokenIndex++;
-				if (PcktInterface->deSerializedTokenIndex >= Packet_HDRPACK::TokenCount) {
+				if (PcktInterface->deSerializedTokenIndex >= Packet_HDRPACK::TokenCount) 
+				{
 					PcktInterface->ResetdeSerialize();
 					return true;
 				}
+
 			}
 			else
 			{
@@ -336,19 +338,38 @@ bool PacketInterface_ASCII::SerializePacket()
 {
 	return SerializePacket_ASCII(this);
 }
+int PacketInterface_ASCII::getPacketOption()
+{
+	SPD4 x_SPD;
+	Packet_HDRPACK hPack;
+	hPack.CopyTokenBufferPtrs(getPacketPtr());
 
+	hPack.getfromStringPacketOption(&x_SPD);
+
+	return x_SPD.intVal;
+}
+enum PacketTypes	PacketInterface_ASCII::getPacketType()
+{
+	SPD4 x_SPD;
+	Packet_HDRPACK hPack;
+	hPack.CopyTokenBufferPtrs(getPacketPtr());
+
+	hPack.getfromStringPacketType(&x_SPD);
+
+	return ((enum PacketTypes)(x_SPD.intVal));
+}
 Packet* PacketInterface_ASCII::getPacketPtr() { return &BufferPacket; }
 int		PacketInterface_ASCII::getTokenSize() { return STRINGBUFFER_TOKENRATIO; }
-PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::iostream* ifaceStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceStreamPtrIn) {
+PacketInterface_ASCII::PacketInterface_ASCII(std::iostream* ifaceStreamPtrIn) :
+	PacketInterface(ifaceStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
-PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::istream* ifaceInStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceInStreamPtrIn) {
+PacketInterface_ASCII::PacketInterface_ASCII(std::istream* ifaceInStreamPtrIn) :
+	PacketInterface(ifaceInStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
-PacketInterface_ASCII::PacketInterface_ASCII(int PortIDin, std::ostream* ifaceOutStreamPtrIn) :
-	PacketInterface(PortIDin, ifaceOutStreamPtrIn) {
+PacketInterface_ASCII::PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn) :
+	PacketInterface(ifaceOutStreamPtrIn) {
 	BufferPacket.setCharsBuffer(&(TokenBuffer.chars[0]));
 }
 
@@ -376,81 +397,65 @@ void API_NODE::Loop()
 	ServiceSynchronousPorts(this);
 }
 
-void API_NODE::HandleRxPacket(PacketInterface* RxInterfacePtr)
+
+#pragma region Packet_HDRPACK Members (this is the error packet)
+
+void API_NODE::staticHandler_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, pSTRUCT(HDRPACK)* dstStruct)
 {
-	TEMPLATE_RX_HANDLER(RxInterfacePtr, VERSION)
+	SPD4 x_SPD;
+	Packet_HDRPACK inPack;
+	inPack.CopyTokenBufferPtrs(PacketPtr);
 
-	API_CustomShared_HandleRx(RxInterfacePtr);
-}
-
-bool API_NODE::PrepareTxPacket(PacketInterface* TxInterfacePtr)
-{
-	TEMPLATE_TX_PACKAGER(TxInterfacePtr, VERSION)
-
-	return API_CustomShared_PrepareTx(TxInterfacePtr);
-}
-
-#pragma region Packet_VERSION Members
-
-TEMPLATE_PACKNODE_MEMBERS_CPP(API_NODE, VERSION)
-
-template<class TokenType>
-void API_NODE::staticHandler_VERSION(PacketInterface* RxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* dstStruct)
-{
-	TokenType x_SPD;
-	Packet_VERSION inPack;// = ((pCLASS(VERSION)*)(RxInterfacePtr->getPacketPtr()));
-	inPack.CopyTokenBufferPtrs(RxInterfacePtr->getPacketPtr());
 	if (inPack.isASCIIPacket())
-		inPack.getfromStringPacketType(&x_SPD);
-	else
-		inPack.getPacketType(&x_SPD);
-
-	if (x_SPD.intVal == ReadComplete)
-		nodePtr->setPackTriggerVERSION(RxInterfacePtr->getPortID(), ResponseComplete);
-	else if (x_SPD.intVal == ResponseComplete && dstStruct != nullptr)
 	{
-		if (inPack.isASCIIPacket()) inPack.getfromStringMajorVersion(&x_SPD); else inPack.getMajorVersion(&x_SPD);
-		dstStruct->Major = x_SPD.intVal;
-		if (inPack.isASCIIPacket()) inPack.getfromStringMinorVersion(&x_SPD); else inPack.getMinorVersion(&x_SPD);
-		dstStruct->Minor = x_SPD.intVal;
-		if (inPack.isASCIIPacket()) inPack.getfromStringBuildNumber(&x_SPD); else inPack.getBuildNumber(&x_SPD);
-		dstStruct->Build = x_SPD.intVal;
-		if (inPack.isASCIIPacket()) inPack.getfromStringDevFlag(&x_SPD); else inPack.getDevFlag(&x_SPD);
-		dstStruct->DevFlag = x_SPD.intVal;
+		if (inPack.getfromStringPacketType(&x_SPD))
+		{
+			if (x_SPD.intVal == packType_ResponseComplete && dstStruct != nullptr)
+			{
+				if(inPack.getfromStringPacketOption(&x_SPD))
+					dstStruct->PackOpt = x_SPD.intVal;
+			}
+		}
 	}
-
+	else
+	{
+		inPack.getPacketType(&x_SPD);
+		if (x_SPD.intVal == packType_ResponseComplete && dstStruct != nullptr)
+		{
+			inPack.getPacketOption(&x_SPD);
+			dstStruct->PackOpt = x_SPD.intVal;
+		}
+	}
 }
 
-template<class TokenType>
-bool API_NODE::staticPackager_VERSION(PacketInterface* TxInterfacePtr, API_NODE* nodePtr, Struct_VERSION* srcStruct)
+
+bool API_NODE::staticPackager_HDRPACK(Packet* PacketPtr, enum PacketTypes PackType, int PackOption)
 {
-	TokenType x_SPD;
-	Packet_VERSION outPack;
-	outPack.CopyTokenBufferPtrs(TxInterfacePtr->getPacketPtr());
+	Packet_HDRPACK outPack;
+	outPack.CopyTokenBufferPtrs(PacketPtr);
+
+	SPD4 x_SPD;
+
 	bool tempBool = true;
-	outPack.isASCIIPacket() ? outPack.writebuff_PackIDString() : outPack.writebuff_PackID(&x_SPD);
 
-	outPack.isASCIIPacket() ? outPack.writebuff_TokenCountString() : outPack.writebuff_PackLength(&x_SPD);
+	outPack.writebuff_PackIDString();
 
-	if (outPack.isASCIIPacket()) outPack.getfromStringPacketType(&x_SPD);	else outPack.getPacketType(&x_SPD);
+	outPack.writebuff_TokenCountString();
 
-	if (x_SPD.intVal == ResponseComplete)
-	{
-		x_SPD.intVal = 0;
-		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringPacketOption(&x_SPD);	else outPack.setPacketOption(&x_SPD);
-		x_SPD.intVal = srcStruct->Major;
-		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMajorVersion(&x_SPD);	else outPack.setMajorVersion(&x_SPD);
-		x_SPD.intVal = srcStruct->Minor;
-		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringMinorVersion(&x_SPD);	else outPack.setMinorVersion(&x_SPD);
-		x_SPD.intVal = srcStruct->Build;
-		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringBuildNumber(&x_SPD);	else outPack.setBuildNumber(&x_SPD);
-		x_SPD.intVal = srcStruct->DevFlag;
-		if (outPack.isASCIIPacket()) tempBool &= outPack.set2StringDevFlag(&x_SPD);		else outPack.setDevFlag(&x_SPD);
-	}
+	x_SPD.intVal = PackType;
+	tempBool &= outPack.set2StringPacketType(&x_SPD);
+
+	x_SPD.intVal = PackOption;
+	tempBool &= outPack.set2StringPacketOption(&x_SPD);
+
 	return tempBool;
 }
 
 #pragma endregion
+
+
+
+
 
 #pragma endregion
 

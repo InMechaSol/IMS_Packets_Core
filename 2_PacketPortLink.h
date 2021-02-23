@@ -25,6 +25,18 @@ namespace IMSPacketsAPICore
 		@{
 	*/
 
+	enum PacketTypes
+	{
+		packType_ReadComplete,
+		packType_ReadTokenAt,
+		packType_WriteComplete,
+		packType_WriteTokenAt,
+		packType_ResponseComplete,
+		packType_ResponseTokenAt,
+		packType_ResponseHDROnly,
+		packType_FullCyclicPartner
+	};
+
 	/*! \brief Port Communication States for Sender Receiver Operation */
 	enum PacketPort_SRCommState
 	{
@@ -35,12 +47,14 @@ namespace IMSPacketsAPICore
 		sr_Reading,
 		sr_Handling
 	};
+
 	/*! \brief Port Communication States for Full Cyclic Partner Operation */
 	enum PacketPort_FCCommState
 	{
 		fc_Init,
 		fc_Connected
 	};
+
 	/*! \brief Packet Port Instance Partner Operation Types */
 	enum PacketPortPartnerType
 	{
@@ -62,8 +76,6 @@ namespace IMSPacketsAPICore
 	*/
 	class PacketInterface
 	{
-	private:
-		int					PortID					= 0;
 	protected:
 		std::iostream*		ifaceStreamPtr			= nullptr;
 		std::istream*		ifaceInStreamPtr		= nullptr;
@@ -77,12 +89,11 @@ namespace IMSPacketsAPICore
 		virtual void		ReadFromStream()		= 0;
 
 		// Constructors
-		PacketInterface(int PortIDin, std::iostream* ifaceStreamPtrIn);
-		PacketInterface(int PortIDin, std::istream* ifaceInStreamPtrIn);
-		PacketInterface(int PortIDin, std::ostream* ifaceOutStreamPtrIn);
+		PacketInterface(std::iostream* ifaceStreamPtrIn);
+		PacketInterface(std::istream* ifaceInStreamPtrIn);
+		PacketInterface(std::ostream* ifaceOutStreamPtrIn);
 		
 	public:
-		int					getPortID();
 		virtual int			getTokenSize()		= 0;
 
 		/*! \fn getPacketPtr
@@ -95,6 +106,8 @@ namespace IMSPacketsAPICore
 		virtual Packet*				getPacketPtr()		= 0;
 		virtual bool				DeSerializePacket() = 0;
 		virtual bool				SerializePacket()	= 0;
+		virtual int					getPacketOption()	= 0;
+		virtual enum PacketTypes	getPacketType()		= 0;
 		//! Abstract Serialize Function
 		/*!
 			Converts Packet to bytes (or chars) then writes them
@@ -116,7 +129,7 @@ namespace IMSPacketsAPICore
 
 
 
-
+	class PolymorphicPacketPort;
 	/*! \class AbstractDataExecution
 		\brief An Abstraction of the Distributed Data and Execution System
 
@@ -132,13 +145,13 @@ namespace IMSPacketsAPICore
 		/*!
 			Called by a PacketPort Instance to execute API Endpoints on packet receipt
 		*/
-		virtual void				HandleRxPacket(PacketInterface* RxInterfacePtr) = 0;
+		virtual void				HandleRxPacket(PolymorphicPacketPort* PackPortPtr) = 0;
 		//! Abstract PrepareTxPacket Function
 		/*!
 			Called by a PacketPort Instance to deque packet objects and write them
 			to the PacketInterface buffer
 		*/
-		virtual bool				PrepareTxPacket(PacketInterface* TxInterfacePtr) = 0;
+		virtual bool				PrepareTxPacket(PolymorphicPacketPort* PackPortPtr) = 0;
 		//! Abstract Initialization Function
 		/*!
 			Called by the top level main function of an api node's running application
@@ -151,6 +164,13 @@ namespace IMSPacketsAPICore
 			is a design choice and not a design restriction.
 		*/
 		virtual void				Loop() = 0;
+	};
+
+	struct OutPackQueueStruct
+	{
+		int PackID = -1;
+		enum PacketTypes packTYPE;
+		int packOPTION = 0;
 	};
 
 	/*! \class PolymorphicPacketPort
@@ -166,42 +186,78 @@ namespace IMSPacketsAPICore
 	*/
 	class PolymorphicPacketPort
 	{
-	private:
-		int								PortID			 = 0;
-		enum PacketPortPartnerType		PortType		 = SenderResponder_Responder;
-		PacketInterface*				InputInterface	 = nullptr;
-		PacketInterface*				OutputInterface  = nullptr;
-		AbstractDataExecution*			DataExecution	 = nullptr;
-		PacketPort_SRCommState			SRCommState		 = sr_Init;
-		PacketPort_FCCommState			FCCommState		 = fc_Init;
-		bool							ServiceAsync	 = false;
-
 		int								CyclesWithNoResponse			 = 0;
 
 	protected:
-		void	ServicePort_SR_Sender();
-		void	ServicePort_SR_Responder();
-		void	ServicePort_FCP_Partner();
+		int								OutPackQueueDepth	= 0;
+		int								PortID				= 0;
+		enum PacketPortPartnerType		PortType			= SenderResponder_Responder;
+		PacketInterface*				InputInterface		= nullptr;
+		PacketInterface*				OutputInterface		= nullptr;
+		AbstractDataExecution*			DataExecution		= nullptr;
+		bool							ServiceAsync		= false;
+		struct OutPackQueueStruct		OutPacketQueue[PORTOUTPACK_BUFFERLENGTH];
 		
 
 	public:
+		PacketInterface* getInputInterface();
+		PacketInterface* getOutputInterface();
+
 		int		getPortID();
 		bool	getAsyncService();
 
-		SPD4 OptionSPD;
+		virtual bool	isSupportedInPackType(enum PacketTypes packTYPE) = 0;
+
+		void	enQueueOutPacket(int packID, enum PacketTypes packTYPE, int packOPTION = 0);
+		void	deQueueOutPacket();
+
+		int		getNextOutPackID();
+		enum	PacketTypes getNextOutPackType();
+		int		getNextOutPackOption();
+		int		getOutPackQueueDepth();
+
+		virtual void	ResetStateMachine() = 0;
+		
+
 
 		//! Cyclic Non-Blocking Function to Service the Packet Port
 		/*!
 			Called cyclically by the loop function of an api node instance.  It Reads/Writes to/from Serial Interfaces
 			and calls the Handle/Package functions of the api node instance.
 		*/
-		void	ServicePort();
+		virtual void	ServicePort() = 0;
 
 
-		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, PacketPortPartnerType PortTypeIn = SenderResponder_Responder, bool isAsync = false);
+		PolymorphicPacketPort(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
 		
 
 	};
+	
+	
+	class PacketPort_SR_Sender : public PolymorphicPacketPort
+	{
+	private:
+		enum PacketPort_SRCommState SRCommState = sr_Init;
+		int CyclestoReset = 0;
+		int CyclesSinceReset = 0;
+	public:
+		PacketPort_SR_Sender(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, int CyclesResetIn, bool isAsync = false);
+		void	ServicePort();
+		bool	isSupportedInPackType(enum PacketTypes packTYPE);
+		void	ResetStateMachine();
+	};
+
+	class PacketPort_SR_Responder : public PolymorphicPacketPort
+	{
+	private:
+		enum PacketPort_SRCommState SRCommState = sr_Init;
+	public:
+		PacketPort_SR_Responder(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
+		void	ServicePort();
+		bool	isSupportedInPackType(enum PacketTypes packTYPE);
+		void	ResetStateMachine();
+	};
+	
 	/*! @}*/
 }
 
