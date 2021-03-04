@@ -381,13 +381,16 @@ PacketInterface_ASCII::PacketInterface_ASCII(std::ostream* ifaceOutStreamPtrIn) 
 
 void API_NODE::ServiceSynchronousPorts(API_NODE* nodePtr)
 {
-
+	PolymorphicPacketPort* activePortPtr;
 	for (int i = 0; i < nodePtr->getNumPacketPorts(); i++)
-	{
-		if (!(nodePtr->getPacketPortat(i))->getAsyncService())
+	{		activePortPtr = nodePtr->getPacketPortat(i);
+		if (activePortPtr != nullptr)
 		{
-			(nodePtr->getPacketPortat(i))->ServicePort();
-		}
+			if (!(activePortPtr->getAsyncService()))
+			{
+				activePortPtr->ServicePort();
+			}
+		}		
 	}
 
 }
