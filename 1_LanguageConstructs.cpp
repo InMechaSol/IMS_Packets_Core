@@ -288,4 +288,14 @@ bool	Packet::isLetterString(char* inStringPtr) { int index = 0;  while (inString
 bool	Packet::isNumberString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isNumberchar(inStringPtr[index++])) return false; return true; }
 bool	Packet::isIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isIntegerchar(inStringPtr[index++])) return false; return true; }
 bool	Packet::isUnsignedIntegerString(char* inStringPtr) { int index = 0;  while (inStringPtr[index] != 0x00) if (!isUnsignedIntegerchar(inStringPtr[index++])) return false; return true; }
-
+bool	Packet::stringMatchCaseSensitive(char* inStringPtr, const char* matchString)
+{
+	int i = 0;
+	while (matchString[i] != 0x00)
+	{
+		if (inStringPtr[i] != matchString[i])
+			return false;
+		i++;
+	}
+	return true;
+}

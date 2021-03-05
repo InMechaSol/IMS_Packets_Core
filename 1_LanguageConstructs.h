@@ -418,6 +418,7 @@ namespace IMSPacketsAPICore
 		static bool				isNumberString(char* inStringPtr);
 		static bool				isIntegerString(char* inStringPtr);
 		static bool				isUnsignedIntegerString(char* inStringPtr);
+		static bool				stringMatchCaseSensitive(char* inStringPtr, const char* matchString);
 
 	};
 
