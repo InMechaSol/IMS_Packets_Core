@@ -53,12 +53,20 @@ namespace IMSPacketsAPICore
 		fc_Connected
 	};
 
+	enum PacketPort_FS_State
+	{
+		fs_Init,
+		fs_Writing,
+		fs_Reading
+	};
+
 	/*! \brief Packet Port Instance Partner Operation Types */
 	enum PacketPortPartnerType
 	{
 		SenderResponder_Responder,
 		SenderResponder_Sender,
-		FullCylic_Partner
+		FullCylic_Partner,
+		FileSystem_Port
 	};
 
 	/*! \class PacketInterface
@@ -253,6 +261,21 @@ namespace IMSPacketsAPICore
 		void	ResetStateMachine();
 	};
 	
+	class PacketPort_FileSystem : public PolymorphicPacketPort
+	{
+	private:
+		enum PacketPort_FS_State FS_State = fs_Init;
+		const int CyclestoReset = STRINGBUFFER_CHARCOUNT;
+		int CyclesSinceReset = 0;
+	public:
+		PacketPort_FileSystem(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync = false);
+		void	ServicePort();
+		bool	isSupportedInPackType(enum PacketTypes packTYPE);
+		void	ResetStateMachine();
+		void	SetStateMachineRead();
+		void	SetStateMachineWrite();
+		enum PacketPort_FS_State getFS_State();
+	};
 	/*! @}*/
 }
 

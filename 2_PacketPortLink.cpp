@@ -205,6 +205,67 @@ void	PacketPort_SR_Responder::ResetStateMachine()
 }
 #pragma endregion
 
+#pragma region PacketPort_FileSystem Implementation
+PacketPort_FileSystem::PacketPort_FileSystem(int PortIDin, PacketInterface* InputInterfaceIn, PacketInterface* OutputInterfaceIn, AbstractDataExecution* DataExecutionIn, bool isAsync) :
+	PolymorphicPacketPort(PortIDin, InputInterfaceIn, OutputInterfaceIn, DataExecutionIn, isAsync)
+{
+	PortType = FileSystem_Port;
+}
+void	PacketPort_FileSystem::ServicePort()
+{
+	switch (FS_State)
+	{
+	case fs_Init: // Do Nothing
+		;
+		break;
+	case fs_Reading:
+		InputInterface->ReadFrom();
+		if (InputInterface->DeSerializePacket()) {
+			DataExecution->HandleRxPacket(this);
+
+			CyclesSinceReset = 0;
+		}
+		else
+		{
+			if(++CyclesSinceReset>CyclestoReset)
+				ResetStateMachine();
+		}
+		break;
+	case fs_Writing:
+		if (DataExecution->PrepareTxPacket(this))
+		{
+			if (OutputInterface->SerializePacket()) {
+				OutputInterface->WriteTo();
+			}
+			if (OutPackQueueDepth == 0)
+				ResetStateMachine();
+		}
+		else
+			break;
+	}
+}
+bool	PacketPort_FileSystem::isSupportedInPackType(enum PacketTypes packTYPE)
+{
+	return (packTYPE == packType_WriteComplete);
+}
+void	PacketPort_FileSystem::ResetStateMachine()
+{
+	FS_State = fs_Init;
+}
+void	PacketPort_FileSystem::SetStateMachineRead()
+{ 
+	FS_State = fs_Reading; 
+}
+void	PacketPort_FileSystem::SetStateMachineWrite()
+{ 
+	FS_State = fs_Writing; 
+}
+enum PacketPort_FS_State PacketPort_FileSystem::getFS_State() 
+{ 
+	return FS_State; 
+}
+#pragma endregion
+
 
 
 
