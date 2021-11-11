@@ -63,7 +63,7 @@
 */
 #define PACKETBUFFER_TOKENCOUNT (32)
 
-#define PORTOUTPACK_BUFFERLENGTH (10)
+#define PORTOUTPACK_BUFFERLENGTH (20)
 
 #include <iostream>		// istream, ostream, and iostream (packet interface objects)
 //#include <cstdint>	// uint8_t, int8_t, uint16_t, ... etc.
